@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tinkle Goodies — Upload Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* LIGHT MODE (Pastel) */
+  --bg-main: #FDFBF7;
+  --surface: #FFFFFF;
+  --surface-alt: #F7F5F0;
+  
+  --primary: #EFA1B6;
+  --primary-hover: #E38AA2;
+  --primary-light: #FFF2F6;
+  --primary-text: #B85B7A;
+  --primary-grad: linear-gradient(135deg, #F8BBD0 0%, #EFA1B6 100%);
+  
+  --secondary: #AECDE0;
+  --secondary-light: #F0F6FA;
+  --secondary-text: #5A7E9A;
+  
+  --mint: #A8E6CF;
+  --mint-text: #3D8C7A;
+  
+  --purple: #CDB4DB;
+  --purple-light: #F6F2FA;
+  --purple-text: #7A5CB3;
+  
+  --text-main: #2C2927;
+  --text-muted: #8E8682;
+  
+  --border-light: rgba(74, 69, 67, 0.1);
+  --shadow-sm: 0 2px 8px rgba(142, 134, 130, 0.08);
+  --shadow-float: 0 -4px 24px rgba(0, 0, 0, 0.06);
+  --radius-lg: 20px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* DARK MODE */
+    --bg-main: #141312;
+    --surface: #221F1E;
+    --surface-alt: #2D2A28;
+    
+    --primary: #D6748E;
+    --primary-hover: #E88CA4;
+    --primary-light: #3D222A;
+    --primary-text: #F8C8D5;
+    --primary-grad: linear-gradient(135deg, #C2637D 0%, #D6748E 100%);
+    
+    --secondary: #648BA6;
+    --secondary-light: #23313D;
+    --secondary-text: #AECDE0;
+    
+    --mint: #5CA18B;
+    --mint-text: #A8E6CF;
+    
+    --purple: #9A7BAA;
+    --purple-light: #312338;
+    --purple-text: #DCC9E8;
+    
+    --text-main: #F4EFEB;
+    --text-muted: #A8A19D;
+    
+    --border-light: rgba(255, 255, 255, 0.08);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-float: 0 -4px 24px rgba(0, 0, 0, 0.5);
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+body { background: var(--bg-main); color: var(--text-main); font-size: 15px; line-height: 1.5; padding-bottom: 100px; }
+
+/* HEADER */
+header { background: var(--surface); padding: 16px 20px; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-light); box-shadow: var(--shadow-sm); }
+.logo-name { font-size: 18px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 8px;}
+.logo-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); font-weight: 600; display: block; margin-top: 2px;}
+
+/* LAYOUT (Desktop vs Mobile) */
+.app-container { display: flex; flex-direction: column; gap: 24px; padding: 20px 16px; max-width: 1200px; margin: 0 auto; }
+.panel-left, .panel-right { display: flex; flex-direction: column; gap: 20px; }
+
+@media (min-width: 992px) {
+  .app-container { display: grid; grid-template-columns: 4fr 5fr; gap: 32px; align-items: start; padding: 32px 24px; }
+  .panel-left { position: sticky; top: 90px; height: calc(100vh - 120px); overflow-y: auto; padding-right: 8px; scrollbar-width: thin; }
+  .panel-right { position: sticky; top: 90px; height: calc(100vh - 120px); overflow-y: auto; padding-right: 8px; scrollbar-width: thin; }
+  #mobile-sticky-bar { display: none !important; }
+  body { padding-bottom: 20px; }
+}
+
+/* SECTION TITLES */
+.section-title { font-size: 14px; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;}
+.section-subtitle { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: none; letter-spacing: 0; margin-top: 4px; display: block; }
+
+/* PRESETS */
+.presets-wrap { margin-bottom: 24px; }
+.presets-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+.presets-scroll::-webkit-scrollbar { display: none; }
+.preset-btn { flex: 0 0 auto; background: var(--surface); border: 1.5px solid var(--border-light); color: var(--text-main); padding: 0 16px; min-height: 44px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; position: relative;}
+.preset-btn:active { transform: scale(0.95); }
+.preset-btn.custom { border-style: dashed; color: var(--purple-text); border-color: var(--purple-text); }
+.preset-del { position: absolute; right: 0; top: 0; transform: translate(30%, -30%); background: var(--bg-main); border: 1px solid var(--border-light); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; color: var(--text-muted); z-index: 2;}
+
+.btn-micro-action { font-size: 11px; padding: 4px 12px; border-radius: 100px; border: 1px solid var(--primary); background: var(--primary-light); color: var(--primary-text); cursor: pointer; font-weight: 600; min-height: 32px;}
+
+/* SETTINGS CARD (Collapsible) */
+.settings-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); margin-bottom: 16px; overflow: hidden; box-shadow: var(--shadow-sm); }
+.settings-header { padding: 16px; font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--text-main); }
+.settings-body { padding: 0 16px 16px; display: none; border-top: 1px solid var(--border-light); padding-top: 16px;}
+.settings-card.open .settings-body { display: block; }
+.settings-card.open .settings-header::after { content: '▲'; font-size: 10px; color: var(--text-muted); }
+.settings-card:not(.open) .settings-header::after { content: '▼'; font-size: 10px; color: var(--text-muted); }
+
+/* ORDER PARSER */
+.parser-input { width: 100%; min-height: 100px; padding: 12px; border-radius: 12px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-main); font-size: 13px; outline: none; resize: vertical; font-family: 'Prompt', sans-serif;}
+.parser-input:focus { border-color: var(--primary); }
+.btn-parse { width: 100%; min-height: 44px; margin-top: 12px; border-radius: 12px; background: var(--text-main); color: var(--surface); font-size: 14px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; }
+.btn-parse:active { transform: scale(0.98); }
+.parser-result { margin-top: 16px; padding: 16px; border-radius: 12px; background: var(--bg-main); border: 1px solid var(--border-light); font-size: 13px; line-height: 1.6; }
+.parser-result strong { color: var(--text-main); }
+
+/* SEARCH */
+.search-bar { width: 100%; min-height: 48px; border-radius: 100px; border: 1px solid var(--border-light); background: var(--surface); padding: 0 20px; font-size: 15px; color: var(--text-main); outline: none; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+.search-bar:focus { border-color: var(--primary); }
+
+/* PRODUCT CATALOG (Left) */
+.product-group { margin-bottom: 12px; background: var(--surface); border-radius: var(--radius-md); border: 1px solid var(--border-light); overflow: hidden; }
+.group-header { padding: 16px; font-size: 14px; font-weight: 700; color: var(--text-main); background: var(--surface-alt); display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+.group-header .icon { color: var(--text-muted); font-size: 12px; transition: transform 0.2s; width: 16px; text-align: center; }
+.group-body { display: none; padding: 12px; gap: 12px; flex-direction: column; }
+.product-group.open .group-body { display: flex; }
+.product-group.open .group-header .icon { transform: rotate(90deg); color: var(--primary); }
+
+.p-card { border: 1.5px solid var(--border-light); border-radius: var(--radius-sm); overflow: hidden; transition: 0.2s; background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; min-height: 64px; }
+.p-card:hover { border-color: var(--primary-subtle); }
+.p-card.selected { border-color: var(--primary); background: var(--primary-light); }
+.p-card.oos { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
+.p-info { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 14px; }
+.p-emoji { font-size: 20px; }
+.p-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border-light); display: flex; align-items: center; justify-content: center; background: var(--surface); }
+.p-card.selected .p-check { background: var(--primary); border-color: var(--primary); }
+.p-card.selected .p-check::after { content: '✓'; color: white; font-size: 14px; }
+
+/* CART ITEM (Right) */
+.cart-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); margin-bottom: 12px; }
+.cart-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.cart-card-title { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.qty-wrap { display: flex; align-items: center; gap: 12px; background: var(--bg-main); border: 1px solid var(--border-light); border-radius: 100px; padding: 4px 8px; }
+.qty-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--surface); color: var(--text-main); font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.qty-btn:active { transform: scale(0.95); }
+.qty-val { font-size: 16px; font-weight: 700; min-width: 20px; text-align: center; }
+.remove-btn { color: var(--text-muted); background: none; border: none; font-size: 13px; cursor: pointer; padding: 4px; text-decoration: underline; }
+
+/* METHOD SELECTOR */
+.method-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 12px; }
+@media (min-width: 400px) { .method-grid { grid-template-columns: 1fr 1fr; } }
+.mth-btn { min-height: 44px; border-radius: 12px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;}
+.mth-btn.active { background: var(--surface); border-color: var(--primary); color: var(--primary-text); box-shadow: 0 0 0 1.5px var(--primary); }
+
+/* TEMPLATE LINKS */
+.tpl-wrap { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);}
+.tpl-btn { flex: 1; min-height: 44px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.tpl-btn.copy { background: var(--secondary-light); color: var(--secondary-text); border: none; }
+.tpl-btn.open { background: transparent; border: 1px solid var(--secondary-text); color: var(--secondary-text); }
+
+/* SETTINGS (Right) */
+.settings-box { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+.settings-row { margin-bottom: 16px; }
+.settings-row:last-child { margin-bottom: 0; }
+.settings-label { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: block; }
+.seg-control { display: flex; background: var(--bg-main); border-radius: 12px; padding: 4px; border: 1px solid var(--border-light); }
+.seg-btn { flex: 1; text-align: center; font-size: 13px; font-weight: 600; min-height: 44px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+.seg-btn.active { background: var(--surface); color: var(--primary-text); box-shadow: var(--shadow-sm); border: 1px solid var(--primary-subtle); }
+.note-input { width: 100%; min-height: 60px; padding: 12px; border-radius: 12px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-main); font-size: 14px; outline: none; resize: vertical; font-family: 'Prompt', sans-serif;}
+.note-input:focus { border-color: var(--primary); }
+.opt-chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt-chip { padding: 0 16px; min-height: 44px; border-radius: 100px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-muted); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.opt-chip.active { background: var(--primary-light); color: var(--primary-text); border-color: var(--primary-text); }
+.opt-chip.active::before { content: '✓'; }
+
+/* EXPORT PREVIEW (Right) */
+.export-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-md); display: flex; flex-direction: column;}
+.export-tabs { display: flex; background: var(--surface-alt); border-bottom: 1px solid var(--border-light); }
+.export-tab { flex: 1; padding: 16px; text-align: center; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; }
+.export-tab.active { color: var(--primary-text); border-bottom-color: var(--primary); background: var(--surface); }
+.preview-box { width: 100%; padding: 16px; font-size: 13px; white-space: pre-wrap; color: var(--text-main); background: var(--bg-main); min-height: 250px; max-height: 400px; overflow-y: auto; font-family: 'Prompt', sans-serif; border: none; resize: vertical; outline: none; line-height: 1.6;}
+.preview-box:focus { box-shadow: inset 0 0 0 2px var(--primary-subtle); }
+.btn-copy-main { width: 100%; min-height: 64px; background: var(--primary-grad); color: white; font-size: 16px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-copy-main:active { opacity: 0.9; }
+
+/* STICKY BOTTOM BAR (Mobile) */
+.sticky-bar { position: fixed; bottom: 0; left: 0; width: 100%; padding: 16px; background: var(--surface); border-top: 1px solid var(--border-light); box-shadow: var(--shadow-float); z-index: 90; display: flex; gap: 12px;}
+.gen-btn { flex: 1; min-height: 54px; border-radius: 100px; background: var(--text-main); color: var(--bg-main); font-size: 15px; font-weight: 700; border: none; cursor: pointer; }
+.gen-btn:disabled { background: var(--border-light); color: var(--text-muted); cursor: not-allowed; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; font-weight: 500; background: var(--surface); border: 1px dashed var(--border-light); border-radius: var(--radius-md); }
+
+/* TOAST */
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--mint); color: #1A3D33; padding: 14px 28px; border-radius: 100px; font-size: 14px; font-weight: 700; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000; white-space: nowrap; box-shadow: 0 8px 24px rgba(92, 161, 139, 0.3); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-name">🎞️ Tinkle Goodies</div>
+  <span class="logo-sub">Upload Center</span>
+</header>
+
+<div class="app-container">
+  
+  <!-- LEFT PANEL: CATALOG & PRESETS -->
+  <div class="panel-left">
+
+    <!-- AUTO PARSER -->
+    <div class="settings-card open" id="parser-card">
+      <div class="settings-header" onclick="document.getElementById('parser-card').classList.toggle('open')">
+        📋 Order Parser (ดึงข้อมูลอัตโนมัติ)
+      </div>
+      <div class="settings-body">
+        <textarea id="order-parser-input" class="parser-input" placeholder="วางข้อความสรุปออเดอร์จากลูกค้าที่นี่...&#10;ระบบจะค้นหาสินค้า จำนวน และจังหวัดให้ทันที"></textarea>
+        <div style="display: flex; gap: 8px; margin-top: 12px;">
+          <button class="btn-parse" style="margin-top: 0; flex: 3;" onclick="applyParsedOrder()">✨ Parse & Auto-Fill</button>
+          <button class="btn-parse" style="margin-top: 0; flex: 1; background: var(--surface-alt); color: var(--text-main); border: 1px solid var(--border-light);" onclick="clearParser()">🗑️ Clear</button>
+        </div>
+        <div id="parser-result" class="parser-result hidden"></div>
+      </div>
+    </div>
+    
+    <div class="presets-wrap">
+      <div class="section-title">
+        <div>⭐ เลือกออเดอร์ฮิตด่วน</div>
+        <button class="btn-micro-action" onclick="saveCurrentPreset()">+ Save</button>
+      </div>
+      <div class="presets-scroll" id="preset-list"></div>
+    </div>
+
+    <input type="text" id="search-input" class="search-bar" placeholder="🔍 ค้นหาสินค้า (เช่น CD, Film...)" oninput="handleSearch()">
+
+    <div id="product-groups-container"></div>
+    
+  </div>
+
+  <!-- RIGHT PANEL: CART & EXPORT -->
+  <div class="panel-right" id="cart-panel">
+    
+    <div class="settings-box">
+      <div class="settings-row">
+        <span class="settings-label">File Collection Method</span>
+        <div class="seg-control">
+          <button class="seg-btn active" id="cm-drive" onclick="setCollectionMethod('drive')">Google Drive (แนะนำ)</button>
+          <button class="seg-btn" id="cm-chat" onclick="setCollectionMethod('chat')">Chat Only</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Order Note (ถ้ามี)</span>
+        <textarea id="order-note-input" class="note-input" placeholder="เช่น รูปแนวนอนจะเหมาะกว่านะคะ..." oninput="updatePreview()"></textarea>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">แนบคู่มือ (Optional)</span>
+        <div class="opt-chip-wrap">
+          <div class="opt-chip" id="opt-music" onclick="toggleOpt('music')">วิธีส่งเพลง</div>
+          <div class="opt-chip" id="opt-drive" onclick="toggleOpt('drive')">วิธีแชร์ Drive</div>
+          <div class="opt-chip" id="opt-canva" onclick="toggleOpt('canva')">แชร์ Canva</div>
+          <div class="opt-chip" id="opt-checklist" onclick="toggleOpt('checklist')">Checklist</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">🛍️ สินค้าที่เลือก</div>
+    <div id="cart-container">
+      <div class="empty-state">ยังไม่ได้เลือกสินค้า<br>กดเลือกสินค้าจากรายการด้านซ้ายได้เลยค่ะ</div>
+    </div>
+
+    <div class="section-title" style="margin-top: 16px;">📋 Export Preview</div>
+    <div class="export-card">
+      <div class="export-tabs">
+        <div class="export-tab active" id="tab-customer" onclick="setExportView('customer')">Customer Message</div>
+        <div class="export-tab" id="tab-production" onclick="setExportView('production')">Production Checklist</div>
+      </div>
+      <textarea class="preview-box" id="preview-box" placeholder="ข้อความจะแสดงที่นี่เมื่อเลือกสินค้า..." oninput="syncPreviewEdit()"></textarea>
+      <button class="btn-copy-main" onclick="copyActiveMessage()">💌 Copy Message</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- MOBILE STICKY BAR -->
+<div id="mobile-sticky-bar" class="sticky-bar">
+  <button id="btn-scroll-cart" class="gen-btn" disabled onclick="scrollToCart()">Review & Export (0)</button>
+</div>
+
+<div class="toast" id="toast">✅ Copied to clipboard</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+const GROUPS = [
+  { label:'Simple NFC', emoji:'🎵', expanded: false, products:[
+    { id:'vinyl-record',  name:'Vinyl Record NFC',  emoji:'🎵', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc' },
+    { id:'vinyl-heart',   name:'Vinyl Heart NFC',   emoji:'💗', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc' },
+    { id:'pocket-vinyl',  name:'Pocket Vinyl NFC',  emoji:'🎶', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i7zuygv1t0cri6w' },
+    { id:'floppy',        name:'Floppy Disk NFC',   emoji:'💾', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/42irx4kok3gnmah' },
+    { id:'card-nfc',      name:'Card NFC',          emoji:'🃏', type:'card-nfc',  methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/2o5j12d0b62lqei' },
+    { id:'pin-badge',     name:'Pin Badge NFC',     emoji:'📌', type:'pin-nfc',   methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i12gg5v1ndisbyc' }
+  ]},
+  { label:'Photo Only (Drive)', emoji:'📸', expanded: false, products:[
+    { id:'film-slide',    name:'Film Slide',        emoji:'🎞️', type:'drive-photo', methods: ['drive'] },
+    { id:'postcard-film', name:'Postcard Film',     emoji:'📬', type:'drive-photo', methods: ['drive'] },
+    { id:'photo-strip',   name:'Photo Strip',       emoji:'🎭', type:'photo-strip', methods: ['drive'] },
+    { id:'memory-film',   name:'Memory Film',       emoji:'🎬', type:'memory-film', methods: ['drive'] },
+    { id:'film-lamp',     name:'Film Slide Lamp',   emoji:'💡', type:'film-lamp',   methods: ['drive'] }
+  ]},
+  { label:'Drive + Music', emoji:'🎶', expanded: false, products:[
+    { id:'film-slide-nfc', name:'Film Slide NFC',      emoji:'🎞️', type:'film-slide-nfc', methods: ['drive'] },
+    { id:'snowglobe',      name:'Snowglobe',           emoji:'🔮', type:'snowglobe',       methods: ['drive'] },
+    { id:'polaroid',       name:'Polaroid Soundframe', emoji:'📸', type:'polaroid',        methods: ['drive'] },
+    { id:'melody-filmbook',name:'Melody Filmbook',     emoji:'📖', type:'melody-filmbook', methods: ['drive'] },
+    { id:'story-spin',     name:'Story Spin Box',      emoji:'🎡', type:'story-spin',      methods: ['drive'] }
+  ]},
+  { label:'Canva Products', emoji:'🎨', expanded: false, products:[
+    { id:'mini-cd',        name:'Mini CD Box NFC',          emoji:'💿', type:'canva-cd',       canvaUrl:'https://canva.link/w0yzuhiy266lb3x', methods: ['canva', 'quick'] },
+    { id:'pocket-tape',    name:'Pocket Tape NFC',          emoji:'📼', type:'canva-tape',     canvaUrl:'https://www.canva.com/design/DAGvLMlDxh0/wzp00zi1eM3zu876Ik_lMg/view', methods: ['canva', 'quick'] },
+    { id:'disposable-cam', name:'Custom Disposable Camera', emoji:'📷', type:'canva-simple', canvaUrl:'https://canva.link/rlll254pser2243',  methods: ['canva'] },
+    { id:'vinyl-set',      name:'Vinyl Record Set',         emoji:'🎵', type:'canva-vinylset',canvaUrl:'https://canva.link/x9fpvwir9lquatc', methods: ['canva', 'quick'] },
+    { id:'cassette',       name:'Custom Cassette Tape',     emoji:'📼', type:'cassette',    canvaUrl:'https://canva.link/thvmpl2jmlbbcoc', methods: ['canva'] }
+  ]}
+];
+
+// Parser Aliases (Sorted by length descending internally)
+const PARSER_ALIASES = {
+  'mini-cd': ['mini cd box', 'mini cd', 'cd box', 'cd'],
+  'vinyl-set': ['vinyl set', 'vinyl record set', 'เซ็ตแผ่นเสียง'],
+  'vinyl-record': ['vinyl record', 'vinyl nfc', 'แผ่นเสียง'],
+  'vinyl-heart': ['vinyl heart', 'หัวใจ'],
+  'pocket-vinyl': ['pocket vinyl', 'พวงกุญแจแผ่นเสียง'],
+  'floppy': ['floppy disk', 'floppy', 'ดิสก์'],
+  'card-nfc': ['card nfc', 'nfc card', 'การ์ด nfc', 'card'],
+  'pin-badge': ['pin badge', 'pin nfc', 'เข็มกลัด'],
+  'film-slide-nfc': ['film slide nfc', 'ฟิล์มสไลด์ nfc', 'สไลด์ nfc'],
+  'film-slide': ['film slide', 'ฟิล์มสไลด์'],
+  'photo-strip': ['photo strip', 'โฟโต้สตริป'],
+  'memory-film': ['memory film', 'เมมโมรี่ฟิล์ม', 'memoryfilm'],
+  'film-lamp': ['film lamp', 'โคมไฟฟิล์ม', 'film slide lamp', 'โคมไฟ'],
+  'snowglobe': ['snow globe', 'snowglobe', 'สโนว์โกลบ'],
+  'polaroid': ['polaroid', 'โพลาลอยด์', 'โพลารอยด์', 'soundframe'],
+  'melody-filmbook': ['melody filmbook', 'filmbook', 'สมุดภาพ'],
+  'story-spin': ['story spin box', 'story spin', 'spin box', 'กล่องหมุน'],
+  'pocket-tape': ['pocket tape', 'เทปจิ๋ว', 'เทป'],
+  'disposable-cam': ['disposable camera', 'disposable', 'กล้อง'],
+  'cassette': ['cassette tape', 'cassette', 'ตลับเทป', 'คาสเซ็ท']
+};
+
+let FLAT_ALIASES = [];
+Object.keys(PARSER_ALIASES).forEach(id => {
+   PARSER_ALIASES[id].forEach(alias => {
+      FLAT_ALIASES.push({ id, alias: alias.toLowerCase() });
+   });
+});
+FLAT_ALIASES.sort((a, b) => b.alias.length - a.alias.length);
+
+const METHOD_LABELS = {
+  'canva': 'Canva Template',
+  'drive': 'Google Drive',
+  'quick': 'ส่งแบบง่าย (ร้านจัดให้)'
+};
+
+const DEFAULT_PRESETS = [
+  { label: '💿 CD BOX 1 (ส่งแบบง่าย)', items: { 'mini-cd': {qty: 1, method: 'quick'} } },
+  { label: '💿 CD BOX 2', items: { 'mini-cd': {qty: 2, method: 'canva'} } },
+  { label: '💿 CD BOX 1 + VINYL 1', items: { 'mini-cd': {qty: 1, method: 'canva'}, 'vinyl-record': {qty: 1, method: 'canva'} } },
+  { label: '🎡 SPIN BOX 1', items: { 'story-spin': {qty: 1, method: 'drive'} } },
+  { label: '🎵 VINYL NFC 1', items: { 'vinyl-record': {qty: 1, method: 'canva'} } },
+  { label: '🎞 FILM SLIDE NFC 10', items: { 'film-slide-nfc': {qty: 10, method: 'drive'} } }
+];
+
+const CANVA_TYPES = ['canva-cd','canva-tape','canva-simple','canva-vinylset'];
+const DRIVE_TYPES = ['drive-photo','photo-strip','memory-film','film-lamp','film-slide-nfc','snowglobe','polaroid','melody-filmbook','story-spin'];
+const QUICK_TYPES = ['quick-nfc','card-nfc','pin-nfc'];
+const SPECIAL_TYPES = ['cassette'];
+const MUSIC_TYPES = [...QUICK_TYPES, 'film-slide-nfc','snowglobe','story-spin','melody-filmbook','canva-cd','canva-tape','canva-vinylset','cassette','polaroid'];
+
+const PMAP = {};
+GROUPS.forEach(g => g.products.forEach(p => PMAP[p.id] = p));
+
+// STATE
+let state = {
+  selected: {},
+  quantities: {},
+  methods: {}, // 'canva', 'drive', or 'quick'
+  collectionMode: 'drive', // 'drive' or 'chat'
+  opts: { music: false, drive: false, canva: false, checklist: false },
+  search: '',
+  exportView: 'customer', // 'customer' or 'production'
+  customPresets: [],
+  manualEditPreview: false // Flag to know if user manually typed in preview
+};
+
+// ═══════════════════════════════════════════════
+// INITIALIZATION & PRESETS
+// ═══════════════════════════════════════════════
+function init() {
+  try {
+    let saved = localStorage.getItem('tinkle_presets_v2');
+    if (saved) state.customPresets = JSON.parse(saved);
+  } catch(e) {}
+  renderPresets();
+  renderProducts();
+  renderCart();
+  updatePreview();
+}
+
+// ═══════════════════════════════════════════════
+// ORDER PARSER LOGIC
+// ═══════════════════════════════════════════════
+function applyParsedOrder() {
+  const text = document.getElementById('order-parser-input').value;
+  if (!text.trim()) {
+    showToast('กรุณาวางข้อความออเดอร์ก่อนค่ะ');
+    return;
+  }
+  
+  // Reset note explicitly on new parse to avoid appending endlessly
+  document.getElementById('order-note-input').value = '';
+
+  // 1. Detect Metadata
+  let provMatch = text.match(/(?:จังหวัด(?:ปลายทาง)?|จัดส่งไปที่)[:\s]*\n*\s*([^\n]+)/i);
+  let dateMatch = text.match(/(?:วันที่(?:ต้องการ)?ใช้งาน|วันที่ใช้)[:\s]*\n*\s*([^\n]+)/i);
+  let amtMatch = text.match(/(?:ยอดรวม(?:ทั้งสิ้น)?|รวม)[:\s]*\n*\s*([^\n]+)/i);
+
+  let prov = provMatch ? provMatch[1].trim() : '';
+  let eventDate = dateMatch ? dateMatch[1].trim() : '';
+  let amount = amtMatch ? amtMatch[1].trim() : '';
+
+  // 2. Detect Products
+  let lines = text.split('\n');
+  let foundProducts = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    // Normalize string: Remove (nfc), multiple spaces, then trim
+    let line = lines[i].toLowerCase().replace(/\(nfc\)/gi, '').replace(/\s+/g, ' ').trim();
+    let matchedId = null;
+
+    for (let item of FLAT_ALIASES) {
+      if (line.includes(item.alias)) {
+        matchedId = item.id;
+        break;
+      }
+    }
+
+    if (matchedId) {
+      // Look for quantity on current or next line
+      let searchStr = line + " " + (lines[i+1] ? lines[i+1].toLowerCase() : "");
+      let qtyMatch = searchStr.match(/(?:x|\*|จำนวน|=)\s*(\d+)/);
+      let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+
+      let existing = foundProducts.find(p => p.id === matchedId);
+      if (existing) {
+        existing.qty = Math.max(existing.qty, qty); // Prevent double sum on 2-line overlaps
+      } else {
+        foundProducts.push({ id: matchedId, qty: qty });
+      }
+    }
+  }
+
+  // 3. Apply to State
+  let resultHtml = `<strong>📊 Detected Information</strong><br><br>`;
+  
+  if (foundProducts.length > 0) {
+    state.selected = {}; state.quantities = {}; state.methods = {};
+    resultHtml += `<strong>Products:</strong><br>`;
+    
+    foundProducts.forEach(p => {
+      resultHtml += `<span style="color:var(--primary-text)">• ${PMAP[p.id].name} x${p.qty}</span><br>`;
+      state.selected[p.id] = true;
+      state.quantities[p.id] = p.qty;
+      state.methods[p.id] = PMAP[p.id].methods[0];
+    });
+    
+    GROUPS.forEach(g => { g.expanded = g.products.some(p => state.selected[p.id]); });
+    renderProducts();
+    renderCart();
+    
+    // Fill Order Note if metadata exists
+    let notesArr = [];
+    if (prov) notesArr.push(`จังหวัด: ${prov}`);
+    if (eventDate) notesArr.push(`วันที่ใช้งาน: ${eventDate}`);
+    if (amount) notesArr.push(`ยอดรวม: ${amount}`);
+    
+    if (notesArr.length > 0) {
+      document.getElementById('order-note-input').value = notesArr.join('\n');
+    }
+    
+    updatePreview();
+    showToast('✨ ดึงข้อมูลและเลือกสินค้าเรียบร้อย!');
+    
+    // Close Parser accordion to save space
+    document.getElementById('parser-card').classList.remove('open');
+    
+  } else {
+    resultHtml += `<span style="color:var(--text-muted)">❌ ไม่พบรายการสินค้าที่รู้จัก</span><br>`;
+  }
+
+  resultHtml += `<br>`;
+  if (prov) resultHtml += `<strong>Province:</strong> ${prov}<br>`;
+  if (eventDate) resultHtml += `<strong>Event Date:</strong> ${eventDate}<br>`;
+  if (amount) resultHtml += `<strong>Total Amount:</strong> ${amount}<br>`;
+
+  const resBox = document.getElementById('parser-result');
+  resBox.innerHTML = resultHtml;
+  resBox.classList.remove('hidden');
+}
+
+function clearParser() {
+  document.getElementById('order-parser-input').value = '';
+  document.getElementById('parser-result').classList.add('hidden');
+  document.getElementById('parser-result').innerHTML = '';
+  startOver();
+  showToast('🗑️ ล้างข้อความทั้งหมดแล้ว');
+}
+
+function renderPresets() {
+  const el = document.getElementById('preset-list');
+  el.innerHTML = '';
+  
+  // Custom Presets
+  state.customPresets.forEach((p, i) => {
+    let btn = document.createElement('div');
+    btn.className = 'preset-btn custom';
+    btn.textContent = p.label;
+    btn.onclick = () => applyPresetObj(p.items);
+    
+    let del = document.createElement('div');
+    del.className = 'preset-del';
+    del.textContent = '×';
+    del.onclick = (e) => { e.stopPropagation(); deletePreset(i); };
+    
+    btn.appendChild(del);
+    el.appendChild(btn);
+  });
+
+  // Default Presets
+  DEFAULT_PRESETS.forEach((p) => {
+    let btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.textContent = p.label;
+    btn.onclick = () => applyPresetObj(p.items);
+    el.appendChild(btn);
+  });
+}
+
+function applyPresetObj(itemsObj) {
+  state.selected = {}; state.quantities = {}; state.methods = {};
+  Object.entries(itemsObj).forEach(([id, data]) => {
+    state.selected[id] = true;
+    state.quantities[id] = data.qty;
+    
+    let p = PMAP[id];
+    let m = data.method || p.methods[0];
+    if (m === 'standard') {
+        if (p.methods.includes('canva')) m = 'canva';
+        else if (p.methods.includes('drive')) m = 'drive';
+    }
+    state.methods[id] = m;
+  });
+  
+  GROUPS.forEach(g => { g.expanded = g.products.some(p => state.selected[p.id]); });
+  document.getElementById('search-input').value = '';
+  state.search = '';
+  
+  renderProducts();
+  renderCart();
+  updatePreview();
+  showToast('✅ Load Preset Completed');
+}
+
+function saveCurrentPreset() {
+  let count = Object.values(state.selected).filter(Boolean).length;
+  if (count === 0) return alert('กรุณาเลือกสินค้าก่อนบันทึก Preset');
+  
+  let name = prompt('ตั้งชื่อ Preset ใหม่ (เช่น รูปโปรไฟล์ 2 เซต):');
+  if (!name || !name.trim()) return;
+  
+  let items = {};
+  Object.keys(state.selected).forEach(id => {
+    if (state.selected[id]) {
+      items[id] = { qty: state.quantities[id], method: state.methods[id] };
+    }
+  });
+  
+  state.customPresets.push({ label: name.trim(), items: items });
+  localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
+  renderPresets();
+  showToast('✅ Saved Preset: ' + name);
+}
+
+function deletePreset(idx) {
+  if(confirm('ต้องการลบ Preset นี้ใช่หรือไม่?')) {
+    state.customPresets.splice(idx, 1);
+    localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
+    renderPresets();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// UI INTERACTIONS
+// ═══════════════════════════════════════════════
+function setCollectionMethod(m) {
+  state.collectionMode = m;
+  document.getElementById('cm-drive').classList.toggle('active', m === 'drive');
+  document.getElementById('cm-chat').classList.toggle('active', m === 'chat');
+  
+  // Style update
+  document.getElementById('cm-drive').style.background = m === 'drive' ? 'var(--surface)' : 'var(--bg-main)';
+  document.getElementById('cm-chat').style.background = m === 'chat' ? 'var(--surface)' : 'var(--bg-main)';
+  document.getElementById('cm-drive').style.borderColor = m === 'drive' ? 'var(--secondary)' : 'var(--border-light)';
+  document.getElementById('cm-chat').style.borderColor = m === 'chat' ? 'var(--secondary)' : 'var(--border-light)';
+  document.getElementById('cm-drive').style.color = m === 'drive' ? 'var(--secondary-text)' : 'var(--text-muted)';
+  document.getElementById('cm-chat').style.color = m === 'chat' ? 'var(--secondary-text)' : 'var(--text-muted)';
+  
+  updatePreview();
+}
+
+function toggleOpt(opt) {
+  state.opts[opt] = !state.opts[opt];
+  document.getElementById('opt-'+opt).classList.toggle('active', state.opts[opt]);
+  updatePreview();
+}
+
+function handleSearch() {
+  state.search = document.getElementById('search-input').value.toLowerCase();
+  renderProducts();
+}
+
+function toggleProduct(id) {
+  state.selected[id] = !state.selected[id];
+  if (state.selected[id] && !state.quantities[id]) {
+    state.quantities[id] = 1;
+    state.methods[id] = PMAP[id].methods[0];
+  } else if (!state.selected[id]) {
+    delete state.quantities[id];
+    delete state.methods[id];
+  }
+  renderProducts();
+  renderCart();
+  updatePreview();
+}
+
+function updateQty(id, delta) {
+  let q = (state.quantities[id] || 1) + delta;
+  if (q < 1) q = 1;
+  state.quantities[id] = q;
+  renderCart();
+  updatePreview();
+}
+
+function updateMethod(id, method) {
+  state.methods[id] = method;
+  renderCart();
+  updatePreview();
+}
+
+function removeProduct(id) {
+  state.selected[id] = false;
+  delete state.quantities[id];
+  delete state.methods[id];
+  renderProducts();
+  renderCart();
+  updatePreview();
+}
+
+function scrollToCart() {
+  document.getElementById('cart-panel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function setExportView(view) {
+  state.exportView = view;
+  document.getElementById('tab-customer').classList.toggle('active', view === 'customer');
+  document.getElementById('tab-production').classList.toggle('active', view === 'production');
+  updatePreview();
+}
+
+function syncPreviewEdit() {
+  state.manualEditPreview = true;
+}
+
+function startOver() {
+  state.selected = {}; 
+  state.quantities = {}; 
+  state.methods = {}; 
+  state.opts = {music:false, drive:false, canva:false, checklist:false};
+  state.collectionMode = 'drive';
+  
+  document.getElementById('order-note-input').value = '';
+  let parserInput = document.getElementById('order-parser-input');
+  if (parserInput) parserInput.value = '';
+  
+  let parserResult = document.getElementById('parser-result');
+  if (parserResult) {
+      parserResult.classList.add('hidden');
+      parserResult.innerHTML = '';
+  }
+  
+  setCollectionMethod('drive');
+  ['music','drive','canva','checklist'].forEach(o => { document.getElementById('opt-'+o).classList.remove('active'); });
+  
+  renderProducts();
+  renderCart();
+  updatePreview();
+}
+
+// ═══════════════════════════════════════════════
+// RENDERING
+// ═══════════════════════════════════════════════
+function renderProducts() {
+  const container = document.getElementById('product-groups-container');
+  container.innerHTML = '';
+  
+  GROUPS.forEach((g) => {
+    let visibleProducts = g.products.filter(p => p.name.toLowerCase().includes(state.search));
+    if (visibleProducts.length === 0) return;
+    
+    let isExpanded = state.search !== '' || g.expanded;
+    let groupEl = document.createElement('div');
+    groupEl.className = `product-group ${isExpanded ? 'open' : ''}`;
+    
+    let header = document.createElement('div');
+    header.className = 'group-header';
+    header.innerHTML = `<span class="icon">▶</span> ${g.emoji} ${g.label}`;
+    header.onclick = () => { g.expanded = !g.expanded; renderProducts(); };
+    groupEl.appendChild(header);
+    
+    let body = document.createElement('div');
+    body.className = 'group-body';
+    
+    visibleProducts.forEach(p => {
+      let isSel = !!state.selected[p.id];
+      let card = document.createElement('div');
+      card.className = `p-card ${isSel ? 'selected' : ''} ${p.oos ? 'oos' : ''}`;
+      card.onclick = () => !p.oos && toggleProduct(p.id);
+      card.innerHTML = `
+        <div class="p-info"><span class="p-emoji">${p.emoji}</span> ${p.name}</div>
+        <div class="p-check"></div>
+      `;
+      body.appendChild(card);
+    });
+    
+    groupEl.appendChild(body);
+    container.appendChild(groupEl);
+  });
+}
+
+function getPrefix(id) {
+   let parts = id.split('-');
+   return parts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+}
+
+function renderCart() {
+  const container = document.getElementById('cart-container');
+  container.innerHTML = '';
+  
+  let picked = getPicked();
+  
+  // Mobile Sticky update
+  let btnScroll = document.getElementById('btn-scroll-cart');
+  btnScroll.disabled = picked.length === 0;
+  btnScroll.textContent = `Review & Export (${picked.length})`;
+
+  if (picked.length === 0) {
+    container.innerHTML = '<div class="empty-state">ยังไม่ได้เลือกสินค้า<br>กดเลือกสินค้าจากรายการด้านซ้ายได้เลยค่ะ</div>';
+    return;
+  }
+  
+  picked.forEach(item => {
+    let p = item.p, id = p.id;
+    let card = document.createElement('div');
+    card.className = 'cart-card';
+    
+    let header = document.createElement('div');
+    header.className = 'cart-card-header';
+    header.innerHTML = `
+      <div class="cart-card-title">${p.emoji} ${p.name}</div>
+      <button class="remove-btn" onclick="removeProduct('${id}')">Remove</button>
+    `;
+    card.appendChild(header);
+    
+    let configRow = document.createElement('div');
+    configRow.className = 'cfg-row';
+    configRow.innerHTML = `
+      <span class="cfg-label">จำนวน (ชิ้น)</span>
+      <div class="qty-wrap">
+        <button class="qty-btn" onclick="updateQty('${id}', -1)">-</button>
+        <span class="qty-val">${state.quantities[id]}</span>
+        <button class="qty-btn" onclick="updateQty('${id}', 1)">+</button>
+      </div>
+    `;
+    card.appendChild(configRow);
+    
+    let mthdGrid = document.createElement('div');
+    mthdGrid.className = 'method-grid';
+    let currMthd = state.methods[id];
+    
+    p.methods.forEach(m => {
+       mthdGrid.innerHTML += `<button class="mth-btn ${currMthd===m?'active':''}" onclick="updateMethod('${id}', '${m}')">${METHOD_LABELS[m]}</button>`;
+    });
+    card.appendChild(mthdGrid);
+    
+    if (p.canvaUrl && currMthd === 'canva') {
+      let tplWrap = document.createElement('div');
+      tplWrap.className = 'tpl-wrap';
+      tplWrap.innerHTML = `
+        <button class="tpl-btn copy" onclick="copyText('${p.canvaUrl}', '✅ คัดลอก Template แล้ว')">🔗 Copy Template</button>
+        <button class="tpl-btn open" onclick="window.open('${p.canvaUrl}')">↗ Open</button>
+      `;
+      card.appendChild(tplWrap);
+    }
+    
+    container.appendChild(card);
+  });
+}
+
+function updatePreview() {
+  state.manualEditPreview = false; // Reset manual edit flag on logic change
+  let text = '';
+  if (state.exportView === 'customer') {
+    text = buildCustomerMessage();
+  } else {
+    text = buildProductionChecklist();
+  }
+  document.getElementById('preview-box').value = text;
+}
+
+// ═══════════════════════════════════════════════
+// EXPORT LOGIC
+// ═══════════════════════════════════════════════
+function copyActiveMessage() {
+  let text = document.getElementById('preview-box').value;
+  copyText(text, state.exportView === 'customer' ? '✅ Copied Customer Message' : '✅ Copied Checklist');
+}
+
+function copyText(text, msg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(() => fallbackCopy(text, msg));
+  } else { fallbackCopy(text, msg); }
+}
+
+function fallbackCopy(text, msg) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,99999);
+  try { document.execCommand('copy'); showToast(msg); } catch(e){}
+  document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ═══════════════════════════════════════════════
+// MESSAGE BUILDERS
+// ═══════════════════════════════════════════════
+function getPicked() {
+  return Object.keys(state.selected).filter(id => state.selected[id]).map(id => ({
+    p: PMAP[id], qty: state.quantities[id], method: state.methods[id]
+  }));
+}
+
+function buildCustomerMessage() {
+  let picked = getPicked();
+  if (picked.length === 0) return "ยังไม่ได้เลือกสินค้า...";
+
+  let canvaItems = picked.filter(i => i.method === 'canva');
+  let driveItems = picked.filter(i => i.method === 'drive');
+  let quickItems = picked.filter(i => i.method === 'quick');
+
+  let parts = [];
+  parts.push('สวัสดีค่ะ ขอบคุณที่สั่งสินค้ากับ Tinkle Goodies นะคะ 🎀\nรบกวนส่งไฟล์ตามรายละเอียดด้านล่างได้เลยค่ะ\n──────────────────────────────────');
+
+  if (canvaItems.length) {
+    parts.push('🎨 สินค้า Canva');
+    if (state.opts.canva) parts.push('⚠️ อย่าลืมตั้งค่า Share → "Anyone with the link can edit"');
+    canvaItems.forEach(i => {
+      parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
+      parts.push(`🔗 Template (กด Use Template): ${i.p.canvaUrl}`);
+      
+      if (i.p.id === 'cassette') {
+         parts.push(`  1️⃣ Canva (ลิงก์เทมเพลต): xxxxx\n  2️⃣ Playlist หน้า A: xxxxx\n  3️⃣ Playlist หน้า B: xxxxx\n  4️⃣ ความยาว (45/90 นาที): xxxxx`);
+      } else if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
+        parts.push(`กรุณาส่งกลับมาในรูปแบบนี้ ✨`);
+        for(let k=1; k<=i.qty; k++){
+          let prefix = getPrefix(i.p.id) + '_' + k;
+          parts.push(`  ${prefix}\n    Canva (ลิงก์เทมเพลต): xxxxx\n    เพลง: xxxxx`);
+        }
+      } else {
+        parts.push(`กรุณาส่งกลับมาในรูปแบบนี้ ✨`);
+        for(let k=1; k<=i.qty; k++){
+          if(i.p.type==='canva-simple' && i.qty===1) { parts.push(`  Canva (ลิงก์เทมเพลต): xxxxx`); continue; }
+          let prefix = i.p.type==='canva-cd' ? `CD_BOX_${k}` : i.p.type==='canva-tape' ? `PocketTape_${k}` : i.p.type==='canva-vinylset' ? `VinylSet_${k}` : `Camera_${k}`;
+          let details = [`  ${prefix}`, `    Canva (ลิงก์เทมเพลต): xxxxx`];
+          if(i.p.type!=='canva-simple') details.push(`    เพลง: xxxxx`);
+          if(i.p.type==='canva-cd') {
+            details.push(`    เลือกกล่อง: xxxxx`);
+            details.push(`    เลือกจี้: xxxxx`);
+          }
+          if(i.p.type==='canva-tape') {
+            details.push(`    สีเทป (ใส/แดง): xxxxx`);
+          }
+          parts.push(details.join('\n'));
+        }
+      }
+    });
+    parts.push('──────────────────────────────────');
+  }
+
+  if (driveItems.length) {
+    parts.push('📂 ส่งไฟล์ผ่าน Google Drive');
+    if (state.collectionMode === 'drive' && state.opts.drive) {
+      parts.push('อัปโหลดรูปลง Folder เดียวกัน → ตั้งค่าเป็น Public → ส่ง 1 ลิงก์');
+    }
+    
+    driveItems.forEach(i => {
+      parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
+      
+      if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
+        parts.push(`  หากมีหลายแบบ กรุณาตั้งชื่อไฟล์ตามชื่อเพลง\n  ตัวอย่าง: เพลงA.jpg, เพลงB.jpg หรือ เพลงA_3อัน.jpg`);
+      } else {
+        if(i.p.id==='film-slide') parts.push(`  • รูป ${i.qty} รูป (ตั้งชื่อ: 1.jpg, 2.jpg)`);
+        else if(i.p.id==='photo-strip') parts.push(`  • รูป 3 รูป (ตั้งชื่อ: 1.jpg, 2.jpg, 3.jpg)`);
+        else if(i.p.id==='memory-film') parts.push(`  • รูป 7 รูปต่อม้วน (ตั้งชื่อ: 1-7)`);
+        else if(i.p.id==='film-lamp') parts.push(`  • รูป 21 รูป\n  • แจ้งกรอบ 3 แบบ`);
+        else if(i.p.type==='film-slide-nfc') parts.push(`  📁 แยก Folder ตามสีกรอบ\n  🎵 ตั้งชื่อรูปตามชื่อเพลง (เช่น เพลงA.jpg)`);
+        else if(i.p.type==='snowglobe') parts.push(`  • รูป 2 รูป\n  • ตัวอักษร, กลิตเตอร์, เพลง`);
+        else if(i.p.type==='polaroid') parts.push(`  • รูป 3 รูป\n  • เพลง 3 เพลง (แนบเวลา)`);
+        else if(i.p.type==='melody-filmbook') parts.push(`  • รูป 8 รูป\n  • เพลง 3-8 เพลง`);
+        else if(i.p.id==='story-spin') parts.push(`  • รูป 16 รูป\n  • เพลง (ถ้ามี)`);
+      }
+    });
+    parts.push('──────────────────────────────────');
+  }
+
+  if (quickItems.length) {
+    parts.push('💬 ส่งแบบง่าย (ร้านจัดให้)');
+    quickItems.forEach(i => {
+      parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
+      
+      if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
+        parts.push(`  ส่งรูปและลิงก์เพลงมาในแชทได้เลยค่ะ ✨\n  ไม่ต้องตั้งชื่อไฟล์\n  ไม่ต้องสร้าง Google Drive`);
+        if (i.p.type === 'pin-nfc') parts.push(`  ⚠️ ขั้นต่ำ 9 ชิ้นต่อ 1 แบบ`);
+      } else if (i.p.id === 'mini-cd') {
+        parts.push(`  • ส่งรูป ${6*i.qty} รูปมาพร้อมกันในข้อความเดียว\n  • ไม่ต้องระบุปก/จี้ (ร้านจัดให้ ✨)\n  • ส่งเพลง ${i.qty} เพลง\n  (หากต้องการกำหนดตำแหน่งภาพเอง แนะนำให้ใช้ Canva Template แทนค่ะ)`);
+      } else if (i.p.id === 'pocket-tape') {
+        parts.push(`  • ส่งรูป ${5*i.qty} รูปมาพร้อมกัน (ร้านสุ่มจัดเรียงให้)\n  • ส่งเพลง ${i.qty} เพลง\n  • แจ้งสีเทป (ใส/แดง)`);
+      } else if (i.p.id === 'vinyl-set') {
+        parts.push(`  • ส่งรูป ${3*i.qty} รูป และเพลง ${3*i.qty} เพลง\n  (ทางร้านจะจับคู่รูปและเพลงให้ตามลำดับที่ส่งมาค่ะ)`);
+      }
+    });
+    parts.push('──────────────────────────────────');
+  }
+
+  if (state.opts.music && picked.some(i => MUSIC_TYPES.includes(i.p.type))) {
+    parts.push('📌 การเลือกเพลง ส่งลิงก์เพลงที่ต้องการ\n🎵 รองรับทุกแพลตฟอร์ม เช่น YouTube, Spotify, Joox ฯลฯ\n🔹 1 เพลง → แก้ไขภายหลังไม่ได้\n🔹 หลายเพลง แนะนำสร้างเพลย์ลิสต์ → สามารถเพิ่ม/ลบเพลงทีหลังได้\n\n⚠️ ตั้งค่าเป็นสาธารณะเท่านั้น เพื่อให้สามารถสแกนได้\n❌ ไม่แนะนำ Apple Music → ถ้าไม่ได้สมัครสมาชิก สแกนแล้วฟังไม่ได้ค่ะ\n──────────────────────────────────');
+  }
+
+  if (state.opts.checklist) {
+    parts.push('📝 Checklist ก่อนส่ง\n✅ ตั้งค่าแชร์เป็น Public ทั้ง Drive/Canva/Spotify\n✅ แนบไฟล์และข้อมูลครบถ้วน\n──────────────────────────────────');
+  }
+
+  let note = document.getElementById('order-note-input').value.trim();
+  if (note) {
+    parts.push('📌 หมายเหตุเพิ่มเติม\n' + note + '\n──────────────────────────────────');
+  }
+
+  parts.push('💖 ส่งข้อมูลครบแล้วแจ้งแอดมินได้เลยนะคะ\nTinkle Goodies');
+  return parts.join('\n');
+}
+
+function buildProductionChecklist() {
+  let picked = getPicked();
+  if (picked.length === 0) return "ยังไม่ได้เลือกสินค้า...";
+
+  let note = document.getElementById('order-note-input').value.trim();
+  
+  let lines = [];
+  lines.push('✅ TINKLE GOODIES — PRODUCTION CHECKLIST');
+  lines.push('Date: ' + new Date().toLocaleDateString('th-TH', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}));
+  lines.push('Mode: ' + (state.collectionMode === 'drive' ? 'Google Drive' : 'Chat Only'));
+  if (note) lines.push('Note: ' + note);
+  lines.push('─'.repeat(34));
+
+  picked.forEach(i => {
+    lines.push(`[ ] ${i.p.name} x${i.qty} (${i.method})`);
+    if(i.method === 'canva') lines.push(`    - Canva / Music / Config check`);
+    else if(i.method === 'quick') lines.push(`    - Shop arranged design / Photos / Music check`);
+    else lines.push(`    - Files / Naming / Music check`);
+  });
+
+  lines.push('─'.repeat(34));
+  lines.push('[ ] All files downloaded & checked');
+  lines.push('[ ] Production Complete');
+  lines.push('[ ] Packed & Shipped');
+  return lines.join('\n');
+}
+
+// INIT
+init();
+</script>
+</body>
+</html>
