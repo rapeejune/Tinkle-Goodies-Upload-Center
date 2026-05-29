@@ -476,7 +476,6 @@ const GROUPS = [
   { label:'Photo Only (Drive)', emoji:'📸', expanded: false, products:[
     { id:'film-slide',    name:'Film Slide',        emoji:'🎞️', type:'drive-photo', methods: ['drive'] },
     { id:'postcard-film', name:'Postcard Film',     emoji:'📬', type:'drive-photo', methods: ['drive'] },
-    { id:'photo-strip',   name:'Photo Strip',       emoji:'🎭', type:'photo-strip', methods: ['drive'] },
     { id:'memory-film',   name:'Memory Film',       emoji:'🎬', type:'memory-film', methods: ['drive'] },
     { id:'film-lamp',     name:'Film Slide Lamp',   emoji:'💡', type:'film-lamp',   methods: ['drive'] },
     { id:'film-strip',    name:'Film Strip',        emoji:'🎞️', type:'film-strip',   methods: ['drive'] }
@@ -497,7 +496,7 @@ const GROUPS = [
   ]}
 ];
 
-// Parser Aliases (Updated to separate Vinyl NFC and Vinyl Record NFC)
+// Parser Aliases
 const PARSER_ALIASES = {
   'mini-cd': ['mini cd box', 'mini cd', 'cd box', 'cd'],
   'vinyl-set': ['vinyl set', 'vinyl record set', 'เซ็ตแผ่นเสียง'],
@@ -551,7 +550,7 @@ const DEFAULT_PRESETS = [
 ];
 
 const CANVA_TYPES = ['canva-cd','canva-tape','canva-simple','canva-vinylset'];
-const DRIVE_TYPES = ['drive-photo','photo-strip','memory-film','film-lamp','film-slide-nfc','snowglobe','polaroid','melody-filmbook','story-spin','film-strip'];
+const DRIVE_TYPES = ['drive-photo','memory-film','film-lamp','film-slide-nfc','snowglobe','polaroid','melody-filmbook','story-spin','film-strip'];
 const QUICK_TYPES = ['quick-nfc','card-nfc','pin-nfc'];
 const SPECIAL_TYPES = ['cassette'];
 const MUSIC_TYPES = [...QUICK_TYPES, 'film-slide-nfc','snowglobe','story-spin','melody-filmbook','canva-cd','canva-tape','canva-vinylset','cassette','polaroid'];
@@ -1002,6 +1001,9 @@ function updateQty(id, delta) {
   updatePreview();
 }
 
+// ═══════════════════════════════════════════════
+// REMOVE SELECTOR WORK
+// ═══════════════════════════════════════════════
 function updateMethod(id, method) {
   state.methods[id] = method;
   renderCart();
@@ -1031,6 +1033,9 @@ function setExportView(view) {
   updatePreview();
 }
 
+// ═══════════════════════════════════════════════
+// PREVIEW EDIT WORK
+// ═══════════════════════════════════════════════
 function syncPreviewEdit() {
   state.manualEditPreview = true;
 }
@@ -1270,10 +1275,7 @@ function buildCustomerMessage() {
       } else if (i.p.canva_mode === 'multi_page') {
         let subText = `กรุณาส่งกลับมาในรูปแบบนี้ ✨\n  Canva (ลิงก์เทมเพลต): xxxxx`;
         if (i.qty > 1) {
-          subText += `\n  📌 หากมีหลายแบบ\n  กรุณาเพิ่มหน้าใน Canva\n  และตั้งชื่อหน้าเป็น\n  จำนวน_ชื่อเพลง\n  ตัวอย่าง\n  3_เพลงA\n  5_เพลงB\n  2_เพลงC\n\n  กรุณาระบุลิงก์เพลงตามลำดับหน้า`;
-          for (let k = 1; k <= i.qty; k++) {
-            subText += `\n  ชื่อเพลง ${k} : xxxxx`;
-          }
+          subText += `\n  📌 หากมีหลายแบบ\n  กรุณาเพิ่มหน้าใน Canva\n  และตั้งชื่อหน้าเป็น\n  จำนวน_ชื่อเพลง\n  ตัวอย่าง\n  3_เพลงA\n  5_เพลงB\n  2_เพลงC\n\n  🎵 ลิงก์เพลง\n  เพลงA : xxxxx\n  เพลงB : xxxxx\n  เพลงC : xxxxx\n\n  *หากใช้เพลงเดียวกันหลายแบบ ส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ`;
         } else {
           subText += `\n  เพลง: xxxxx`;
         }
