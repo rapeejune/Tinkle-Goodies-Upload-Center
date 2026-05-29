@@ -73,7 +73,7 @@
   }
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -466,6 +466,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 const GROUPS = [
   { label:'Simple NFC', emoji:'🎵', expanded: false, products:[
     { id:'vinyl-record',  name:'Vinyl Record NFC',  emoji:'🎵', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
+    { id:'vinyl-nfc',     name:'Vinyl NFC',         emoji:'💽', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
     { id:'vinyl-heart',   name:'Vinyl Heart NFC',   emoji:'💗', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
     { id:'pocket-vinyl',  name:'Pocket Vinyl NFC',  emoji:'🎶', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i7zuygv1t0cri6w', canva_mode: 'multi_page' },
     { id:'floppy',        name:'Floppy Disk NFC',   emoji:'💾', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/42irx4kok3gnmah', canva_mode: 'multi_page' },
@@ -496,11 +497,12 @@ const GROUPS = [
   ]}
 ];
 
-// Parser Aliases
+// Parser Aliases (Updated to separate Vinyl NFC and Vinyl Record NFC)
 const PARSER_ALIASES = {
   'mini-cd': ['mini cd box', 'mini cd', 'cd box', 'cd'],
   'vinyl-set': ['vinyl set', 'vinyl record set', 'เซ็ตแผ่นเสียง'],
-  'vinyl-record': ['vinyl record', 'vinyl nfc', 'แผ่นเสียง'],
+  'vinyl-nfc': ['vinyl', 'vinyl nfc', 'vinyl (nfc)', 'ไวนิล nfc'],
+  'vinyl-record': ['vinyl record', 'vinyl record nfc', 'vinyl record (nfc)', 'ไวนิลแผ่นหมุน'],
   'vinyl-heart': ['vinyl heart', 'หัวใจ'],
   'pocket-vinyl': ['pocket vinyl', 'พวงกุญแจแผ่นเสียง'],
   'floppy': ['floppy disk', 'floppy', 'ดิสก์'],
@@ -516,7 +518,7 @@ const PARSER_ALIASES = {
   'melody-filmbook': ['melody filmbook', 'filmbook', 'สมุดภาพ'],
   'story-spin': ['story spin box', 'story spin', 'spin box', 'กล่องหมุน'],
   'pocket-tape': ['pocket tape', 'เทปจิ๋ว', 'เทป'],
-  'disposable-cam': ['disposable camera', 'disposable', 'กล้อง'],
+  'disposable-cam': ['one shot! personalized camera', 'one shot camera', 'personalized camera', 'custom disposable camera', 'disposable camera', 'disposable', 'กล้อง'],
   'cassette': ['cassette tape', 'cassette', 'ตลับเทป', 'คาสเซ็ท'],
   'postcard-film': ['postcard film', 'โปสการ์ดฟิล์ม', 'โปสการ์ด', 'postcard'],
   'film-strip': ['film strip', 'filmstrip']
@@ -525,7 +527,10 @@ const PARSER_ALIASES = {
 let FLAT_ALIASES = [];
 Object.keys(PARSER_ALIASES).forEach(id => {
    PARSER_ALIASES[id].forEach(alias => {
-      FLAT_ALIASES.push({ id, alias: alias.toLowerCase() });
+      let normalizedAlias = normalizeText(alias);
+      if (normalizedAlias && !FLAT_ALIASES.some(x => x.id === id && x.alias === normalizedAlias)) {
+         FLAT_ALIASES.push({ id, alias: normalizedAlias });
+      }
    });
 });
 FLAT_ALIASES.sort((a, b) => b.alias.length - a.alias.length);
@@ -636,7 +641,19 @@ function runProductAudit() {
 }
 
 // ═══════════════════════════════════════════════
-// ORDER PARSER LOGIC
+// NORMALIZATION HELPER
+// ═══════════════════════════════════════════════
+function normalizeText(text) {
+  if (!text) return '';
+  return text.toLowerCase()
+    .replace(/\(nfc\)/gi, '') // Remove (NFC) / (nfc)
+    .replace(/[™®!]/g, '')    // Remove ™, ®, !
+    .replace(/\s+/g, ' ')     // Collapse extra spaces
+    .trim();
+}
+
+// ═══════════════════════════════════════════════
+// ORDER PARSER LOGIC (PRIORITIZED PRODUCT -> VARIANT -> QUANTITY)
 // ═══════════════════════════════════════════════
 function applyParsedOrder() {
   const text = document.getElementById('order-parser-input').value;
@@ -649,6 +666,7 @@ function applyParsedOrder() {
   state.filmSlideFrames = null;
   state.unconfiguredProducts = [];
 
+  // Detect Metadata
   let provMatch = text.match(/(?:จังหวัด(?:ปลายทาง)?|จัดส่งไปที่)[:\s]*\n*\s*([^\n]+)/i);
   let dateMatch = text.match(/(?:วันที่(?:ต้องการ)?ใช้งาน|วันที่ใช้)[:\s]*\n*\s*([^\n]+)/i);
   let amtMatch = text.match(/(?:ยอดรวม(?:ทั้งสิ้น)?|รวม)[:\s]*\n*\s*([^\n]+)/i);
@@ -658,127 +676,164 @@ function applyParsedOrder() {
   let amount = amtMatch ? amtMatch[1].trim() : '';
 
   let detectedFrames = {};
+  let foundProducts = [];
   let lines = text.split('\n');
 
-  lines.forEach(line => {
-    let lowerLine = line.toLowerCase().replace(/\s+/g, ' ').trim();
+  // Skip parameters to ignore during product missing warning detection
+  const optionKeywords = ['แบบมาตรฐาน', 'รุ่นมาตรฐาน', 'standard', 'standard version'];
+  const skipKeywords = [
+    'จังหวัดปลายทาง', 'จังหวัด', 'จัดส่งไปที่',
+    'วันที่ต้องการใช้งาน', 'วันที่ใช้งาน', 'วันที่ใช้',
+    'ยอดรวมทั้งสิ้น', 'ยอดรวม', 'รวม', 'ค่าจัดส่ง',
+    'สรุปออเดอร์', 'สนใจสั่งสินค้า', 'ข้อมูลสำหรับจัดคิวงาน',
+    'คิวแทรก/งานด่วน', 'รอตามรอบได้', 'กำหนดจัดส่ง'
+  ];
+
+  for (let i = 0; i < lines.length; i++) {
+    let rawLine = lines[i].trim();
+    if (!rawLine) continue;
+
+    let normalizedLine = normalizeText(rawLine);
+
+    // Skip purely metadata lines or headers
+    let isSkipMeta = skipKeywords.some(kw => normalizedLine.includes(kw.toLowerCase()));
+    if (isSkipMeta) continue;
+
+    // Detect Frame Variant
+    let matchedFrameKey = null;
     for (let fDef of frameDefinitions) {
-      let matched = false;
       for (let pat of fDef.patterns) {
-        if (lowerLine.includes(pat.toLowerCase())) {
-          if (fDef.key === 'กรอบดำ' && (lowerLine.includes('น้ำเงิน') || lowerLine.includes('แดง'))) {
+        if (normalizedLine.includes(pat.toLowerCase())) {
+          // Guard for specific cases of 'กรอบดำ' vs black text/blue things
+          if (fDef.key === 'กรอบดำ' && (normalizedLine.includes('น้ำเงิน') || normalizedLine.includes('แดง'))) {
             continue; 
           }
-          matched = true;
+          matchedFrameKey = fDef.key;
           break;
         }
       }
-      if (matched) {
-        let qtyMatch = lowerLine.match(/(?:x|\*|จำนวน|=)\s*(\d+)/);
-        let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
-        detectedFrames[fDef.key] = (detectedFrames[fDef.key] || 0) + qty;
-        break; 
-      }
+      if (matchedFrameKey) break;
     }
-  });
 
-  let foundProducts = [];
+    // PRIORITY 1: Frame Variant Detection (Film Slide NFC)
+    if (matchedFrameKey) {
+      let cleanLine = normalizedLine.replace(/\d+\s*บาท/gi, ''); // strip pricing
+      let qtyMatch = cleanLine.match(/(?:x|\*|จำนวน|=|\s)\s*(\d+)/);
+      let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+      detectedFrames[matchedFrameKey] = (detectedFrames[matchedFrameKey] || 0) + qty;
+      continue; // Handled as variant, strictly skip Treat-As-Product and Warn-As-Missing
+    }
 
-  for (let i = 0; i < lines.length; i++) {
-    let lineClean = lines[i].replace(/[-\s*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌🎭📬]/g, '').trim();
-    if (!lineClean) continue;
-
-    let line = lines[i].toLowerCase().replace(/\(nfc\)/gi, '').replace(/\s+/g, ' ').trim();
-    let matchedId = null;
-
+    // PRIORITY 2: Product Alias Detection
+    let matchedProductId = null;
     for (let item of FLAT_ALIASES) {
-      if (line.includes(item.alias)) {
-        matchedId = item.id;
+      if (normalizedLine.includes(item.alias)) {
+        matchedProductId = item.id;
         break;
       }
     }
 
-    if (matchedId) {
-      if (matchedId === 'film-slide-nfc' && Object.keys(detectedFrames).length > 0) {
+    if (matchedProductId) {
+      // Avoid creating Film Slide (NFC) as duplicate drive product if we already found frame variants
+      if ((matchedProductId === 'film-slide' || matchedProductId === 'film-slide-nfc') && Object.keys(detectedFrames).length > 0) {
         continue;
       }
 
-      let searchStr = line + " " + (lines[i+1] ? lines[i+1].toLowerCase() : "");
+      let searchStr = normalizedLine + " " + (lines[i+1] ? normalizeText(lines[i+1]) : "");
       let qtyMatch = searchStr.match(/(?:x|\*|จำนวน|=)\s*(\d+)/);
       let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
 
-      let existing = foundProducts.find(p => p.id === matchedId);
+      let existing = foundProducts.find(p => p.id === matchedProductId);
       if (existing) {
         existing.qty = Math.max(existing.qty, qty); 
       } else {
-        foundProducts.push({ id: matchedId, qty: qty });
+        foundProducts.push({ id: matchedProductId, qty: qty });
       }
-    } else {
-      // Validation Check: Detect items that look like unconfigured products (Contain quantity, bullet points or pricing)
-      if (line.match(/(?:x|\*|จำนวน|=)\s*\d+/) || line.match(/บาท/) || lines[i].trim().match(/^[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/)) {
-        let potentialName = lines[i].replace(/[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/g, '').split(/x|\*|จำนวน|=|\d+|บาท/i)[0].trim();
-        if (potentialName.length > 3 && !state.unconfiguredProducts.includes(potentialName)) {
-           // Skip meta indicators
-           if (!potentialName.toLowerCase().includes('จังหวัดปลายทาง') && 
-               !potentialName.toLowerCase().includes('วันที่ต้องการใช้งาน') && 
-               !potentialName.toLowerCase().includes('ยอดรวมทั้งสิ้น') && 
-               !potentialName.toLowerCase().includes('ค่าจัดส่ง')) {
-              state.unconfiguredProducts.push(potentialName);
-           }
+      continue; // Handled as product, skip Warn-As-Missing
+    }
+
+    // PRIORITY 3: Option Check (Bypass standard product options)
+    let isOption = optionKeywords.some(opt => normalizedLine.includes(opt));
+    if (isOption) continue; // Skip product option parameters
+
+    // PRIORITY 4: Missing Product Configuration Warning Check
+    if (normalizedLine.match(/(?:x|\*|จำนวน|=)\s*\d+/) || normalizedLine.match(/บาท/) || rawLine.match(/^[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/)) {
+      let potentialName = rawLine.replace(/[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/g, '').split(/x|\*|จำนวน|=|\d+|บาท/i)[0].trim();
+      let normalizedPotential = normalizeText(potentialName);
+      
+      // Ensure potentialName is not empty, too short, an option, metadata, or frame variant
+      let isStillPotential = potentialName.length > 3 &&
+        !optionKeywords.some(opt => normalizedPotential.includes(opt)) &&
+        !skipKeywords.some(kw => normalizedPotential.includes(kw.toLowerCase()));
+
+      // Check if it matches any known product alias to prevent false warning
+      let matchesKnownAlias = FLAT_ALIASES.some(item => normalizedPotential.includes(item.alias) || item.alias.includes(normalizedPotential));
+      if (matchesKnownAlias) {
+        isStillPotential = false;
+      }
+
+      // Double-check against frame variant patterns
+      for (let fDef of frameDefinitions) {
+        for (let pat of fDef.patterns) {
+          if (normalizedPotential.includes(pat.toLowerCase())) {
+            isStillPotential = false;
+          }
         }
+      }
+
+      if (isStillPotential && !state.unconfiguredProducts.includes(potentialName)) {
+        state.unconfiguredProducts.push(potentialName);
       }
     }
   }
 
-  // 3. Apply to State
-  let resultHtml = `<strong>📊 Detected Information</strong><br><br>`;
+  // Populate Film Slide NFC if frame variants were extracted
+  if (Object.keys(detectedFrames).length > 0) {
+    state.filmSlideFrames = detectedFrames;
+    state.selected['film-slide-nfc'] = true;
+    let totalQty = Object.values(detectedFrames).reduce((sum, q) => sum + q, 0);
+    state.quantities['film-slide-nfc'] = totalQty;
+    state.methods['film-slide-nfc'] = 'drive';
+  }
+
+  // Populate standard products to state
+  foundProducts.forEach(p => {
+    state.selected[p.id] = true;
+    state.quantities[p.id] = p.qty;
+    state.methods[p.id] = PMAP[p.id].methods[0];
+  });
+
+  // Expand accordion groups of selected products and render UI
+  GROUPS.forEach(g => { g.expanded = g.products.some(p => state.selected[p.id]); });
+  renderProducts();
+  renderCart();
+
+  // Populate note if metadata exists
+  let notesArr = [];
+  if (prov) notesArr.push(`จังหวัด: ${prov}`);
+  if (eventDate) notesArr.push(`วันที่ใช้งาน: ${eventDate}`);
+  if (amount) notesArr.push(`ยอดรวม: ${amount}`);
   
-  if (foundProducts.length > 0 || Object.keys(detectedFrames).length > 0) {
-    state.selected = {}; state.quantities = {}; state.methods = {};
+  if (notesArr.length > 0) {
+    document.getElementById('order-note-input').value = notesArr.join('\n');
+  }
+
+  // Display summary on detection panel
+  let resultHtml = `<strong>📊 Detected Information</strong><br><br>`;
+  if (getPicked().length > 0) {
     resultHtml += `<strong>Products:</strong><br>`;
-    
-    foundProducts.forEach(p => {
-      resultHtml += `<span style="color:var(--primary-text)">• ${PMAP[p.id].name} x${p.qty}</span><br>`;
-      state.selected[p.id] = true;
-      state.quantities[p.id] = p.qty;
-      state.methods[p.id] = PMAP[p.id].methods[0];
+    getPicked().forEach(i => {
+      resultHtml += `<span style="color:var(--primary-text)">• ${i.p.name} x${i.qty}</span><br>`;
+      if (i.p.id === 'film-slide-nfc' && state.filmSlideFrames) {
+        Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
+          resultHtml += `  └ กรอบ ${fName}: x${fQty}<br>`;
+        });
+      }
     });
-
-    if (Object.keys(detectedFrames).length > 0) {
-      state.filmSlideFrames = detectedFrames;
-      state.selected['film-slide-nfc'] = true;
-      let totalQty = Object.values(detectedFrames).reduce((sum, q) => sum + q, 0);
-      state.quantities['film-slide-nfc'] = totalQty;
-      state.methods['film-slide-nfc'] = 'drive';
-
-      resultHtml += `<span style="color:var(--primary-text)">• Film Slide NFC x${totalQty} (แยกสีกรอบ)</span><br>`;
-      Object.entries(detectedFrames).forEach(([fName, fQty]) => {
-         resultHtml += `  └ กรอบ ${fName}: x${fQty}<br>`;
-      });
-    }
-    
-    GROUPS.forEach(g => { g.expanded = g.products.some(p => state.selected[p.id]); });
-    renderProducts();
-    renderCart();
-    
-    let notesArr = [];
-    if (prov) notesArr.push(`จังหวัด: ${prov}`);
-    if (eventDate) notesArr.push(`วันที่ใช้งาน: ${eventDate}`);
-    if (amount) notesArr.push(`ยอดรวม: ${amount}`);
-    
-    if (notesArr.length > 0) {
-      document.getElementById('order-note-input').value = notesArr.join('\n');
-    }
-    
-    updatePreview();
-    showToast('✨ ดึงข้อมูลและเลือกสินค้าเรียบร้อย!');
-    document.getElementById('parser-card').classList.remove('open');
-    
   } else {
     resultHtml += `<span style="color:var(--text-muted)">❌ ไม่พบรายการสินค้าที่รู้จัก</span><br>`;
   }
 
-  // Display unconfigured products warning
   if (state.unconfiguredProducts.length > 0) {
     resultHtml += `
       <div style="background: #FFF3CD; border: 1px solid #FFEBA8; color: #856404; padding: 12px; border-radius: var(--radius-sm); margin-top: 10px; font-weight: 500;">
@@ -787,7 +842,6 @@ function applyParsedOrder() {
         ${state.unconfiguredProducts.map(p => `• <strong>${p}</strong>`).join('<br>')}
         <div style="margin-top: 6px; font-size: 11px; text-decoration: underline;">Please add this product to Product Database.</div>
       </div>`;
-    updatePreview(); 
   }
 
   resultHtml += `<br>`;
@@ -798,6 +852,10 @@ function applyParsedOrder() {
   const resBox = document.getElementById('parser-result');
   resBox.innerHTML = resultHtml;
   resBox.classList.remove('hidden');
+
+  updatePreview();
+  showToast('✨ ดึงข้อมูลและเลือกสินค้าเรียบร้อย!');
+  document.getElementById('parser-card').classList.remove('open');
   runProductAudit();
 }
 
@@ -876,7 +934,7 @@ function saveCurrentPreset() {
   let items = {};
   Object.keys(state.selected).forEach(id => {
     if (state.selected[id]) {
-      items[id] = { qty: state.quantities[id], method: state.methods[id] };
+      items[id] = {qty: state.quantities[id], method: state.methods[id] };
     }
   });
   
@@ -884,14 +942,6 @@ function saveCurrentPreset() {
   localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
   renderPresets();
   showToast('✅ Saved Preset: ' + name);
-}
-
-function deletePreset(idx) {
-  if(confirm('ต้องการลบ Preset นี้ใช่หรือไม่?')) {
-    state.customPresets.splice(idx, 1);
-    localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
-    renderPresets();
-  }
 }
 
 // ═══════════════════════════════════════════════
@@ -1016,6 +1066,14 @@ function startOver() {
   renderCart();
   updatePreview();
   runProductAudit();
+}
+
+function deletePreset(idx) {
+  if(confirm('ต้องการลบ Preset นี้ใช่หรือไม่?')) {
+    state.customPresets.splice(idx, 1);
+    localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
+    renderPresets();
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -1212,7 +1270,12 @@ function buildCustomerMessage() {
       } else if (i.p.canva_mode === 'multi_page') {
         let subText = `กรุณาส่งกลับมาในรูปแบบนี้ ✨\n  Canva (ลิงก์เทมเพลต): xxxxx`;
         if (i.qty > 1) {
-          subText += `\n  📌 หากมีหลายแบบ\n  กรุณาเพิ่มหน้าใน Canva\n  และตั้งชื่อหน้าเป็น\n  จำนวน_ชื่อเพลง\n  ตัวอย่าง\n  3_เพลงA\n  5_เพลงB\n  2_เพลงC`;
+          subText += `\n  📌 หากมีหลายแบบ\n  กรุณาเพิ่มหน้าใน Canva\n  และตั้งชื่อหน้าเป็น\n  จำนวน_ชื่อเพลง\n  ตัวอย่าง\n  3_เพลงA\n  5_เพลงB\n  2_เพลงC\n\n  กรุณาระบุลิงก์เพลงตามลำดับหน้า`;
+          for (let k = 1; k <= i.qty; k++) {
+            subText += `\n  ชื่อเพลง ${k} : xxxxx`;
+          }
+        } else {
+          subText += `\n  เพลง: xxxxx`;
         }
         parts.push(subText);
       } else {
@@ -1259,7 +1322,7 @@ function buildCustomerMessage() {
               `  📌 วิธีส่งไฟล์รูปภาพสำหรับฟิล์มสไลด์ 📌\n` +
               `  📸 ใส่รูปลงใน Google Drive แล้วแชร์ลิงก์มาได้เลยค่ะ\n\n` +
               `  ✅ ใช้ 1 รูป / 1 อัน (สามารถใส่รวมกันได้)\n` +
-              `  📌 หากมีรูปที่ซ้ำกัน → ตั้งชื่อไฟล์เป็นจำนวน เช่น 2 อัน, 5 อัน\n\n` +
+              `  📌 หากมีรูปที่ซ้ำกัน → ตั้งชื่อไฟล์เรียงลำดับ 1.jpg - ${i.qty}.jpg\n\n` +
               `  ⚠️ สำคัญ! ก่อนแชร์ลิงก์ไฟล์ อย่าลืมตั้งค่าเป็น Public ให้คนที่มีลิงก์สามารถดูได้ด้วยนะคะ 💡`
             );
           } else {
@@ -1276,7 +1339,7 @@ function buildCustomerMessage() {
             `  📬 Postcard Film\n` +
             `  ส่งรูปผ่าน Google Drive\n` +
             `  ใช้รูปจำนวน ${i.qty} รูป\n` +
-            `  ตั้งชื่อไฟล์เรียงลำดับเป็น 1.jpg, 2.jpg... เป็นต้นค่ะ\n` +
+            `  ตั้งชื่อไฟล์เรียงลำดับ 1.jpg - ${i.qty}.jpg เป็นต้นค่ะ\n` +
             `  เปิดสิทธิ์แชร์โฟลเดอร์เป็น Public ให้เรียบร้อยด้วยนะคะ 💡`
           );
         }
@@ -1285,22 +1348,12 @@ function buildCustomerMessage() {
             `  🎞️ Film Strip\n` +
             `  ส่งรูปผ่าน Google Drive\n` +
             `  ใช้รูปทั้งหมด 3 รูป\n` +
-            `  กรุณาเรียงตามลำดับ\n` +
-            `  1\n` +
-            `  2\n` +
-            `  3\n` +
-            `  โดย\n` +
-            `  รูปบนสุด = 1\n` +
-            `  รูปกลาง = 2\n` +
-            `  รูปล่างสุด = 3\n` +
-            `  ตั้งชื่อไฟล์\n` +
-            `  1.jpg\n` +
-            `  2.jpg\n` +
-            `  3.jpg\n` +
+            `  กรุณาตั้งชื่อไฟล์เรียงลำดับ 1.jpg - 3.jpg\n` +
+            `  โดย 1 = รูปบนสุด | 2 = รูปกลาง | 3 = รูปล่างสุด\n` +
             `  เปิด Public แล้วส่งลิงก์ Drive มา 1 ลิงก์`
           );
         }
-        else if(i.p.id==='photo-strip') parts.push(`  • ส่งรูป 3 รูป (ตั้งชื่อ: 1.jpg, 2.jpg, 3.jpg โดย 1 = บนสุด)`);
+        else if(i.p.id==='photo-strip') parts.push(`  • ส่งรูป 3 รูป (ตั้งชื่อไฟล์เรียงลำดับ 1.jpg - 3.jpg โดย 1 = บนสุด)`);
         else if(i.p.id==='memory-film') {
             let memRollsText = '';
             if (i.qty > 1) {
@@ -1313,16 +1366,8 @@ function buildCustomerMessage() {
             parts.push(
               `  🎬 Memory Film\n` +
               `  ใช้รูป 7 รูป ต่อ 1 ม้วน\n` +
-              `  กรุณาตั้งชื่อไฟล์\n` +
-              `  1.jpg\n` +
-              `  2.jpg\n` +
-              `  3.jpg\n` +
-              `  4.jpg\n` +
-              `  5.jpg\n` +
-              `  6.jpg\n` +
-              `  7.jpg\n` +
-              `  โดย\n` +
-              `  1 = ภาพแรกที่เห็นเมื่อดึงฟิล์มออกมา` + memRollsText
+              `  กรุณาตั้งชื่อไฟล์เรียงลำดับ 1.jpg - 7.jpg\n` +
+              `  โดย 1 = ภาพแรกที่เห็นเมื่อดึงฟิล์มออกมา` + memRollsText
             );
         }
         else if(i.p.id==='film-lamp') parts.push(`  • ส่งรูป 21 รูป (แนะนำ Crop 3:2)\n  กรุณาระบุ:\n  กรอบแบบที่ 1: xxxxx\n  กรอบแบบที่ 2: xxxxx\n  กรอบแบบที่ 3: xxxxx`);
