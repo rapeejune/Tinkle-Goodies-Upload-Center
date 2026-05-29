@@ -8,7 +8,7 @@
 <style>
 :root {
   /* LIGHT MODE (Pastel) */
-  --bg-main: #F7F5F0; /* ปรับให้เข้มขึ้นนิดนึงเพื่อให้ Card สีขาวโดดเด่น */
+  --bg-main: #F7F5F0;
   --surface: #FFFFFF;
   --surface-alt: #FDFBF7;
   
@@ -94,7 +94,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .panel-left, .panel-right { display: flex; flex-direction: column; gap: 16px; }
 
 @media (min-width: 992px) {
-  .app-container { display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start; padding: 24px; height: calc(100vh - 65px); overflow: hidden; }
+  .app-container { display: grid; grid-template-columns: 480px 1fr; gap: 24px; align-items: start; padding: 24px; height: calc(100vh - 65px); overflow: hidden; }
   .panel-left, .panel-right { 
     height: 100%; 
     overflow-y: auto; 
@@ -151,8 +151,11 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .product-group { background: var(--surface); border-radius: var(--radius-md); border: 1px solid var(--border-light); overflow: hidden; box-shadow: var(--shadow-sm); }
 .group-header { padding: 14px 16px; font-size: 13px; font-weight: 700; color: var(--text-main); background: var(--surface-alt); display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
 .group-header .icon { color: var(--text-muted); font-size: 10px; transition: transform 0.2s; width: 16px; text-align: center; }
-.group-body { display: none; padding: 12px; gap: 8px; flex-direction: column; background: var(--surface); }
-.product-group.open .group-body { display: flex; }
+.group-body { display: none; padding: 12px; gap: 8px; background: var(--surface); }
+.product-group.open .group-body { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 992px) {
+  .product-group.open .group-body { grid-template-columns: repeat(2, 1fr); }
+}
 .product-group.open .group-header .icon { transform: rotate(90deg); color: var(--primary); }
 
 .p-card { border: 1px solid var(--border-light); border-radius: var(--radius-sm); overflow: hidden; transition: 0.2s; background: var(--bg-main); cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px; min-height: 54px; }
@@ -213,9 +216,16 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .export-tab:hover:not(.active) { background: var(--border-light); }
 .preview-box { width: 100%; padding: 16px; font-size: 13px; white-space: pre-wrap; color: var(--text-main); background: var(--bg-main); flex: 1; overflow-y: auto; font-family: 'Prompt', sans-serif; border: none; resize: none; outline: none; line-height: 1.6;}
 .preview-box:focus { box-shadow: inset 0 0 0 2px var(--primary-subtle); background: var(--surface); }
-.btn-copy-main { width: 100%; min-height: 60px; background: var(--primary-grad); color: white; font-size: 15px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;}
+
+/* COPY AND CLEAR BUTTONS */
+.action-area { padding: 16px; background: var(--surface); display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--border-light); }
+.btn-copy-main { width: 100%; min-height: 60px; background: var(--primary-grad); color: white; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;}
 .btn-copy-main:hover { opacity: 0.95; box-shadow: 0 -4px 12px rgba(239, 161, 182, 0.2); }
 .btn-copy-main:active { opacity: 0.9; transform: translateY(1px); }
+
+.btn-clear-all { width: 100%; min-height: 48px; border-radius: 12px; background: var(--bg-main); color: var(--text-muted); font-size: 14px; font-weight: 600; border: 1px dashed var(--border-light); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-clear-all:hover { background: #FFF0F3; color: var(--primary-text); border-color: var(--primary-subtle); }
+.btn-clear-all:active { transform: scale(0.98); }
 
 /* STICKY BOTTOM BAR (Mobile) */
 .sticky-bar { position: fixed; bottom: 0; left: 0; width: 100%; padding: 16px; background: var(--surface); border-top: 1px solid var(--border-light); box-shadow: var(--shadow-float); z-index: 90; display: flex; gap: 12px;}
@@ -243,7 +253,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
   <div class="panel-left">
 
     <!-- AUTO PARSER -->
-    <div class="settings-card open" id="parser-card">
+    <div class="settings-card" id="parser-card">
       <div class="settings-header" onclick="document.getElementById('parser-card').classList.toggle('open')">
         📋 Order Parser (ดึงข้อมูลอัตโนมัติ)
       </div>
@@ -310,7 +320,10 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
         <div class="export-tab" id="tab-production" onclick="setExportView('production')">Production Checklist</div>
       </div>
       <textarea class="preview-box" id="preview-box" placeholder="ข้อความจะแสดงที่นี่เมื่อเลือกสินค้า..." oninput="syncPreviewEdit()"></textarea>
-      <button class="btn-copy-main" onclick="copyActiveMessage()">💌 Copy Message</button>
+      <div class="action-area">
+        <button class="btn-copy-main" onclick="copyActiveMessage()">💌 Copy Message</button>
+        <button class="btn-clear-all" onclick="startOver()">🗑️ ล้างข้อความและเริ่มใหม่</button>
+      </div>
     </div>
 
   </div>
@@ -949,10 +962,6 @@ function buildCustomerMessage() {
 
   if (driveItems.length) {
     parts.push('📂 ส่งไฟล์ผ่าน Google Drive');
-    if (state.collectionMode === 'drive' && state.opts.drive) {
-      parts.push('อัปโหลดรูปลง Folder เดียวกัน → ตั้งค่าเป็น Public → ส่ง 1 ลิงก์');
-    }
-    
     driveItems.forEach(i => {
       parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
       
@@ -982,7 +991,18 @@ function buildCustomerMessage() {
         parts.push(`  ส่งรูปและลิงก์เพลงมาในแชทได้เลยค่ะ ✨\n  ไม่ต้องตั้งชื่อไฟล์\n  ไม่ต้องสร้าง Google Drive`);
         if (i.p.type === 'pin-nfc') parts.push(`  ⚠️ ขั้นต่ำ 9 ชิ้นต่อ 1 แบบ`);
       } else if (i.p.id === 'mini-cd') {
-        parts.push(`  • ส่งรูป ${6*i.qty} รูปมาพร้อมกันในข้อความเดียว\n  • ไม่ต้องระบุปก/จี้ (ร้านจัดให้ ✨)\n  • ส่งเพลง ${i.qty} เพลง\n  (หากต้องการกำหนดตำแหน่งภาพเอง แนะนำให้ใช้ Canva Template แทนค่ะ)`);
+        let cdQty = 6 * i.qty;
+        let songQty = i.qty;
+        parts.push(
+          `  การส่งไฟล์ปกติจะมี Template Canva ให้ค่ะ ปกติลูกค้าทุกคนจะต้องส่งผ่าน Canva ถ้าต้องการสามารถแจ้งได้เลย แต่ถ้าไม่ถนัดจริงๆ อยากได้แบบส่งง่ายและรวดเร็วที่สุด\n` +
+          `  รบกวนส่งมาแบบ ไม่ต้องระบุว่าอันไหนคือปก หรือส่วนไหนของลาย และไม่ระบุว่ารูปไหนใช้กับสินค้าไหน เช่น ไม่ระบุว่ารูปนี้เป็นลายของแผ่นหมุนๆเท่านั้น เพื่อให้เรานำไปจัดการได้ไวที่สุดนะคะ ✨\n\n` +
+          `  สำหรับออเดอร์นี้\n` +
+          `  CD ใช้ ${cdQty} ภาพ จิ้มส่งมารวดเดียว ${cdQty} ภาพนะคะ ไม่ต้องส่งทีละรูป\n\n` +
+          `  กดมารวดเดียวทั้งหมดนะคะ โดยเลือกภาพจากอัลบั้มผ่านทางไลน์ เลือกจนครบ ${cdQty} รูปแล้วค่อยกดส่งมา\n\n` +
+          `  พร้อมส่ง ลิงก์เพลง ${songQty} เพลง ในแชทได้เลยค่ะ 🎵\n\n` +
+          `  📌 แต่ถ้าต้องการระบุตำแหน่งชัดเจน เช่น ต้องการให้รูปนี้เป็นปกเท่านั้น แนะนำให้ทำผ่านเทมเพลตเท่านั้นนะคะ 💿\n\n` +
+          `  ***หากต้องการเทมเพลต Canva หลังชำระเงินแล้วแจ้งได้เลยค่ะ`
+        );
       } else if (i.p.id === 'pocket-tape') {
         parts.push(`  • ส่งรูป ${5*i.qty} รูปมาพร้อมกัน (ร้านสุ่มจัดเรียงให้)\n  • ส่งเพลง ${i.qty} เพลง\n  • แจ้งสีเทป (ใส/แดง)`);
       } else if (i.p.id === 'vinyl-set') {
@@ -990,6 +1010,10 @@ function buildCustomerMessage() {
       }
     });
     parts.push('──────────────────────────────────');
+  }
+
+  if (state.opts.drive) {
+    parts.push('📂 วิธีส่งไฟล์ผ่าน Google Drive\n1. สร้างโฟลเดอร์และอัปโหลดไฟล์ทั้งหมดลงไป\n2. กด Share (แชร์) ที่โฟลเดอร์\n3. เปลี่ยนสิทธิ์เป็น "Anyone with the link" (ทุกคนที่มีลิงก์)\n4. กด Copy link แล้วส่งมาได้เลยค่ะ\n──────────────────────────────────');
   }
 
   if (state.opts.music && picked.some(i => MUSIC_TYPES.includes(i.p.type))) {
