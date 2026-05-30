@@ -267,7 +267,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .tpl-btn.open { background: transparent; border: 1px solid var(--secondary-text); color: var(--secondary-text); }
 .tpl-btn.open:hover { background: var(--bg-main); }
 
-/* SETTINGS (Right) */
+/* SETTINGS & FAQ (Center) */
 .settings-box-label { font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: block; }
 .seg-control { display: flex; background: var(--bg-main); border-radius: 10px; padding: 4px; border: 1px solid var(--border-light); }
 .seg-btn { flex: 1; text-align: center; font-size: 12px; font-weight: 600; min-height: 38px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
@@ -279,6 +279,13 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .opt-chip:hover { border-color: var(--text-muted); }
 .opt-chip.active { background: var(--primary-light); color: var(--primary-text); border-color: var(--primary-text); }
 .opt-chip.active::before { content: '✓'; }
+
+/* FAQ Snippets */
+.faq-item { display: flex; align-items: center; justify-content: space-between; background: var(--surface-alt); border: 1px solid var(--border-light); padding: 10px 14px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+.faq-item:hover { border-color: var(--primary-subtle); background: var(--primary-light); color: var(--primary-text); }
+.faq-title { font-size: 13px; font-weight: 600; pointer-events: none; }
+.faq-del { color: var(--text-muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); transition: 0.2s;}
+.faq-del:hover { background: #FFEBEF; color: #E74C3C; }
 
 /* EXPORT PREVIEW (Right - Flex Fill) */
 .export-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-float); display: flex; flex-direction: column; flex: 1; min-height: 400px;}
@@ -294,6 +301,10 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .btn-copy-main { width: 100%; min-height: 60px; background: var(--primary-grad); color: white; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;}
 .btn-copy-main:hover { opacity: 0.95; box-shadow: 0 -4px 12px rgba(239, 161, 182, 0.2); }
 .btn-copy-main:active { opacity: 0.9; transform: translateY(1px); }
+
+.btn-line { background: #06C755; color: white; min-height: 60px; border: none; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.btn-line:hover { background: #05B34C; }
+.btn-line:active { transform: translateY(1px); }
 
 .btn-clear-all { width: 100%; min-height: 48px; border-radius: 12px; background: var(--bg-main); color: var(--text-muted); font-size: 14px; font-weight: 600; border: 1px dashed var(--border-light); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-clear-all:hover { background: #FFF0F3; color: var(--primary-text); border-color: var(--primary-subtle); }
@@ -321,10 +332,8 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 
 <div class="app-container">
   
-  <!-- COLUMN 1: CATALOG, PRESETS & PARSER -->
   <div class="panel-left">
 
-    <!-- AUTO PARSER -->
     <div class="settings-card" id="parser-card">
       <div class="settings-header" onclick="document.getElementById('parser-card').classList.toggle('open')">
         📋 Order Parser (ดึงข้อมูลอัตโนมัติ)
@@ -339,7 +348,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
       </div>
     </div>
 
-    <!-- ADMIN AUDIT TOOL -->
     <div class="settings-card" id="audit-card">
       <div class="settings-header" onclick="document.getElementById('audit-card').classList.toggle('open')">
         🛠️ Admin Tool: Audit Product Coverage
@@ -364,8 +372,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
           </div>
         </div>
         <div id="audit-product-list" style="max-height: 150px; overflow-y: auto; font-size: 11px; display: flex; flex-direction: column; gap: 4px; padding: 4px; background: var(--bg-main); border-radius: 8px;">
-          <!-- Filled dynamically in JS -->
-        </div>
+          </div>
       </div>
     </div>
     
@@ -383,10 +390,8 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
     
   </div>
 
-  <!-- COLUMN 2: SETTINGS (COLLAPSIBLE) & CART -->
   <div class="panel-center">
     
-    <!-- Collapsible Card: File Collection Method -->
     <div class="settings-card" id="collection-card">
       <div class="settings-header" onclick="document.getElementById('collection-card').classList.toggle('open')">
         📂 File Collection Method
@@ -399,7 +404,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
       </div>
     </div>
 
-    <!-- Collapsible Card: Order Note -->
     <div class="settings-card" id="note-card">
       <div class="settings-header" onclick="document.getElementById('note-card').classList.toggle('open')">
         ✍️ Order Note (ถ้ามี)
@@ -409,7 +413,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
       </div>
     </div>
 
-    <!-- Collapsible Card: Optional Guides -->
     <div class="settings-card" id="guides-card">
       <div class="settings-header" onclick="document.getElementById('guides-card').classList.toggle('open')">
         💡 แนบคู่มือเพิ่มเติม (Optional)
@@ -424,6 +427,26 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
       </div>
     </div>
 
+    <div class="settings-card" id="faq-card">
+      <div class="settings-header" onclick="document.getElementById('faq-card').classList.toggle('open')">
+        💬 คลังข้อความตอบกลับด่วน
+      </div>
+      <div class="settings-body">
+        <div id="faq-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
+        
+        <button class="btn-clear-all" id="btn-show-faq-form" onclick="toggleFaqForm(true)" style="min-height: 36px; font-size: 13px; border-style: dashed;">+ เพิ่มข้อความใหม่</button>
+        
+        <div id="faq-form" style="display: none; flex-direction: column; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);">
+          <input type="text" id="faq-title" class="search-bar" style="min-height: 40px; font-size: 13px;" placeholder="ชื่อหัวข้อ (เช่น แจ้งเลขบัญชี)">
+          <textarea id="faq-text" class="note-input" style="min-height: 80px;" placeholder="พิมพ์ข้อความที่ต้องการบันทึกเก็บไว้..."></textarea>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-parse" style="flex: 2; min-height: 40px;" onclick="saveFaq()">💾 บันทึก</button>
+            <button class="btn-parse btn-clear" style="flex: 1; min-height: 40px;" onclick="toggleFaqForm(false)">ยกเลิก</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div>
         <div class="section-title" style="margin-bottom: 12px; margin-top: 8px;">🛍️ สินค้าที่เลือก</div>
         <div id="cart-container">
@@ -433,7 +456,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 
   </div>
 
-  <!-- COLUMN 3: EXPORT PREVIEW (Sticky Dashboard Box) -->
   <div class="panel-right" id="cart-panel">
     
     <div class="export-card">
@@ -443,8 +465,11 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
       </div>
       <textarea class="preview-box" id="preview-box" placeholder="ข้อความจะแสดงที่นี่เมื่อเลือกสินค้า..." oninput="syncPreviewEdit()"></textarea>
       <div class="action-area">
-        <button class="btn-copy-main" onclick="copyActiveMessage()">💌 Copy Message</button>
-        <button class="btn-clear-all" onclick="startOver()">🗑️ ล้างข้อความและเริ่มใหม่</button>
+        <div style="display: flex; gap: 8px; width: 100%;">
+          <button class="btn-copy-main" style="flex: 2;" onclick="copyActiveMessage()">💌 Copy Message</button>
+          <button class="btn-line" style="flex: 1;" onclick="shareToLine()">🟢 ส่งเข้า LINE</button>
+        </div>
+        <button class="btn-clear-all" onclick="confirmClear()">🗑️ ล้างข้อความและเริ่มใหม่</button>
       </div>
     </div>
 
@@ -452,7 +477,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 
 </div>
 
-<!-- MOBILE STICKY BAR -->
 <div id="mobile-sticky-bar" class="sticky-bar">
   <button id="btn-scroll-cart" class="gen-btn" disabled onclick="scrollToCart()">Review & Export (0)</button>
 </div>
@@ -579,6 +603,7 @@ let state = {
   search: '',
   exportView: 'customer', 
   customPresets: [],
+  faqSnippets: [],
   manualEditPreview: false, 
   filmSlideFrames: null,
   unconfiguredProducts: [] 
@@ -591,12 +616,70 @@ function init() {
   try {
     let saved = localStorage.getItem('tinkle_presets_v2');
     if (saved) state.customPresets = JSON.parse(saved);
+    
+    let savedFaq = localStorage.getItem('tinkle_faq_v1');
+    if (savedFaq) state.faqSnippets = JSON.parse(savedFaq);
+    else state.faqSnippets = [{ id: 1, title: '💳 แจ้งเลขบัญชี', text: 'ธนาคารกสิกรไทย\nเลขบัญชี: 123-4-56789-0\nชื่อบัญชี: บจก. ทิงเกิล กู๊ดดี้ส์' }];
   } catch(e) {}
   renderPresets();
+  renderFaq();
   renderProducts();
   renderCart();
   updatePreview();
   runProductAudit();
+}
+
+// ═══════════════════════════════════════════════
+// FAQ SNIPPETS LOGIC
+// ═══════════════════════════════════════════════
+function toggleFaqForm(show) {
+  document.getElementById('faq-form').style.display = show ? 'flex' : 'none';
+  document.getElementById('btn-show-faq-form').style.display = show ? 'none' : 'flex';
+  if(!show) {
+    document.getElementById('faq-title').value = '';
+    document.getElementById('faq-text').value = '';
+  }
+}
+
+function saveFaq() {
+  let title = document.getElementById('faq-title').value.trim();
+  let text = document.getElementById('faq-text').value.trim();
+  if(!title || !text) return alert('กรุณากรอกชื่อหัวข้อและข้อความให้ครบถ้วน');
+  
+  state.faqSnippets.push({ id: Date.now(), title, text });
+  localStorage.setItem('tinkle_faq_v1', JSON.stringify(state.faqSnippets));
+  
+  toggleFaqForm(false);
+  renderFaq();
+  showToast('✅ บันทึกข้อความด่วนแล้ว');
+}
+
+function deleteFaq(id, event) {
+  event.stopPropagation();
+  if(confirm('ต้องการลบข้อความตอบกลับด่วนนี้ใช่หรือไม่?')) {
+    state.faqSnippets = state.faqSnippets.filter(f => f.id !== id);
+    localStorage.setItem('tinkle_faq_v1', JSON.stringify(state.faqSnippets));
+    renderFaq();
+  }
+}
+
+function renderFaq() {
+  const container = document.getElementById('faq-list');
+  container.innerHTML = '';
+  if(state.faqSnippets.length === 0) {
+     container.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px 0;">ยังไม่มีข้อความด่วน กดเพิ่มได้เลยค่ะ</div>';
+     return;
+  }
+  state.faqSnippets.forEach(f => {
+    let el = document.createElement('div');
+    el.className = 'faq-item';
+    el.onclick = () => copyText(f.text, '✅ คัดลอก: ' + f.title);
+    el.innerHTML = `
+      <span class="faq-title">📄 ${f.title}</span>
+      <span class="faq-del" onclick="deleteFaq(${f.id}, event)">🗑️</span>
+    `;
+    container.appendChild(el);
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -1040,6 +1123,17 @@ function syncPreviewEdit() {
   state.manualEditPreview = true;
 }
 
+function confirmClear() {
+  let hasItems = Object.keys(state.selected).some(k => state.selected[k]);
+  if (hasItems) {
+    if (confirm('🚨 ต้องการล้างข้อมูลออเดอร์และตั้งค่าทั้งหมดใช่หรือไม่?')) {
+      startOver();
+    }
+  } else {
+    startOver();
+  }
+}
+
 function startOver() {
   state.selected = {}; 
   state.quantities = {}; 
@@ -1087,11 +1181,13 @@ function deletePreset(idx) {
 function renderProducts() {
   const container = document.getElementById('product-groups-container');
   container.innerHTML = '';
+  let hasVisibleProducts = false;
   
   GROUPS.forEach((g) => {
     let visibleProducts = g.products.filter(p => p.name.toLowerCase().includes(state.search));
     if (visibleProducts.length === 0) return;
     
+    hasVisibleProducts = true;
     let isExpanded = state.search !== '' || g.expanded;
     let groupEl = document.createElement('div');
     groupEl.className = `product-group ${isExpanded ? 'open' : ''}`;
@@ -1120,6 +1216,10 @@ function renderProducts() {
     groupEl.appendChild(body);
     container.appendChild(groupEl);
   });
+
+  if (!hasVisibleProducts && state.search !== '') {
+    container.innerHTML = '<div class="empty-state">🔍 ไม่พบสินค้าที่ค้นหา<br>กรุณาลองใช้คำอื่น เช่น "cd" หรือ "ฟิล์ม" ค่ะ</div>';
+  }
 }
 
 function getPrefix(id) {
@@ -1207,7 +1307,21 @@ function updatePreview() {
 // ═══════════════════════════════════════════════
 function copyActiveMessage() {
   let text = document.getElementById('preview-box').value;
+  if(!text || text === "ยังไม่ได้เลือกสินค้า...") {
+    showToast('กรุณาเลือกสินค้าก่อนคัดลอกค่ะ');
+    return;
+  }
   copyText(text, state.exportView === 'customer' ? '✅ Copied Customer Message' : '✅ Copied Checklist');
+}
+
+function shareToLine() {
+  let text = document.getElementById('preview-box').value;
+  if(!text || text === "ยังไม่ได้เลือกสินค้า...") {
+    showToast('กรุณาเลือกสินค้าก่อนส่งเข้า LINE ค่ะ');
+    return;
+  }
+  let url = 'https://line.me/R/msg/text/?' + encodeURIComponent(text);
+  window.open(url, '_blank');
 }
 
 function copyText(text, msg) {
@@ -1387,15 +1501,13 @@ function buildCustomerMessage() {
             parts.push(
               `  📥 วิธีส่งรูปฟิล์มสไลด์ NFC\n` +
               `  1️⃣ แยกโฟลเดอร์ตามชื่อกรอบ:${frameText}\n` +
-              `  2️⃣ ตั้งชื่อรูปเป็น "ชื่อเพลง" หรือ "ชื่อเพลง_จำนวน" (ตัวอย่าง: เพลงA.jpg, เพลงB_3อัน.jpg)\n` +
-              `  3️⃣ 🎵 การส่งเพลง\n` +
-              `     ตั้งชื่อไฟล์เป็นชื่อเพลง หรือ ชื่อเพลง_จำนวน\n` +
-              `     ตัวอย่าง: เพลงA.jpg, เพลงB_3อัน.jpg\n` +
+              `  2️⃣ 🎵 การส่งเพลง\n` +
+              `     ตั้งชื่อไฟล์เป็นชื่อเพลง หรือ ชื่อเพลง_จำนวน (ตัวอย่าง: เพลงA.jpg, เพลงB_3อัน.jpg)\n` +
               `     แนบลิงก์เพลงตามชื่อไฟล์\n` +
               `     เพลงA: xxxxx\n` +
               `     เพลงB: xxxxx\n` +
               `     📌 หากใช้เพลงเดียวกันหลายชิ้น ส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ\n` +
-              `  4️⃣ เปิด Google Drive เป็น Public (ทุกคนที่มีลิงก์ดูได้)\n` +
+              `  3️⃣ เปิด Google Drive เป็น Public (ทุกคนที่มีลิงก์ดูได้)\n` +
               `     Google Drive: xxxxx\n\n` +
               `  📐 ภาพที่พอดีกรอบคือ Crop 3:2\n` +
               `  *กรอบพลาสติก: แนวตั้ง/แนวนอนได้ | กรอบกระดาษ: แนะนำแนวนอน`
