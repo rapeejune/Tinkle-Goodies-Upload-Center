@@ -554,14 +554,14 @@ const PMAP = {};
 GROUPS.forEach(g => g.products.forEach(p => PMAP[p.id] = p));
 
 const frameDefinitions = [
-  { key: 'พลาสติก', patterns: ['กรอบพลาสติก', 'พลาสติก'] },
-  { key: 'เหลือง', patterns: ['กรอบเหลือง', 'เหลือง'] },
-  { key: 'ขอบแดง', patterns: ['กรอบขอบแดง', 'ขอบแดง'] },
-  { key: 'Font แดง', patterns: ['font แดง', 'ฟอนต์แดง', 'ฟอนต์ แดง'] },
-  { key: 'Font น้ำเงินดำ', patterns: ['font น้ำเงินดำ', 'ฟอนต์น้ำเงินดำ', 'น้ำเงินดำ', 'น้ำเงิน ดำ'] },
-  { key: 'ขอบมนแดงดำ', patterns: ['ขอบมนแดงดำ', 'ขอบมน แดงดำ', 'มนแดงดำ'] },
-  { key: 'ขอบมนชมพูเข้ม', patterns: ['ขอบมนชมพูเข้ม', 'ขอบมน ชมพูเข้ม', 'มนชมพูเข้ม'] },
-  { key: 'กรอบดำ', patterns: ['กรอบดำ', 'ดำ'] }
+  { key: 'กรอบพลาสติก', patterns: ['กรอบพลาสติก', 'plastic'] },
+  { key: 'กรอบเหลือง', patterns: ['กรอบเหลือง', 'เหลือง', 'yellow'] },
+  { key: 'กรอบขอบแดง', patterns: ['กรอบขอบแดง', 'ขอบแดง', 'red border'] },
+  { key: 'Font แดง', patterns: ['font แดง', 'ฟอนต์แดง', 'red font'] },
+  { key: 'Font น้ำเงินดำ', patterns: ['font น้ำเงินดำ', 'ฟอนต์น้ำเงินดำ', 'blue font'] },
+  { key: 'ขอบมนแดงดำ', patterns: ['ขอบมนแดงดำ', 'rounded red black'] },
+  { key: 'ขอบมน Font ชมพูเข้ม', patterns: ['ขอบมน font ชมพูเข้ม', 'ขอบมนชมพู', 'rounded pink'] },
+  { key: 'กรอบดำ', patterns: ['กรอบดำ', 'black'] }
 ];
 
 // STATE
@@ -730,7 +730,7 @@ function applyParsedOrder() {
     for (let fDef of frameDefinitions) {
       for (let pat of fDef.patterns) {
         if (normalizedLine.includes(pat.toLowerCase())) {
-          if (fDef.key === 'กรอบดำ' && (normalizedLine.includes('น้ำเงิน') || normalizedLine.includes('แดง'))) continue; 
+          if (fDef.key === 'กรอบดำ' && (normalizedLine.includes('น้ำเงิน') || normalizedLine.includes('แดง') || normalizedLine.includes('blue') || normalizedLine.includes('red'))) continue; 
           matchedFrameKey = fDef.key;
           break;
         }
@@ -738,13 +738,21 @@ function applyParsedOrder() {
       if (matchedFrameKey) break;
     }
 
-    if (matchedFrameKey) {
-      let cleanLine = normalizedLine.replace(/\d+\s*บาท/gi, ''); 
-      let qtyMatch = cleanLine.match(/(?:x|\*|จำนวน|=|\s)\s*(\d+)/);
-      let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
-      detectedFrames[matchedFrameKey] = (detectedFrames[matchedFrameKey] || 0) + qty;
-      continue; 
-    }
+    // PRIORITY 1: Frame Variant Detection (Film Slide NFC)
+  let resultHtml = `<strong>📊 Detected Information</strong><br><br>`;
+  if (getPicked().length > 0) {
+    resultHtml += `<strong>Products:</strong><br>`;
+    getPicked().forEach(i => {
+      resultHtml += `<span style="color:var(--primary-text)">• ${i.p.name} x${i.qty}</span><br>`;
+      if (i.p.id === 'film-slide-nfc' && state.filmSlideFrames) {
+        Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
+          resultHtml += `  └ ${fName}: x${fQty}<br>`;
+        });
+      }
+    });
+  } else {
+    resultHtml += `<span style="color:var(--text-muted)">❌ ไม่พบรายการสินค้าที่รู้จัก</span><br>`;
+  }
 
     let matchedProductId = null;
     for (let item of FLAT_ALIASES) {
@@ -1155,7 +1163,7 @@ function renderOrderSummary(picked) {
     html += `<div style="font-weight: 600;">• ${i.p.name} × ${i.qty}</div>`;
     if (i.p.id === 'film-slide-nfc' && state.filmSlideFrames) {
       Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-        html += `<div style="padding-left: 16px; color: var(--text-muted); font-size: 12px;">└ กรอบ${fName} × ${fQty}</div>`;
+        html += `<div style="padding-left: 16px; color: var(--text-muted); font-size: 12px;">└ ${fName} × ${fQty}</div>`;
       });
     }
   });
@@ -1363,10 +1371,10 @@ function buildCustomerMessage() {
           let frameText = "";
           if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).length > 0) {
             Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-              frameText += `\n    📂 กรอบ ${fName} (จำนวน ${fQty} ชิ้น)`;
+              frameText += `\n    📂 ${fName} (จำนวน ${fQty} ชิ้น)`;
             });
           } else {
-            frameText = `\n    (พลาสติก, เหลือง, ขอบแดง, Font แดง, Font น้ำเงินดำ, ขอบมนแดงดำ, ขอบมนชมพูเข้ม, กรอบดำ)`;
+            frameText = `\n    (กรอบพลาสติก, กรอบเหลือง, กรอบขอบแดง, Font แดง, Font น้ำเงินดำ, ขอบมนแดงดำ, ขอบมน Font ชมพูเข้ม, กรอบดำ)`;
           }
 
           if (state.collectionMode === 'drive') {
@@ -1498,7 +1506,7 @@ function buildProductionChecklist() {
     lines.push(`[ ] ${i.p.name} x${i.qty} (${i.method})`);
     if (i.p.id === 'film-slide-nfc' && state.filmSlideFrames) {
       Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-        lines.push(`    - [ ] กรอบ ${fName} x${fQty}`);
+        lines.push(`    - [ ] ${fName} x${fQty}`);
       });
     }
     if(i.method === 'canva') lines.push(`    - Canva / Music / Config check`);
