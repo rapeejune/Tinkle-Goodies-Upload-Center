@@ -554,14 +554,14 @@ const PMAP = {};
 GROUPS.forEach(g => g.products.forEach(p => PMAP[p.id] = p));
 
 const frameDefinitions = [
-  { key: 'กรอบพลาสติก', patterns: ['กรอบพลาสติก', 'plastic'] },
-  { key: 'กรอบเหลือง', patterns: ['กรอบเหลือง', 'เหลือง', 'yellow'] },
-  { key: 'กรอบขอบแดง', patterns: ['กรอบขอบแดง', 'ขอบแดง', 'red border'] },
-  { key: 'Font แดง', patterns: ['font แดง', 'ฟอนต์แดง', 'red font'] },
-  { key: 'Font น้ำเงินดำ', patterns: ['font น้ำเงินดำ', 'ฟอนต์น้ำเงินดำ', 'blue font'] },
-  { key: 'ขอบมนแดงดำ', patterns: ['ขอบมนแดงดำ', 'rounded red black'] },
-  { key: 'ขอบมน Font ชมพูเข้ม', patterns: ['ขอบมน font ชมพูเข้ม', 'ขอบมนชมพู', 'rounded pink'] },
-  { key: 'กรอบดำ', patterns: ['กรอบดำ', 'black'] }
+  { key: 'กรอบพลาสติก', displayName: 'กรอบพลาสติก', patterns: ['กรอบพลาสติก', 'plastic', 'slide plastic'] },
+  { key: 'กรอบเหลือง', displayName: 'กรอบเหลือง', patterns: ['กรอบเหลือง', 'เหลือง', 'yellow'] },
+  { key: 'กรอบขอบแดง', displayName: 'กรอบขอบแดง', patterns: ['กรอบขอบแดง', 'ขอบแดง', 'red border'] },
+  { key: 'Font แดง', displayName: 'Font แดง', patterns: ['font แดง', 'ฟอนต์แดง', 'red font'] },
+  { key: 'Font น้ำเงินดำ', displayName: 'Font น้ำเงินดำ', patterns: ['font น้ำเงินดำ', 'ฟอนต์น้ำเงินดำ', 'blue font'] },
+  { key: 'ขอบมนแดงดำ', displayName: 'ขอบมนแดงดำ', patterns: ['ขอบมนแดงดำ', 'rounded red black'] },
+  { key: 'ขอบมน Font ชมพูเข้ม', displayName: 'ขอบมนชมพูเข้ม', patterns: ['ขอบมน font ชมพูเข้ม', 'ขอบมนชมพู', 'rounded pink'] },
+  { key: 'กรอบดำ', displayName: 'กรอบดำ', patterns: ['กรอบดำ', 'black'] }
 ];
 
 // STATE
@@ -580,7 +580,7 @@ let state = {
 };
 
 // ═══════════════════════════════════════════════
-// INITIALIZATION
+// INITIALIZATION & PRESETS
 // ═══════════════════════════════════════════════
 function init() {
   try {
@@ -739,21 +739,15 @@ function applyParsedOrder() {
     }
 
     // PRIORITY 1: Frame Variant Detection (Film Slide NFC)
-  let resultHtml = `<strong>📊 Detected Information</strong><br><br>`;
-  if (getPicked().length > 0) {
-    resultHtml += `<strong>Products:</strong><br>`;
-    getPicked().forEach(i => {
-      resultHtml += `<span style="color:var(--primary-text)">• ${i.p.name} x${i.qty}</span><br>`;
-      if (i.p.id === 'film-slide-nfc' && state.filmSlideFrames) {
-        Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-          resultHtml += `  └ ${fName}: x${fQty}<br>`;
-        });
-      }
-    });
-  } else {
-    resultHtml += `<span style="color:var(--text-muted)">❌ ไม่พบรายการสินค้าที่รู้จัก</span><br>`;
-  }
+    if (matchedFrameKey) {
+      let cleanLine = normalizedLine.replace(/\d+\s*บาท/gi, ''); 
+      let qtyMatch = cleanLine.match(/(?:x|\*|จำนวน|=)\s*(\d+)/) || cleanLine.match(/(\d+)/);
+      let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+      detectedFrames[matchedFrameKey] = (detectedFrames[matchedFrameKey] || 0) + qty;
+      continue; 
+    }
 
+    // PRIORITY 2: Product Alias Detection
     let matchedProductId = null;
     for (let item of FLAT_ALIASES) {
       if (normalizedLine.includes(item.alias)) {
@@ -778,8 +772,10 @@ function applyParsedOrder() {
       continue; 
     }
 
+    // PRIORITY 3: Option Check (Bypass standard product options)
     if (optionKeywords.some(opt => normalizedLine.includes(opt))) continue; 
 
+    // PRIORITY 4: Missing Product Configuration Warning Check
     if (normalizedLine.match(/(?:x|\*|จำนวน|=)\s*\d+/) || normalizedLine.match(/บาท/) || rawLine.match(/^[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/)) {
       let potentialName = rawLine.replace(/[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/g, '').split(/x|\*|จำนวน|=|\d+|บาท/i)[0].trim();
       let normalizedPotential = normalizeText(potentialName);
@@ -804,6 +800,7 @@ function applyParsedOrder() {
     }
   }
 
+  // Populate Film Slide NFC if frame variants were extracted
   if (Object.keys(detectedFrames).length > 0) {
     state.filmSlideFrames = detectedFrames;
     state.selected['film-slide-nfc'] = true;
@@ -812,6 +809,7 @@ function applyParsedOrder() {
     state.methods['film-slide-nfc'] = 'drive';
   }
 
+  // Populate standard products to state
   foundProducts.forEach(p => {
     state.selected[p.id] = true;
     state.quantities[p.id] = p.qty;
@@ -830,6 +828,21 @@ function applyParsedOrder() {
   if (notesArr.length > 0) document.getElementById('order-note-input').value = notesArr.join('\n');
 
   let resultHtml = `<strong>📊 Parser Status</strong><br>`;
+  
+  // DEBUG PANEL: Film Slide NFC Variants
+  resultHtml += `<div style="background: #F0F6FA; border: 1px solid #AECDE0; padding: 8px; margin-top: 8px; margin-bottom: 8px; border-radius: 8px;">`;
+  resultHtml += `<strong>🔍 DEBUG: Film Slide NFC Variants</strong><br>`;
+  if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).length > 0) {
+    Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
+      let fDef = frameDefinitions.find(d => d.key === fName);
+      let dispName = fDef ? fDef.displayName : fName;
+      resultHtml += `<span style="font-size: 11px;">${dispName} = ${fQty}</span><br>`;
+    });
+  } else {
+    resultHtml += `<span style="font-size: 11px; color: var(--text-muted);">(ไม่มีข้อมูล Variant กรอบ)</span><br>`;
+  }
+  resultHtml += `</div>`;
+
   if (getPicked().length > 0 || state.unconfiguredProducts.length > 0) {
      resultHtml += `<span style="color:var(--mint-text)">✅ ดึงข้อมูลสำเร็จ กรุณาตรวจสอบ Order Summary</span>`;
   } else {
@@ -1035,6 +1048,14 @@ function startOver() {
   runProductAudit();
 }
 
+function deletePreset(idx) {
+  if(confirm('ต้องการลบ Preset นี้ใช่หรือไม่?')) {
+    state.customPresets.splice(idx, 1);
+    localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
+    renderPresets();
+  }
+}
+
 // ═══════════════════════════════════════════════
 // RENDERING & HELPERS
 // ═══════════════════════════════════════════════
@@ -1163,7 +1184,11 @@ function renderOrderSummary(picked) {
     html += `<div style="font-weight: 600;">• ${i.p.name} × ${i.qty}</div>`;
     if (i.p.id === 'film-slide-nfc' && state.filmSlideFrames) {
       Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-        html += `<div style="padding-left: 16px; color: var(--text-muted); font-size: 12px;">└ ${fName} × ${fQty}</div>`;
+        if (fQty > 0) {
+          let fDef = frameDefinitions.find(d => d.key === fName);
+          let dispName = fDef ? fDef.displayName : fName;
+          html += `<div style="padding-left: 16px; color: var(--text-muted); font-size: 12px;">└ ${dispName} × ${fQty}</div>`;
+        }
       });
     }
   });
@@ -1227,11 +1252,18 @@ function getPicked() {
 function buildCustomerMessage() {
   let picked = getPicked();
   
+  // Generation Safety check: Warn user if unconfigured products exist
   let safetyWarning = '';
   if (state.unconfiguredProducts && state.unconfiguredProducts.length > 0) {
     safetyWarning = `⚠️ WARNING: Missing Product Configuration!\nระบบพบออเดอร์สินค้าที่ยังไม่มีการตั้งค่าจับคู่ฐานข้อมูล:\n` +
       state.unconfiguredProducts.map(p => `• ${p}`).join('\n') + 
       `\nโปรดเพิ่มสินค้าเหล่านี้ลงใน Product Database ก่อนผลิตค่ะ!\n──────────────────────────────────\n\n`;
+  }
+
+  let hasFilmSlideNfc = picked.some(i => i.p.id === 'film-slide-nfc');
+  let hasFrames = state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0);
+  if (hasFilmSlideNfc && !hasFrames) {
+    safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC จำเป็นต้องระบุสีกรอบ กรุณาตรวจสอบออเดอร์อีกครั้ง\n──────────────────────────────────\n\n`;
   }
 
   if (picked.length === 0) {
@@ -1302,7 +1334,8 @@ function buildCustomerMessage() {
       parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
       
       if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
-        parts.push(`  หากมีหลายแบบ กรุณาตั้งชื่อไฟล์ตามชื่อเพลง\n  ตัวอย่าง: เพลงA.jpg, เพลงB.jpg หรือ เพลงA_3อัน.jpg`);
+        parts.push(`  ส่งรูปและลิงก์เพลงมาในแชทได้เลยค่ะ ✨\n  ไม่ต้องตั้งชื่อไฟล์\n  ไม่ต้องสร้าง Google Drive`);
+        if (i.p.type === 'pin-nfc') parts.push(`  ⚠️ ขั้นต่ำ 9 ชิ้นต่อ 1 แบบ`);
       } else {
         if(i.p.id==='pocket-polaroid') {
             parts.push(
@@ -1369,27 +1402,34 @@ function buildCustomerMessage() {
         else if(i.p.id==='film-lamp') parts.push(`  • ส่งรูป 21 รูป (แนะนำ Crop 3:2)\n  กรุณาระบุ:\n  กรอบแบบที่ 1: xxxxx\n  กรอบแบบที่ 2: xxxxx\n  กรอบแบบที่ 3: xxxxx`);
         else if(i.p.type==='film-slide-nfc') {
           let frameText = "";
-          if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).length > 0) {
+          if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0)) {
             Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-              frameText += `\n    📂 ${fName} (จำนวน ${fQty} ชิ้น)`;
+              if (fQty > 0) {
+                let fDef = frameDefinitions.find(d => d.key === fName);
+                let dispName = fDef ? fDef.displayName : fName;
+                frameText += `\n  📂 ${dispName} (จำนวน ${fQty} ชิ้น)`;
+              }
             });
           } else {
-            frameText = `\n    (กรอบพลาสติก, กรอบเหลือง, กรอบขอบแดง, Font แดง, Font น้ำเงินดำ, ขอบมนแดงดำ, ขอบมน Font ชมพูเข้ม, กรอบดำ)`;
+            frameText = `\n  ⚠️ กรุณาระบุสีกรอบฟิล์มสไลด์ NFC เพิ่มเติม`;
           }
 
           if (state.collectionMode === 'drive') {
             parts.push(
               `  📥 วิธีส่งรูปฟิล์มสไลด์ NFC\n` +
-              `  1️⃣ แยกโฟลเดอร์ตามชื่อกรอบ:${frameText}\n` +
+              `  1️⃣ สร้างโฟลเดอร์แยกตามสีกรอบดังนี้${frameText}\n` +
               `  2️⃣ 🎵 การส่งเพลง\n` +
               `     ตั้งชื่อไฟล์เป็นชื่อเพลง หรือ ชื่อเพลง_จำนวน\n` +
-              `     ตัวอย่าง: เพลงA.jpg, เพลงB_3อัน.jpg\n` +
+              `     ตัวอย่าง\n` +
+              `     เพลงA.jpg\n` +
+              `     เพลงB_3อัน.jpg\n` +
               `     แนบลิงก์เพลงตามชื่อไฟล์\n` +
-              `     เพลงA: xxxxx\n` +
-              `     เพลงB: xxxxx\n` +
-              `     📌 หากใช้เพลงเดียวกันหลายชิ้น ส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ\n` +
-              `  3️⃣ เปิด Google Drive เป็น Public (ทุกคนที่มีลิงก์ดูได้)\n` +
-              `     Google Drive: xxxxx\n\n` +
+              `     🎵 เพลงA : xxxxx\n` +
+              `     🎵 เพลงB : xxxxx\n` +
+              `     📌 หากใช้เพลงเดียวกันหลายชิ้น\n` +
+              `     ส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ\n` +
+              `  3️⃣ เปิด Google Drive เป็น Public\n` +
+              `     Google Drive : xxxxx\n\n` +
               `  📐 ภาพที่พอดีกรอบคือ Crop 3:2\n` +
               `  *กรอบพลาสติก: แนวตั้ง/แนวนอนได้ | กรอบกระดาษ: แนะนำแนวนอน`
             );
@@ -1400,9 +1440,10 @@ function buildCustomerMessage() {
               `  2️⃣ 🎵 การส่งเพลง\n` +
               `     ระบุชื่อเพลงตามรูปภาพ (ตัวอย่าง: รูปนี้_เพลงA)\n` +
               `     แนบลิงก์เพลงตามชื่อไฟล์\n` +
-              `     เพลงA: xxxxx\n` +
-              `     เพลงB: xxxxx\n` +
-              `     📌 หากใช้เพลงเดียวกันหลายชิ้น ส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ\n\n` +
+              `     🎵 เพลงA : xxxxx\n` +
+              `     🎵 เพลงB : xxxxx\n` +
+              `     📌 หากใช้เพลงเดียวกันหลายชิ้น\n` +
+              `     ส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ\n\n` +
               `  📐 ภาพที่พอดีกรอบคือ Crop 3:2\n` +
               `  *กรอบพลาสติก: แนวตั้ง/แนวนอนได้ | กรอบกระดาษ: แนะนำแนวนอน`
             );
@@ -1487,6 +1528,12 @@ function buildProductionChecklist() {
       state.unconfiguredProducts.map(p => `• ${p}`).join('\n') + `\n──────────────────────────────────\n\n`;
   }
 
+  let hasFilmSlideNfc = picked.some(i => i.p.id === 'film-slide-nfc');
+  let hasFrames = state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0);
+  if (hasFilmSlideNfc && !hasFrames) {
+    safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC ขาดข้อมูลสีกรอบ\n──────────────────────────────────\n\n`;
+  }
+
   if (picked.length === 0) {
     return safetyWarning ? safetyWarning + "ยังไม่ได้เลือกสินค้า..." : "ยังไม่ได้เลือกสินค้า...";
   }
@@ -1504,10 +1551,18 @@ function buildProductionChecklist() {
 
   picked.forEach(i => {
     lines.push(`[ ] ${i.p.name} x${i.qty} (${i.method})`);
-    if (i.p.id === 'film-slide-nfc' && state.filmSlideFrames) {
-      Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-        lines.push(`    - [ ] ${fName} x${fQty}`);
-      });
+    if (i.p.id === 'film-slide-nfc') {
+      if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0)) {
+        Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
+          if (fQty > 0) {
+            let fDef = frameDefinitions.find(d => d.key === fName);
+            let dispName = fDef ? fDef.displayName : fName;
+            lines.push(`    - [ ] ${dispName} x${fQty}`);
+          }
+        });
+      } else {
+        lines.push(`    - [ ] ⚠️ ขาดข้อมูลสีกรอบ`);
+      }
     }
     if(i.method === 'canva') lines.push(`    - Canva / Music / Config check`);
     else if(i.method === 'quick') lines.push(`    - Shop arranged design / Photos / Music check`);
