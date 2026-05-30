@@ -89,7 +89,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .logo-name { font-size: 18px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 8px;}
 .logo-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); font-weight: 600; display: block; margin-top: 2px;}
 
-/* RESPONSIVE LAYOUT (Mobile first: Single Column Stack) */
+/* RESPONSIVE LAYOUT */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -104,7 +104,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
   width: 100%;
 }
 
-/* TABLET LAYOUT (2 Columns) */
+/* TABLET LAYOUT */
 @media (min-width: 768px) and (max-width: 1199px) {
   .app-container {
     display: grid;
@@ -143,7 +143,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
   body { overflow: hidden; padding-bottom: 0; }
 }
 
-/* DESKTOP LAYOUT (3 Columns) */
+/* DESKTOP LAYOUT */
 @media (min-width: 1200px) {
   .app-container {
     display: grid;
@@ -182,7 +182,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 
 /* SECTION TITLES */
 .section-title { font-size: 14px; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;}
-.section-subtitle { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: none; letter-spacing: 0; margin-top: 4px; display: block; }
 
 /* PRESETS */
 .presets-wrap { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
@@ -197,7 +196,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .btn-micro-action { font-size: 11px; padding: 4px 12px; border-radius: 100px; border: 1px solid var(--primary); background: var(--primary-light); color: var(--primary-text); cursor: pointer; font-weight: 600; min-height: 30px;}
 .btn-micro-action:hover { background: var(--primary); color: var(--surface); }
 
-/* SETTINGS CARD (Collapsible) */
+/* SETTINGS CARD */
 .settings-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); flex-shrink: 0; }
 .settings-header { padding: 14px 16px; font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--text-main); background: var(--surface); transition: 0.15s; }
 .settings-header:hover { background: var(--surface-alt); }
@@ -220,7 +219,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .search-bar { width: 100%; min-height: 44px; border-radius: 100px; border: 1px solid var(--border-light); background: var(--surface); padding: 0 16px; font-size: 14px; color: var(--text-main); outline: none; box-shadow: var(--shadow-sm); transition: 0.2s; flex-shrink: 0; }
 .search-bar:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 
-/* PRODUCT CATALOG (Left) */
+/* PRODUCT CATALOG */
 .product-group { background: var(--surface); border-radius: var(--radius-md); border: 1px solid var(--border-light); overflow: hidden; box-shadow: var(--shadow-sm); flex-shrink: 0; }
 .group-header { padding: 14px 16px; font-size: 13px; font-weight: 700; color: var(--text-main); background: var(--surface-alt); display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
 .group-header .icon { color: var(--text-muted); font-size: 10px; transition: transform 0.2s; width: 16px; text-align: center; }
@@ -241,7 +240,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .p-card.selected .p-check { background: var(--primary); border-color: var(--primary); }
 .p-card.selected .p-check::after { content: '✓'; color: white; font-size: 12px; }
 
-/* CART ITEM (Right) */
+/* CART ITEM */
 .cart-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
 .cart-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .cart-card-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
@@ -267,8 +266,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .tpl-btn.open { background: transparent; border: 1px solid var(--secondary-text); color: var(--secondary-text); }
 .tpl-btn.open:hover { background: var(--bg-main); }
 
-/* SETTINGS & FAQ (Center) */
-.settings-box-label { font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: block; }
+/* SETTINGS & FAQ */
 .seg-control { display: flex; background: var(--bg-main); border-radius: 10px; padding: 4px; border: 1px solid var(--border-light); }
 .seg-btn { flex: 1; text-align: center; font-size: 12px; font-weight: 600; min-height: 38px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
 .seg-btn.active { background: var(--surface); color: var(--primary-text); box-shadow: var(--shadow-sm); border: 1px solid var(--primary-subtle); }
@@ -287,7 +285,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .faq-del { color: var(--text-muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); transition: 0.2s;}
 .faq-del:hover { background: #FFEBEF; color: #E74C3C; }
 
-/* EXPORT PREVIEW (Right - Flex Fill) */
+/* EXPORT PREVIEW */
 .export-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-float); display: flex; flex-direction: column; flex: 1; min-height: 400px;}
 .export-tabs { display: flex; background: var(--surface-alt); border-bottom: 1px solid var(--border-light); }
 .export-tab { flex: 1; padding: 14px; text-align: center; font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s;}
@@ -332,8 +330,10 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 
 <div class="app-container">
   
+  <!-- COLUMN 1: CATALOG, PRESETS & PARSER -->
   <div class="panel-left">
 
+    <!-- AUTO PARSER -->
     <div class="settings-card" id="parser-card">
       <div class="settings-header" onclick="document.getElementById('parser-card').classList.toggle('open')">
         📋 Order Parser (ดึงข้อมูลอัตโนมัติ)
@@ -348,6 +348,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
       </div>
     </div>
 
+    <!-- ADMIN AUDIT TOOL -->
     <div class="settings-card" id="audit-card">
       <div class="settings-header" onclick="document.getElementById('audit-card').classList.toggle('open')">
         🛠️ Admin Tool: Audit Product Coverage
@@ -372,7 +373,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
           </div>
         </div>
         <div id="audit-product-list" style="max-height: 150px; overflow-y: auto; font-size: 11px; display: flex; flex-direction: column; gap: 4px; padding: 4px; background: var(--bg-main); border-radius: 8px;">
-          </div>
+        </div>
       </div>
     </div>
     
@@ -390,6 +391,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
     
   </div>
 
+  <!-- COLUMN 2: SETTINGS (COLLAPSIBLE) & CART -->
   <div class="panel-center">
     
     <div class="settings-card" id="collection-card">
@@ -456,6 +458,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 
   </div>
 
+  <!-- COLUMN 3: EXPORT PREVIEW (Sticky Dashboard Box) -->
   <div class="panel-right" id="cart-panel">
     
     <div class="export-card">
@@ -488,64 +491,77 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 // DATA
 // ═══════════════════════════════════════════════
 const GROUPS = [
-  { label:'Simple NFC', emoji:'🎵', expanded: false, products:[
-    { id:'vinyl-record',  name:'Vinyl Record NFC',  emoji:'🎵', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
-    { id:'vinyl-nfc',     name:'Vinyl NFC',         emoji:'💽', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
-    { id:'vinyl-heart',   name:'Vinyl Heart NFC',   emoji:'💗', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
-    { id:'pocket-vinyl',  name:'Pocket Vinyl NFC',  emoji:'🎶', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i7zuygv1t0cri6w', canva_mode: 'multi_page' },
-    { id:'floppy',        name:'Floppy Disk NFC',   emoji:'💾', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/42irx4kok3gnmah', canva_mode: 'multi_page' },
-    { id:'card-nfc',      name:'Card NFC',          emoji:'🃏', type:'card-nfc',  methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/2o5j12d0b62lqei', canva_mode: 'multi_page' },
-    { id:'pin-badge',     name:'Pin Badge NFC',     emoji:'📌', type:'pin-nfc',   methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i12gg5v1ndisbyc', canva_mode: 'multi_page' }
+  { label:'POCKET MEMORIES', emoji:'📸', expanded: false, products:[
+    { id:'pocket-polaroid', name:'Pocket Polaroid (NFC)', emoji:'📷', type:'polaroid-nfc', methods: ['drive'], canvaUrl: null, nfc: true },
+    { id:'mini-cd',         name:'Mini CD Box (NFC)',     emoji:'💿', type:'canva-cd', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/w0yzuhiy266lb3x', canva_mode: 'per_item' },
+    { id:'pocket-tape',     name:'Pocket Tape (NFC)',     emoji:'📼', type:'canva-tape', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/69k4hboiwx9vj3x', canva_mode: 'per_item' },
+    { id:'vinyl-record',    name:'Vinyl Record (NFC)',    emoji:'🎵', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
+    { id:'vinyl-heart',     name:'Vinyl Heart (NFC)',     emoji:'💗', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
+    { id:'pocket-vinyl',    name:'Pocket Vinyl (NFC)',    emoji:'🎶', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i7zuygv1t0cri6w', canva_mode: 'multi_page' }
   ]},
-  { label:'Photo Only (Drive)', emoji:'📸', expanded: false, products:[
-    { id:'film-slide',    name:'Film Slide',        emoji:'🎞️', type:'drive-photo', methods: ['drive'] },
-    { id:'postcard-film', name:'Postcard Film',     emoji:'📬', type:'drive-photo', methods: ['drive'] },
-    { id:'memory-film',   name:'Memory Film',       emoji:'🎬', type:'memory-film', methods: ['drive'] },
-    { id:'film-lamp',     name:'Film Slide Lamp',   emoji:'💡', type:'film-lamp',   methods: ['drive'] },
-    { id:'film-strip',    name:'Film Strip',        emoji:'🎞️', type:'film-strip',   methods: ['drive'] }
+  { label:'ECHOES OF SOUND', emoji:'🔊', expanded: false, products:[
+    { id:'polaroid',        name:'Polaroid Soundframe',   emoji:'📸', type:'polaroid', methods: ['drive'] },
+    { id:'film-slide-nfc',  name:'Film Slide (NFC)',      emoji:'🎞️', type:'film-slide-nfc', methods: ['drive'] },
+    { id:'vinyl-nfc',       name:'Vinyl (NFC)',           emoji:'💽', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
+    { id:'floppy',          name:'Floppy Disk (NFC)',     emoji:'💾', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/42irx4kok3gnmah', canva_mode: 'multi_page' },
+    { id:'pin-badge',       name:'Pin Badge (NFC)',       emoji:'📌', type:'pin-nfc',   methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i12gg5v1ndisbyc', canva_mode: 'multi_page' },
+    { id:'card-nfc',        name:'Card (NFC)',            emoji:'🃏', type:'card-nfc',  methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/2o5j12d0b62lqei', canva_mode: 'multi_page' }
   ]},
-  { label:'Drive + Music', emoji:'🎶', expanded: false, products:[
-    { id:'film-slide-nfc', name:'Film Slide NFC',      emoji:'🎞️', type:'film-slide-nfc', methods: ['drive'] },
-    { id:'snowglobe',      name:'Snowglobe',           emoji:'🔮', type:'snowglobe',       methods: ['drive'] },
-    { id:'polaroid',       name:'Polaroid Soundframe', emoji:'📸', type:'polaroid',        methods: ['drive'] },
-    { id:'melody-filmbook',name:'Melody Filmbook',     emoji:'📖', type:'melody-filmbook', methods: ['drive'] },
-    { id:'story-spin',     name:'Story Spin Box',      emoji:'🎡', type:'story-spin',      methods: ['drive'] }
+  { label:'EVERYDAY NOSTALGIA', emoji:'🕰️', expanded: false, products:[
+    { id:'disposable-cam',  name:'ONE SHOT! Personalized Camera', emoji:'📷', type:'canva-simple', methods: ['canva'], canvaUrl:'https://canva.link/rlll254pser2243', canva_mode: 'per_item' },
+    { id:'film-lamp',       name:'Vintage Lamp',          emoji:'💡', type:'film-lamp', methods: ['drive'] },
+    { id:'cassette',        name:'Custom Cassette Tape',  emoji:'📼', type:'cassette', methods: ['canva'], canvaUrl:'https://canva.link/thvmpl2jmlbbcoc', canva_mode: 'per_item' },
+    { id:'memory-film',     name:'Memory Film',           emoji:'🎬', type:'memory-film', methods: ['drive'] },
+    { id:'film-slide',      name:'Film Slide',            emoji:'🎞️', type:'drive-photo', methods: ['drive'] },
+    { id:'film-strip',      name:'Film Strip',            emoji:'🎞️', type:'film-strip', methods: ['drive'] },
+    { id:'postcard-film',   name:'Postcard Film',         emoji:'📬', type:'drive-photo', methods: ['drive'] },
+    { id:'melody-filmbook', name:'Melody Filmbook (NFC)', emoji:'📖', type:'melody-filmbook', methods: ['drive'] }
   ]},
-  { label:'Canva Products', emoji:'🎨', expanded: false, products:[
-    { id:'mini-cd',        name:'Mini CD Box NFC',          emoji:'💿', type:'canva-cd',       canvaUrl:'https://canva.link/w0yzuhiy266lb3x', methods: ['canva', 'quick'], canva_mode: 'per_item' },
-    { id:'pocket-tape',    name:'Pocket Tape NFC',          emoji:'📼', type:'canva-tape',     canvaUrl:'https://canva.link/69k4hboiwx9vj3x', methods: ['canva', 'quick'], canva_mode: 'per_item' },
-    { id:'disposable-cam', name:'Custom Disposable Camera', emoji:'📷', type:'canva-simple', canvaUrl:'https://canva.link/rlll254pser2243',  methods: ['canva'], canva_mode: 'per_item' },
-    { id:'vinyl-set',      name:'Vinyl Record Set',         emoji:'🎵', type:'canva-vinylset',canvaUrl:'https://canva.link/x9fpvwir9lquatc', methods: ['canva', 'quick'], canva_mode: 'multi_page' },
-    { id:'cassette',       name:'Custom Cassette Tape',     emoji:'📼', type:'cassette',    canvaUrl:'https://canva.link/thvmpl2jmlbbcoc', methods: ['canva'], canva_mode: 'per_item' }
+  { label:'MOMENTS IN MOTION', emoji:'🎡', expanded: false, products:[
+    { id:'story-spin',      name:'Story Spin Box (NFC)',  emoji:'🎡', type:'story-spin', methods: ['drive'] },
+    { id:'vinyl-set',       name:'Vinyl Record Set (NFC)',emoji:'🎵', type:'canva-vinylset', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
+    { id:'snowglobe',       name:'Snowglobe Story (NFC)', emoji:'🔮', type:'snowglobe', methods: ['drive'] }
   ]}
 ];
 
 // Parser Aliases
 const PARSER_ALIASES = {
-  'mini-cd': ['mini cd box', 'mini cd', 'cd box', 'cd'],
-  'vinyl-set': ['vinyl set', 'vinyl record set', 'เซ็ตแผ่นเสียง'],
-  'vinyl-nfc': ['vinyl', 'vinyl nfc', 'vinyl (nfc)', 'ไวนิล nfc'],
-  'vinyl-record': ['vinyl record', 'vinyl record nfc', 'vinyl record (nfc)', 'ไวนิลแผ่นหมุน'],
-  'vinyl-heart': ['vinyl heart', 'หัวใจ'],
-  'pocket-vinyl': ['pocket vinyl', 'พวงกุญแจแผ่นเสียง'],
-  'floppy': ['floppy disk', 'floppy', 'ดิสก์'],
-  'card-nfc': ['card nfc', 'nfc card', 'การ์ด nfc', 'card'],
-  'pin-badge': ['pin badge', 'pin nfc', 'เข็มกลัด'],
-  'film-slide-nfc': ['film slide nfc', 'film slide (nfc)', 'film slide', 'slide nfc', 'สไลด์ nfc', 'ฟิล์มสไลด์ nfc'],
-  'film-slide': ['ฟิล์มสไลด์'],
-  'photo-strip': ['photo strip', 'โฟโต้สตริป'],
+  'pocket-polaroid': ['pocket polaroid (nfc)', 'pocket polaroid', 'pocket pola', 'polaroid nfc'],
+  'mini-cd': ['mini cd box (nfc)', 'mini cd box', 'cd box', 'cd', 'nfc mini cd box'],
+  'pocket-tape': ['pocket tape (nfc)', 'pocket tape', 'tape nfc', 'พวงกุญแจเทป'],
+  'vinyl-record': ['vinyl record (nfc)', 'vinyl record', 'vinyl record nfc', 'แผ่นหมุน', 'ไวนิลแผ่นหมุน'],
+  'vinyl-heart': ['vinyl heart (nfc)', 'vinyl heart', 'heart vinyl', 'ไวนิลหัวใจ', 'แผ่นหมุนหัวใจ'],
+  'pocket-vinyl': ['pocket vinyl (nfc)', 'pocket vinyl'],
+  
+  'polaroid': ['polaroid soundframe', 'polaroid', 'โพลาลอยด์', 'โพลารอยด์', 'soundframe'],
+  'film-slide-nfc': ['film slide (nfc)', 'film slide nfc', 'slide nfc', 'ฟิล์มสไลด์ nfc', 'สไลด์ nfc'],
+  'vinyl-nfc': ['vinyl (nfc)', 'vinyl nfc', 'vinyl', 'ไวนิล nfc', 'ไวนิล'],
+  'floppy': ['floppy disk (nfc)', 'floppy disk', 'floppy', 'ดิสก์'],
+  'pin-badge': ['pin badge (nfc)', 'pin badge', 'pin nfc', 'เข็มกลัด'],
+  'card-nfc': ['card (nfc)', 'card nfc', 'nfc card', 'การ์ด nfc', 'card'],
+
+  'disposable-cam': ['one shot! personalized camera', 'one shot camera', 'personalized camera', 'custom disposable camera', 'one shot', 'disposable camera', 'กล้องฟิล์ม'],
+  'film-lamp': ['vintage lamp', 'film lamp', 'โคมไฟฟิล์ม', 'film slide lamp', 'โคมไฟ'],
+  'cassette': ['custom cassette tape', 'cassette tape', 'cassette', 'ตลับเทป', 'คาสเซ็ท'],
   'memory-film': ['memory film', 'film roll', 'film reel', 'ม้วนฟิล์ม'],
-  'film-lamp': ['film lamp', 'โคมไฟฟิล์ม', 'film slide lamp', 'โคมไฟ'],
-  'snowglobe': ['snow globe', 'snowglobe', 'สโนว์โกลบ'],
-  'polaroid': ['polaroid', 'โพลาลอยด์', 'โพลารอยด์', 'soundframe'],
-  'melody-filmbook': ['melody filmbook', 'filmbook', 'สมุดภาพ'],
-  'story-spin': ['story spin box', 'story spin', 'spin box', 'กล่องหมุน'],
-  'pocket-tape': ['pocket tape', 'เทปจิ๋ว', 'เทป'],
-  'disposable-cam': ['one shot! personalized camera', 'one shot camera', 'personalized camera', 'custom disposable camera', 'disposable camera', 'disposable', 'กล้อง'],
-  'cassette': ['cassette tape', 'cassette', 'ตลับเทป', 'คาสเซ็ท'],
+  'film-slide': ['film slide', 'ฟิล์มสไลด์', 'film slide ธรรมดา'],
+  'film-strip': ['film strip', 'filmstrip'],
   'postcard-film': ['postcard film', 'โปสการ์ดฟิล์ม', 'โปสการ์ด', 'postcard'],
-  'film-strip': ['film strip', 'filmstrip']
+  'melody-filmbook': ['melody filmbook (nfc)', 'melody filmbook', 'filmbook', 'สมุดภาพ'],
+
+  'story-spin': ['story spin box (nfc)', 'story spin box', 'spin box', 'story spin', 'กล่องหมุน'],
+  'vinyl-set': ['vinyl record set (nfc)', 'vinyl record set', 'vinyl set', 'เซ็ตแผ่นเสียง'],
+  'snowglobe': ['snowglobe story (nfc)', 'snowglobe story', 'snow globe', 'snowglobe', 'สโนว์โกลบ']
 };
+
+function normalizeText(text) {
+  if (!text) return '';
+  return text.toLowerCase()
+    .replace(/\(nfc\)/gi, 'nfc') // Replace (NFC) with nfc
+    .replace(/[™®!]/g, '')      // Remove ™, ®, !
+    .replace(/\s+/g, ' ')       // Collapse extra spaces
+    .trim();
+}
 
 let FLAT_ALIASES = [];
 Object.keys(PARSER_ALIASES).forEach(id => {
@@ -574,10 +590,10 @@ const DEFAULT_PRESETS = [
 ];
 
 const CANVA_TYPES = ['canva-cd','canva-tape','canva-simple','canva-vinylset'];
-const DRIVE_TYPES = ['drive-photo','memory-film','film-lamp','film-slide-nfc','snowglobe','polaroid','melody-filmbook','story-spin','film-strip'];
+const DRIVE_TYPES = ['drive-photo','memory-film','film-lamp','film-slide-nfc','snowglobe','polaroid','melody-filmbook','story-spin','film-strip','polaroid-nfc'];
 const QUICK_TYPES = ['quick-nfc','card-nfc','pin-nfc'];
 const SPECIAL_TYPES = ['cassette'];
-const MUSIC_TYPES = [...QUICK_TYPES, 'film-slide-nfc','snowglobe','story-spin','melody-filmbook','canva-cd','canva-tape','canva-vinylset','cassette','polaroid'];
+const MUSIC_TYPES = [...QUICK_TYPES, 'film-slide-nfc','snowglobe','story-spin','melody-filmbook','canva-cd','canva-tape','canva-vinylset','cassette','polaroid','polaroid-nfc'];
 
 const PMAP = {};
 GROUPS.forEach(g => g.products.forEach(p => PMAP[p.id] = p));
@@ -723,19 +739,7 @@ function runProductAudit() {
 }
 
 // ═══════════════════════════════════════════════
-// NORMALIZATION HELPER
-// ═══════════════════════════════════════════════
-function normalizeText(text) {
-  if (!text) return '';
-  return text.toLowerCase()
-    .replace(/\(nfc\)/gi, '') // Remove (NFC) / (nfc)
-    .replace(/[™®!]/g, '')    // Remove ™, ®, !
-    .replace(/\s+/g, ' ')     // Collapse extra spaces
-    .trim();
-}
-
-// ═══════════════════════════════════════════════
-// ORDER PARSER LOGIC (PRIORITIZED PRODUCT -> VARIANT -> QUANTITY)
+// ORDER PARSER LOGIC
 // ═══════════════════════════════════════════════
 function applyParsedOrder() {
   const text = document.getElementById('order-parser-input').value;
@@ -748,7 +752,6 @@ function applyParsedOrder() {
   state.filmSlideFrames = null;
   state.unconfiguredProducts = [];
 
-  // Detect Metadata
   let provMatch = text.match(/(?:จังหวัด(?:ปลายทาง)?|จัดส่งไปที่)[:\s]*\n*\s*([^\n]+)/i);
   let dateMatch = text.match(/(?:วันที่(?:ต้องการ)?ใช้งาน|วันที่ใช้)[:\s]*\n*\s*([^\n]+)/i);
   let amtMatch = text.match(/(?:ยอดรวม(?:ทั้งสิ้น)?|รวม)[:\s]*\n*\s*([^\n]+)/i);
@@ -761,7 +764,6 @@ function applyParsedOrder() {
   let foundProducts = [];
   let lines = text.split('\n');
 
-  // Skip parameters to ignore during product missing warning detection
   const optionKeywords = ['แบบมาตรฐาน', 'รุ่นมาตรฐาน', 'standard', 'standard version'];
   const skipKeywords = [
     'จังหวัดปลายทาง', 'จังหวัด', 'จัดส่งไปที่',
@@ -777,19 +779,14 @@ function applyParsedOrder() {
 
     let normalizedLine = normalizeText(rawLine);
 
-    // Skip purely metadata lines or headers
     let isSkipMeta = skipKeywords.some(kw => normalizedLine.includes(kw.toLowerCase()));
     if (isSkipMeta) continue;
 
-    // Detect Frame Variant
     let matchedFrameKey = null;
     for (let fDef of frameDefinitions) {
       for (let pat of fDef.patterns) {
         if (normalizedLine.includes(pat.toLowerCase())) {
-          // Guard for specific cases of 'กรอบดำ' vs black text/blue things
-          if (fDef.key === 'กรอบดำ' && (normalizedLine.includes('น้ำเงิน') || normalizedLine.includes('แดง'))) {
-            continue; 
-          }
+          if (fDef.key === 'กรอบดำ' && (normalizedLine.includes('น้ำเงิน') || normalizedLine.includes('แดง'))) continue; 
           matchedFrameKey = fDef.key;
           break;
         }
@@ -797,16 +794,14 @@ function applyParsedOrder() {
       if (matchedFrameKey) break;
     }
 
-    // PRIORITY 1: Frame Variant Detection (Film Slide NFC)
     if (matchedFrameKey) {
-      let cleanLine = normalizedLine.replace(/\d+\s*บาท/gi, ''); // strip pricing
+      let cleanLine = normalizedLine.replace(/\d+\s*บาท/gi, ''); 
       let qtyMatch = cleanLine.match(/(?:x|\*|จำนวน|=|\s)\s*(\d+)/);
       let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
       detectedFrames[matchedFrameKey] = (detectedFrames[matchedFrameKey] || 0) + qty;
-      continue; // Handled as variant, strictly skip Treat-As-Product and Warn-As-Missing
+      continue; 
     }
 
-    // PRIORITY 2: Product Alias Detection
     let matchedProductId = null;
     for (let item of FLAT_ALIASES) {
       if (normalizedLine.includes(item.alias)) {
@@ -816,7 +811,6 @@ function applyParsedOrder() {
     }
 
     if (matchedProductId) {
-      // Avoid creating Film Slide (NFC) as duplicate drive product if we already found frame variants
       if ((matchedProductId === 'film-slide' || matchedProductId === 'film-slide-nfc') && Object.keys(detectedFrames).length > 0) {
         continue;
       }
@@ -831,35 +825,26 @@ function applyParsedOrder() {
       } else {
         foundProducts.push({ id: matchedProductId, qty: qty });
       }
-      continue; // Handled as product, skip Warn-As-Missing
+      continue; 
     }
 
-    // PRIORITY 3: Option Check (Bypass standard product options)
     let isOption = optionKeywords.some(opt => normalizedLine.includes(opt));
-    if (isOption) continue; // Skip product option parameters
+    if (isOption) continue; 
 
-    // PRIORITY 4: Missing Product Configuration Warning Check
     if (normalizedLine.match(/(?:x|\*|จำนวน|=)\s*\d+/) || normalizedLine.match(/บาท/) || rawLine.match(/^[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/)) {
       let potentialName = rawLine.replace(/[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/g, '').split(/x|\*|จำนวน|=|\d+|บาท/i)[0].trim();
       let normalizedPotential = normalizeText(potentialName);
       
-      // Ensure potentialName is not empty, too short, an option, metadata, or frame variant
       let isStillPotential = potentialName.length > 3 &&
         !optionKeywords.some(opt => normalizedPotential.includes(opt)) &&
         !skipKeywords.some(kw => normalizedPotential.includes(kw.toLowerCase()));
 
-      // Check if it matches any known product alias to prevent false warning
       let matchesKnownAlias = FLAT_ALIASES.some(item => normalizedPotential.includes(item.alias) || item.alias.includes(normalizedPotential));
-      if (matchesKnownAlias) {
-        isStillPotential = false;
-      }
+      if (matchesKnownAlias) isStillPotential = false;
 
-      // Double-check against frame variant patterns
       for (let fDef of frameDefinitions) {
         for (let pat of fDef.patterns) {
-          if (normalizedPotential.includes(pat.toLowerCase())) {
-            isStillPotential = false;
-          }
+          if (normalizedPotential.includes(pat.toLowerCase())) isStillPotential = false;
         }
       }
 
@@ -869,7 +854,6 @@ function applyParsedOrder() {
     }
   }
 
-  // Populate Film Slide NFC if frame variants were extracted
   if (Object.keys(detectedFrames).length > 0) {
     state.filmSlideFrames = detectedFrames;
     state.selected['film-slide-nfc'] = true;
@@ -878,19 +862,16 @@ function applyParsedOrder() {
     state.methods['film-slide-nfc'] = 'drive';
   }
 
-  // Populate standard products to state
   foundProducts.forEach(p => {
     state.selected[p.id] = true;
     state.quantities[p.id] = p.qty;
     state.methods[p.id] = PMAP[p.id].methods[0];
   });
 
-  // Expand accordion groups of selected products and render UI
   GROUPS.forEach(g => { g.expanded = g.products.some(p => state.selected[p.id]); });
   renderProducts();
   renderCart();
 
-  // Populate note if metadata exists
   let notesArr = [];
   if (prov) notesArr.push(`จังหวัด: ${prov}`);
   if (eventDate) notesArr.push(`วันที่ใช้งาน: ${eventDate}`);
@@ -900,7 +881,6 @@ function applyParsedOrder() {
     document.getElementById('order-note-input').value = notesArr.join('\n');
   }
 
-  // Display summary on detection panel
   let resultHtml = `<strong>📊 Detected Information</strong><br><br>`;
   if (getPicked().length > 0) {
     resultHtml += `<strong>Products:</strong><br>`;
@@ -953,7 +933,6 @@ function renderPresets() {
   const el = document.getElementById('preset-list');
   el.innerHTML = '';
   
-  // Custom Presets
   state.customPresets.forEach((p, i) => {
     let btn = document.createElement('div');
     btn.className = 'preset-btn custom';
@@ -969,7 +948,6 @@ function renderPresets() {
     el.appendChild(btn);
   });
 
-  // Default Presets
   DEFAULT_PRESETS.forEach((p) => {
     let btn = document.createElement('button');
     btn.className = 'preset-btn';
@@ -1034,7 +1012,6 @@ function setCollectionMethod(m) {
   document.getElementById('cm-drive').classList.toggle('active', m === 'drive');
   document.getElementById('cm-chat').classList.toggle('active', m === 'chat');
   
-  // Style update
   document.getElementById('cm-drive').style.background = m === 'drive' ? 'var(--surface)' : 'var(--bg-main)';
   document.getElementById('cm-chat').style.background = m === 'chat' ? 'var(--surface)' : 'var(--bg-main)';
   document.getElementById('cm-drive').style.borderColor = m === 'drive' ? 'var(--secondary)' : 'var(--border-light)';
@@ -1084,9 +1061,6 @@ function updateQty(id, delta) {
   updatePreview();
 }
 
-// ═══════════════════════════════════════════════
-// REMOVE SELECTOR WORK
-// ═══════════════════════════════════════════════
 function updateMethod(id, method) {
   state.methods[id] = method;
   renderCart();
@@ -1116,9 +1090,6 @@ function setExportView(view) {
   updatePreview();
 }
 
-// ═══════════════════════════════════════════════
-// PREVIEW EDIT WORK
-// ═══════════════════════════════════════════════
 function syncPreviewEdit() {
   state.manualEditPreview = true;
 }
@@ -1156,7 +1127,6 @@ function startOver() {
   setCollectionMethod('drive');
   ['music','drive','canva','checklist'].forEach(o => { document.getElementById('opt-'+o).classList.remove('active'); });
   
-  // Collapse settings on clear to keep UI neat
   document.getElementById('collection-card').classList.remove('open');
   document.getElementById('note-card').classList.remove('open');
   document.getElementById('guides-card').classList.remove('open');
@@ -1233,7 +1203,6 @@ function renderCart() {
   
   let picked = getPicked();
   
-  // Mobile Sticky update
   let btnScroll = document.getElementById('btn-scroll-cart');
   btnScroll.disabled = picked.length === 0;
   btnScroll.textContent = `Review & Export (${picked.length})`;
@@ -1292,7 +1261,7 @@ function renderCart() {
 }
 
 function updatePreview() {
-  state.manualEditPreview = false; // Reset manual edit flag on logic change
+  state.manualEditPreview = false; 
   let text = '';
   if (state.exportView === 'customer') {
     text = buildCustomerMessage();
@@ -1356,7 +1325,6 @@ function getPicked() {
 function buildCustomerMessage() {
   let picked = getPicked();
   
-  // Generation Safety check: Warn user if unconfigured products exist
   let safetyWarning = '';
   if (state.unconfiguredProducts && state.unconfiguredProducts.length > 0) {
     safetyWarning = `⚠️ WARNING: Missing Product Configuration!\nระบบพบออเดอร์สินค้าที่ยังไม่มีการตั้งค่าจับคู่ฐานข้อมูล:\n` +
@@ -1382,7 +1350,9 @@ function buildCustomerMessage() {
     if (state.opts.canva) parts.push('⚠️ อย่าลืมตั้งค่า Share → "Anyone with the link can edit"');
     canvaItems.forEach(i => {
       parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
-      parts.push(`🔗 Template (กด Use Template): ${i.p.canvaUrl}`);
+      if (i.p.canvaUrl) {
+         parts.push(`🔗 Template (กด Use Template): ${i.p.canvaUrl}`);
+      }
       
       if (i.p.id === 'cassette') {
          parts.push(`  1️⃣ Canva (ลิงก์เทมเพลต): xxxxx\n  2️⃣ Playlist หน้า A: xxxxx\n  3️⃣ Playlist หน้า B: xxxxx\n  4️⃣ ความยาว (45/90 นาที): xxxxx`);
@@ -1432,7 +1402,15 @@ function buildCustomerMessage() {
       if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
         parts.push(`  หากมีหลายแบบ กรุณาตั้งชื่อไฟล์ตามชื่อเพลง\n  ตัวอย่าง: เพลงA.jpg, เพลงB.jpg หรือ เพลงA_3อัน.jpg`);
       } else {
-        if(i.p.id==='film-slide') {
+        if(i.p.id==='pocket-polaroid') {
+            parts.push(
+              `  • รูป 1 รูป\n` +
+              `  • ลิงก์เพลง 1 เพลง\n\n` +
+              `  สามารถส่งผ่านแชท หรือ Google Drive ได้ค่ะ\n` +
+              `  ⚠️ สินค้า NFC ต้องแนบลิงก์เพลงทุกครั้ง`
+            );
+        }
+        else if(i.p.id==='film-slide') {
           if (state.collectionMode === 'drive') {
             parts.push(
               `  📌 วิธีส่งไฟล์รูปภาพสำหรับฟิล์มสไลด์ 📌\n` +
