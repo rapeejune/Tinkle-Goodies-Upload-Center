@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tinkle Goodies — Upload Center</title>
+<title>Tinkle Goodies — Upload Center & Tools</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Image Processing Libraries -->
+<script src="https://unpkg.com/heic2any"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
 <style>
 :root {
   /* LIGHT MODE (Pastel) */
@@ -83,13 +87,25 @@
 
 body { background: var(--bg-main); color: var(--text-main); font-size: 14px; line-height: 1.5; padding-bottom: 100px; }
 
-/* HEADER */
-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 12px 20px; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-light); box-shadow: var(--shadow-sm); }
+/* HEADER & NAVBAR */
+header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 0 20px; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-light); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; height: 65px;}
 @media (prefers-color-scheme: dark) { header { background: rgba(34, 31, 30, 0.9); } }
-.logo-name { font-size: 18px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 8px;}
+.logo-area { display: flex; flex-direction: column; align-items: flex-start; }
+.logo-name { font-size: 16px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 8px;}
 .logo-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); font-weight: 600; display: block; margin-top: 2px;}
 
-/* RESPONSIVE LAYOUT: MOBILE -> DESKTOP (2 Columns 35% / 65%) */
+.nav-tabs { display: flex; gap: 8px; height: 100%; align-items: flex-end;}
+.nav-tab { padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s;}
+.nav-tab.active { color: var(--primary-text); border-bottom-color: var(--primary); }
+.nav-tab:hover:not(.active) { color: var(--text-main); }
+
+/* MAIN APP VIEW CONTAINERS */
+.view-container { display: none; }
+.view-container.active { display: block; }
+
+/* ---------------------------------------------------
+   UPLOAD CENTER VIEW STYLES 
+   --------------------------------------------------- */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -101,7 +117,7 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 @media (min-width: 1024px) {
   .app-container {
     display: grid;
-    grid-template-columns: 35% 65%; /* Optimal 2-column layout */
+    grid-template-columns: 35% 65%;
     gap: 24px;
     padding: 24px;
     height: calc(100vh - 65px);
@@ -109,50 +125,16 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
     max-width: 1440px;
     margin: 0 auto;
   }
-  .panel-left {
-    height: 100%;
-    overflow-y: auto;
-    padding: 4px;
-    scrollbar-width: thin;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .panel-right {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-    gap: 16px;
-  }
-  /* Half-split in the right panel */
-  .right-top-scroll {
-    flex: 0 1 45%; /* Shrinkable, initial 45% */
-    overflow-y: auto;
-    padding: 4px;
-    scrollbar-width: thin;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .right-bottom-fixed {
-    flex: 1 0 50%; /* Grows to fill, min 50% for message preview */
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-float);
-    overflow: hidden;
-  }
+  .panel-left { height: 100%; overflow-y: auto; padding: 4px; scrollbar-width: thin; display: flex; flex-direction: column; gap: 16px; }
+  .panel-right { display: flex; flex-direction: column; height: 100%; overflow: hidden; gap: 16px; }
+  .right-top-scroll { flex: 0 1 45%; overflow-y: auto; padding: 4px; scrollbar-width: thin; display: flex; flex-direction: column; gap: 16px; }
+  .right-bottom-fixed { flex: 1 0 50%; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); box-shadow: var(--shadow-float); overflow: hidden; }
   #mobile-sticky-bar { display: none !important; }
   body { overflow: hidden; padding-bottom: 0; }
 }
 
-/* SECTION TITLES */
 .section-title { font-size: 14px; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;}
 
-/* PRESETS */
 .presets-wrap { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
 .presets-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
 .presets-scroll::-webkit-scrollbar { display: none; }
@@ -161,15 +143,15 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .preset-btn:active { transform: scale(0.95); }
 .preset-btn.custom { border-style: dashed; color: var(--purple-text); border-color: var(--purple-text); }
 .preset-del { position: absolute; right: 0; top: 0; transform: translate(30%, -30%); background: var(--bg-main); border: 1px solid var(--border-light); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; color: var(--text-muted); z-index: 2;}
-.btn-micro-action { font-size: 11px; padding: 4px 12px; border-radius: 100px; border: 1px solid var(--primary); background: var(--primary-light); color: var(--primary-text); cursor: pointer; font-weight: 600; min-height: 30px;}
 
-/* SETTINGS CARDS (Static, No Accordion) */
+.btn-micro-action { font-size: 11px; padding: 4px 12px; border-radius: 100px; border: 1px solid var(--primary); background: var(--primary-light); color: var(--primary-text); cursor: pointer; font-weight: 600; min-height: 30px;}
+.btn-micro-action:hover { background: var(--primary); color: var(--surface); }
+
 .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; flex-shrink: 0; }
 @media (max-width: 767px) { .settings-grid { grid-template-columns: 1fr; } }
 .set-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 10px; }
 .set-title { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;}
 
-/* INPUTS & PARSER */
 .parser-input { width: 100%; flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-main); font-size: 13px; outline: none; resize: vertical; font-family: 'Prompt', sans-serif;}
 .parser-input:focus { border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px var(--primary-light); }
 .btn-parse { width: 100%; min-height: 40px; border-radius: 10px; background: var(--text-main); color: var(--surface); font-size: 13px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;}
@@ -177,11 +159,9 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .btn-clear { background: var(--surface-alt); color: var(--text-main); border: 1px solid var(--border-light); }
 .parser-result { margin-top: 8px; padding: 12px; border-radius: 10px; background: var(--bg-main); border: 1px solid var(--border-light); font-size: 12px; line-height: 1.6; }
 
-/* SEARCH */
 .search-bar { width: 100%; min-height: 44px; border-radius: 100px; border: 1px solid var(--border-light); background: var(--surface); padding: 0 16px; font-size: 14px; color: var(--text-main); outline: none; box-shadow: var(--shadow-sm); transition: 0.2s; flex-shrink: 0; }
 .search-bar:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 
-/* PRODUCT CATALOG */
 .product-group { background: var(--surface); border-radius: var(--radius-md); border: 1px solid var(--border-light); overflow: hidden; box-shadow: var(--shadow-sm); flex-shrink: 0; }
 .group-header { padding: 14px 16px; font-size: 13px; font-weight: 700; color: var(--text-main); background: var(--surface-alt); display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
 .group-header .icon { color: var(--text-muted); font-size: 10px; transition: transform 0.2s; width: 16px; text-align: center; }
@@ -197,7 +177,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .p-card.selected .p-check { background: var(--primary); border-color: var(--primary); }
 .p-card.selected .p-check::after { content: '✓'; color: white; font-size: 12px; }
 
-/* CART ITEM */
 .cart-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
 .cart-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .cart-card-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
@@ -206,7 +185,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .qty-val { font-size: 14px; font-weight: 700; min-width: 20px; text-align: center; }
 .remove-btn { color: var(--text-muted); background: none; border: none; font-size: 12px; cursor: pointer; text-decoration: underline; }
 
-/* METHOD SELECTOR */
 .method-grid { display: grid; grid-template-columns: 1fr; gap: 6px; margin-bottom: 12px; }
 @media (min-width: 400px) { .method-grid { grid-template-columns: 1fr 1fr; } }
 .mth-btn { min-height: 40px; border-radius: 10px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; }
@@ -217,14 +195,12 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .seg-btn.active { background: var(--surface); color: var(--primary-text); box-shadow: var(--shadow-sm); border: 1px solid var(--primary-subtle); }
 .note-input { width: 100%; min-height: 60px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-main); font-size: 13px; outline: none; resize: vertical;}
 
-/* SUMMARY BOX */
 .summary-box { background: var(--surface-alt); border: 1px dashed var(--border-light); border-radius: var(--radius-md); padding: 16px; margin-bottom: 8px;}
 
-/* PREVIEW BOX (Bottom Half) */
-.preview-header { padding: 12px 16px; border-bottom: 1px solid var(--border-light); background: var(--surface-alt); display: flex; justify-content: space-between; align-items: center; }
+.preview-header { padding: 12px 16px; border-bottom: 1px solid var(--border-light); background: var(--surface-alt); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;}
 .preview-header-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; color: var(--text-main); }
 .preview-box { width: 100%; padding: 16px; font-size: 13px; white-space: pre-wrap; color: var(--text-main); background: var(--bg-main); flex: 1; overflow-y: auto; border: none; resize: none; outline: none; line-height: 1.6;}
-.action-area { padding: 16px; background: var(--surface); display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--border-light); }
+.action-area { padding: 16px; background: var(--surface); display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--border-light); flex-shrink: 0;}
 .btn-copy-main { width: 100%; min-height: 54px; background: var(--primary-grad); color: white; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;}
 .btn-line { background: #06C755; color: white; min-height: 54px; border: none; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center;}
 .btn-clear-all { width: 100%; min-height: 44px; border-radius: 12px; background: var(--bg-main); color: var(--text-muted); font-size: 13px; font-weight: 600; border: 1px dashed var(--border-light); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -251,111 +227,424 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .empty-state { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 13px; font-weight: 500; background: var(--surface); border: 1px dashed var(--border-light); border-radius: var(--radius-md); }
 .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--mint); color: #1A3D33; padding: 12px 24px; border-radius: 100px; font-size: 13px; font-weight: 700; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000; white-space: nowrap; box-shadow: 0 8px 24px rgba(92, 161, 139, 0.3); }
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ---------------------------------------------------
+   IMAGE TOOLS VIEW STYLES
+   --------------------------------------------------- */
+.tools-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+@media (min-width: 768px) {
+  .tools-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    padding: 24px;
+    height: calc(100vh - 65px);
+  }
+  .tool-sidebar { height: 100%; overflow-y: auto; }
+  .tool-workspace { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+}
+
+.tool-menu-item {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-main);
+  border: 1px solid var(--border-light);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.tool-menu-item:hover { background: var(--surface); border-color: var(--primary-subtle); }
+.tool-menu-item.active { background: var(--primary-light); color: var(--primary-text); border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+.tool-menu-item.disabled { opacity: 0.5; pointer-events: none; }
+
+.workspace-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  display: none; /* hidden by default */
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+.workspace-card.active { display: flex; }
+
+.ws-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface-alt);
+}
+.ws-title { font-size: 18px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.ws-desc { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+.ws-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.drop-zone {
+  border: 2px dashed var(--secondary);
+  border-radius: var(--radius-md);
+  background: var(--secondary-light);
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.drop-zone.dragover { background: #E2EFF7; border-color: var(--secondary-text); }
+.drop-zone .icon { font-size: 32px; }
+.drop-zone .main-text { font-size: 15px; font-weight: 700; color: var(--text-main); }
+.drop-zone .sub-text { font-size: 12px; color: var(--text-muted); }
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+}
+.img-preview-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  background: var(--bg-main);
+  box-shadow: var(--shadow-sm);
+}
+.img-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.img-preview-item .badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+/* Settings Form in Tools */
+.tool-settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: var(--bg-main);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+.tool-set-col {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tool-select {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: var(--surface);
+  color: var(--text-main);
+  padding: 0 12px;
+  font-family: 'Prompt', sans-serif;
+  font-size: 13px;
+  outline: none;
+}
+
+.ws-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-light);
+  background: var(--surface);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Loader Overlay */
+#processing-overlay { display: none; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; border-radius: var(--radius-lg); }
+.spinner { width: 40px; height: 40px; border: 4px solid var(--primary-light); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px;}
+@keyframes spin { 100% { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo-name">🎞️ Tinkle Goodies</div>
-  <span class="logo-sub">Upload Center</span>
+  <div class="logo-area">
+    <div class="logo-name">🎞️ Tinkle Goodies</div>
+    <span class="logo-sub">Workspace</span>
+  </div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" id="tab-upload" onclick="switchView('upload-center')">📤 Upload Center</div>
+    <div class="nav-tab" id="tab-tools" onclick="switchView('image-tools')">🎨 Image Utilities</div>
+  </div>
 </header>
 
-<div class="app-container">
-  
-  <!-- LEFT PANEL: PRESETS, SEARCH, CATALOG -->
-  <div class="panel-left">
+<!-- ==========================================
+     VIEW 1: UPLOAD CENTER (Original Parser)
+     ========================================== -->
+<div id="view-upload-center" class="view-container active">
+  <div class="app-container">
     
-    <!-- Quick Presets Prominent -->
-    <div class="presets-wrap">
-      <div class="section-title">
-        <div>⭐ ออเดอร์ฮิต (ด่วน)</div>
-        <button class="btn-micro-action" onclick="saveCurrentPreset()">+ Save</button>
+    <!-- LEFT PANEL: PRESETS, SEARCH, CATALOG -->
+    <div class="panel-left">
+      <div class="presets-wrap">
+        <div class="section-title">
+          <div>⭐ ออเดอร์ฮิต (ด่วน)</div>
+          <button class="btn-micro-action" onclick="saveCurrentPreset()">+ Save</button>
+        </div>
+        <div class="presets-scroll" id="preset-list"></div>
       </div>
-      <div class="presets-scroll" id="preset-list"></div>
+      <input type="text" id="search-input" class="search-bar" placeholder="🔍 ค้นหาสินค้า (เช่น CD, Film...)" oninput="handleSearch()">
+      <div id="product-groups-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
     </div>
 
-    <!-- Search -->
-    <input type="text" id="search-input" class="search-bar" placeholder="🔍 ค้นหาสินค้า (เช่น CD, Film...)" oninput="handleSearch()">
+    <!-- RIGHT PANEL: PROCESS & OUTPUT -->
+    <div class="panel-right" id="cart-panel">
+      <!-- TOP: Scrollable Settings & Cart -->
+      <div class="right-top-scroll">
+        <div class="settings-grid">
+          <!-- Col 1: Parser -->
+          <div class="set-card" style="grid-row: span 2;">
+            <div class="set-title">📋 Order Parser (แกะออเดอร์อัตโนมัติ)</div>
+            <textarea id="order-parser-input" class="parser-input" placeholder="วางออเดอร์ที่นี่... ระบบจะจัดสินค้าให้ทันที"></textarea>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-parse" style="flex: 3;" onclick="applyParsedOrder()">✨ Parse Order</button>
+              <button class="btn-parse btn-clear" style="flex: 1;" onclick="clearParser()">🗑️ Clear</button>
+            </div>
+            <div id="parser-result" class="parser-result" style="display: none;"></div>
+          </div>
 
-    <!-- Catalog -->
-    <div id="product-groups-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
-    
-  </div>
+          <!-- Col 2: Methods & Note -->
+          <div class="set-card">
+            <div class="set-title">📂 File Collection Method</div>
+            <div class="seg-control">
+              <button class="seg-btn active" id="cm-drive" onclick="setCollectionMethod('drive')">Google Drive</button>
+              <button class="seg-btn" id="cm-chat" onclick="setCollectionMethod('chat')">Chat Only</button>
+            </div>
+          </div>
+          
+          <div class="set-card">
+            <div class="set-title">✍️ Order Note</div>
+            <textarea id="order-note-input" class="note-input" placeholder="พิมพ์หมายเหตุถึงลูกค้า (ถ้ามี)..." oninput="updatePreview()"></textarea>
+          </div>
+        </div>
 
-  <!-- RIGHT PANEL: PROCESS & OUTPUT -->
-  <div class="panel-right" id="cart-panel">
-    
-    <!-- TOP: Scrollable Settings & Cart -->
-    <div class="right-top-scroll">
-      
-      <!-- Grid Settings (Parser & General) -->
-      <div class="settings-grid">
-        <!-- Col 1: Parser -->
-        <div class="set-card" style="grid-row: span 2;">
-          <div class="set-title">📋 Order Parser (แกะออเดอร์อัตโนมัติ)</div>
-          <textarea id="order-parser-input" class="parser-input" placeholder="วางออเดอร์ที่นี่... ระบบจะจัดสินค้าให้ทันที"></textarea>
+        <div>
+          <div class="section-title" style="margin-top: 8px;">🛍️ สินค้าที่เลือก</div>
+          <div id="cart-container" style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="empty-state">ยังไม่ได้เลือกสินค้า</div>
+          </div>
+        </div>
+
+        <div class="summary-box" id="summary-box" style="display: none;">
+          <div class="section-title">📦 Order Summary</div>
+          <div id="order-summary-content" style="font-size: 13px; color: var(--text-main); margin-top: 8px;"></div>
+        </div>
+      </div>
+
+      <!-- BOTTOM: Fixed Preview Output -->
+      <div class="right-bottom-fixed">
+        <div class="preview-header">
+          <div class="preview-header-title">💬 Customer Message</div>
           <div style="display: flex; gap: 8px;">
-            <button class="btn-parse" style="flex: 3;" onclick="applyParsedOrder()">✨ Parse Order</button>
-            <button class="btn-parse btn-clear" style="flex: 1;" onclick="clearParser()">🗑️ Clear</button>
-          </div>
-          <div id="parser-result" class="parser-result" style="display: none;"></div>
-        </div>
-
-        <!-- Col 2: Methods & Note -->
-        <div class="set-card">
-          <div class="set-title">📂 File Collection Method</div>
-          <div class="seg-control">
-            <button class="seg-btn active" id="cm-drive" onclick="setCollectionMethod('drive')">Google Drive</button>
-            <button class="seg-btn" id="cm-chat" onclick="setCollectionMethod('chat')">Chat Only</button>
+            <button class="btn-micro-action" onclick="openModal('tools-modal')">🛠️ Tools & Settings</button>
+            <button class="btn-micro-action" onclick="openChecklist()">📋 Checklist</button>
           </div>
         </div>
-        
-        <div class="set-card">
-          <div class="set-title">✍️ Order Note</div>
-          <textarea id="order-note-input" class="note-input" placeholder="พิมพ์หมายเหตุถึงลูกค้า (ถ้ามี)..." oninput="updatePreview()"></textarea>
+        <textarea class="preview-box" id="preview-box" placeholder="ข้อความจะแสดงที่นี่..." oninput="syncPreviewEdit()"></textarea>
+        <div class="action-area">
+          <div style="display: flex; gap: 8px; width: 100%;">
+            <button class="btn-copy-main" style="flex: 2;" onclick="copyActiveMessage()">💌 Copy Message</button>
+            <button class="btn-line" style="flex: 1;" onclick="shareToLine()">🟢 ส่งเข้า LINE</button>
+          </div>
+          <button class="btn-clear-all" onclick="confirmClear()">🗑️ ล้างออเดอร์และเริ่มใหม่</button>
         </div>
-      </div>
-
-      <!-- Selected Products Cart -->
-      <div>
-        <div class="section-title" style="margin-top: 8px;">🛍️ สินค้าที่เลือก</div>
-        <div id="cart-container" style="display: flex; flex-direction: column; gap: 12px;">
-          <div class="empty-state">ยังไม่ได้เลือกสินค้า</div>
-        </div>
-      </div>
-
-      <!-- Order Summary (Verify Parser) -->
-      <div class="summary-box" id="summary-box" style="display: none;">
-        <div class="section-title">📦 Order Summary</div>
-        <div id="order-summary-content" style="font-size: 13px; color: var(--text-main); margin-top: 8px;"></div>
-      </div>
-
-    </div>
-
-    <!-- BOTTOM: Fixed Preview Output -->
-    <div class="right-bottom-fixed">
-      <div class="preview-header">
-        <div class="preview-header-title">💬 Customer Message</div>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn-micro-action" onclick="openModal('tools-modal')">🛠️ Tools</button>
-          <button class="btn-micro-action" onclick="openChecklist()">📋 Checklist</button>
-        </div>
-      </div>
-      <textarea class="preview-box" id="preview-box" placeholder="ข้อความจะแสดงที่นี่..." oninput="syncPreviewEdit()"></textarea>
-      <div class="action-area">
-        <div style="display: flex; gap: 8px; width: 100%;">
-          <button class="btn-copy-main" style="flex: 2;" onclick="copyActiveMessage()">💌 Copy Message</button>
-          <button class="btn-line" style="flex: 1;" onclick="shareToLine()">🟢 ส่งเข้า LINE</button>
-        </div>
-        <button class="btn-clear-all" onclick="confirmClear()">🗑️ ล้างข้อความและเริ่มใหม่</button>
       </div>
     </div>
-
   </div>
-
+  
+  <!-- MOBILE STICKY BAR -->
+  <div id="mobile-sticky-bar" class="sticky-bar">
+    <button id="btn-scroll-cart" class="gen-btn" disabled onclick="scrollToCart()">Review & Export (0)</button>
+  </div>
 </div>
 
-<!-- MODAL: CHECKLIST -->
+<!-- ==========================================
+     VIEW 2: IMAGE TOOLS
+     ========================================== -->
+<div id="view-image-tools" class="view-container">
+  <div class="tools-container">
+    
+    <!-- Sidebar Tool Selection -->
+    <div class="tool-sidebar">
+      <div class="section-title" style="margin-bottom: 12px;">Image Utilities</div>
+      <div class="tool-menu-item active" id="menu-spin" onclick="switchTool('spin')">🎡 Story Spin Box</div>
+      <div class="tool-menu-item" id="menu-convert" onclick="switchTool('convert')">🖼️ Convert to JPG</div>
+      <div class="tool-menu-item disabled">📏 Resize Images (เร็วๆ นี้)</div>
+      <div class="tool-menu-item disabled">🎞️ Film Strip (เร็วๆ นี้)</div>
+      <div class="tool-menu-item disabled">🎬 Memory Film (เร็วๆ นี้)</div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="tool-workspace">
+      
+      <!-- TOOL 1: Story Spin Box -->
+      <div class="workspace-card active" id="panel-spin">
+        <div id="processing-overlay-spin" style="display:none; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center;">
+          <div class="spinner"></div>
+          <div id="processing-text-spin" style="font-weight: 700; font-size: 15px;">กำลังประมวลผล...</div>
+        </div>
+
+        <div class="ws-header">
+          <div class="ws-title">🎡 Story Spin Box Processor</div>
+          <div class="ws-desc">เตรียมไฟล์ 16 รูป (Crop 1:1, ไม่เกิน 1500px, ขีดเส้นกลางแนวนอน, แปลง JPG อัตโนมัติ)</div>
+        </div>
+
+        <div class="ws-body">
+          <!-- Configuration -->
+          <div class="tool-settings-row">
+            <div class="tool-set-col">
+              <span class="settings-box-label">Cut Guide Color</span>
+              <select id="spin-color" class="tool-select" onchange="reRenderSpinPreviews()">
+                <option value="auto">Auto (สีตรงข้ามภาพ)</option>
+                <option value="white">White (สีขาว)</option>
+                <option value="black">Black (สีดำ)</option>
+              </select>
+            </div>
+            <div class="tool-set-col">
+              <span class="settings-box-label">Guide Thickness</span>
+              <select id="spin-thick" class="tool-select" onchange="reRenderSpinPreviews()">
+                <option value="1">1 px</option>
+                <option value="2">2 px</option>
+                <option value="3">3 px</option>
+              </select>
+            </div>
+            <div class="tool-set-col">
+              <span class="settings-box-label">Guide Opacity</span>
+              <select id="spin-opacity" class="tool-select" onchange="reRenderSpinPreviews()">
+                <option value="0.25">25%</option>
+                <option value="0.5" selected>50%</option>
+                <option value="0.75">75%</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="drop-zone" id="dz-spin">
+            <div class="icon">📥</div>
+            <div class="main-text">ลากไฟล์รูปมาวาง หรือคลิกที่นี่</div>
+            <div class="sub-text">รองรับภาพทุกชนิดรวมถึงไฟล์ไม่มีนามสกุล (สูงสุด 16 รูป)</div>
+            <input type="file" id="fi-spin" multiple style="display: none;">
+          </div>
+          
+          <div id="sb-spin" style="display: none; justify-content: space-between; align-items: center; background: var(--primary-light); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--primary-subtle);">
+             <div style="font-weight: 600; color: var(--primary-text);" id="count-spin">เลือกแล้ว 0 / 16 รูป</div>
+             <button class="btn-micro-action" onclick="clearTool('spin')">🗑️ ล้างทั้งหมด</button>
+          </div>
+
+          <div class="preview-grid" id="pg-spin"></div>
+        </div>
+
+        <div class="ws-footer">
+          <button class="btn-copy-main" id="btn-export-spin" disabled onclick="downloadZip('spin')" style="min-height: 48px; width: auto; padding: 0 32px;">📦 ดาวน์โหลด StorySpinBox.zip</button>
+        </div>
+      </div>
+
+      <!-- TOOL 2: Convert to JPG -->
+      <div class="workspace-card" id="panel-convert">
+        <div id="processing-overlay-convert" style="display:none; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center;">
+          <div class="spinner"></div>
+          <div id="processing-text-convert" style="font-weight: 700; font-size: 15px;">กำลังแปลงไฟล์...</div>
+        </div>
+
+        <div class="ws-header">
+          <div class="ws-title">🖼️ Convert To JPG</div>
+          <div class="ws-desc">แปลงไฟล์ HEIC, PNG, WEBP หรือไฟล์ไม่มีนามสกุลเป็น JPG (Quality 100%, ห้ามบีบอัด, คงขนาดเดิมเป๊ะ)</div>
+        </div>
+
+        <div class="ws-body">
+          <div class="tool-settings-row">
+            <div class="tool-set-col" style="flex: unset; width: 100%;">
+              <span class="settings-box-label">ตั้งชื่อไฟล์ Output</span>
+              <div class="seg-control" style="max-width: 400px;">
+                <button class="seg-btn active" id="btn-name-orig" onclick="setConvertNaming('orig')">ชื่อเดิม (IMG_001.jpg)</button>
+                <button class="seg-btn" id="btn-name-seq" onclick="setConvertNaming('seq')">เรียงลำดับ (1.jpg)</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="drop-zone" id="dz-convert">
+            <div class="icon">📥</div>
+            <div class="main-text">ลากไฟล์รูปมาวาง หรือคลิกที่นี่</div>
+            <div class="sub-text">รองรับภาพทุกชนิดรวมถึงไฟล์ไม่มีนามสกุล (สูงสุด 100 รูป/ครั้ง)</div>
+            <input type="file" id="fi-convert" multiple style="display: none;">
+          </div>
+          
+          <div id="sb-convert" style="display: none; justify-content: space-between; align-items: center; background: var(--secondary-light); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--secondary-subtle);">
+             <div style="font-weight: 600; color: var(--secondary-text);" id="count-convert">เตรียมไฟล์ 0 / 100 รูป</div>
+             <button class="btn-micro-action" style="background:var(--surface); border-color:var(--secondary-text); color:var(--secondary-text);" onclick="clearTool('convert')">🗑️ ล้างทั้งหมด</button>
+          </div>
+
+          <div class="preview-grid" id="pg-convert"></div>
+        </div>
+
+        <div class="ws-footer">
+          <button class="btn-copy-main" id="btn-export-convert" disabled onclick="downloadZip('convert')" style="min-height: 48px; width: auto; padding: 0 32px; background: var(--secondary); box-shadow: none;">📦 ดาวน์โหลด ConvertToJPG.zip</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="custom-alert">
+  <div class="modal-content" style="max-width: 320px; padding: 24px; text-align: center;">
+    <div style="font-size: 15px; font-weight: 600; margin-bottom: 24px; color: var(--text-main);" id="alert-msg"></div>
+    <button class="btn-copy-main" style="min-height: 44px; border-radius: 100px;" onclick="closeModal('custom-alert')">ตกลง</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="custom-confirm">
+  <div class="modal-content" style="max-width: 320px; padding: 24px; text-align: center;">
+    <div style="font-size: 15px; font-weight: 600; margin-bottom: 24px; color: var(--text-main);" id="confirm-msg"></div>
+    <div style="display: flex; gap: 12px; justify-content: center;">
+      <button class="btn-copy-main" style="min-height: 44px; flex: 1; border-radius: 100px;" id="btn-confirm-yes">ตกลง</button>
+      <button class="btn-clear-all" style="min-height: 44px; flex: 1; border-radius: 100px;" onclick="closeModal('custom-confirm')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="checklist-modal" onclick="closeModal('checklist-modal')">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="modal-header">
@@ -371,7 +660,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
   </div>
 </div>
 
-<!-- MODAL: TOOLS & FAQ -->
 <div class="modal-overlay" id="tools-modal" onclick="closeModal('tools-modal')">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="modal-header">
@@ -379,8 +667,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
       <button class="btn-close" onclick="closeModal('tools-modal')">×</button>
     </div>
     <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px;">
-      
-      <!-- Optional Guides -->
       <div>
         <div class="settings-box-label">💡 แนบคู่มือเพิ่มเติมให้ลูกค้า</div>
         <div class="opt-chip-wrap">
@@ -390,14 +676,10 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
           <div class="opt-chip" id="opt-checklist" onclick="toggleOpt('checklist')">Checklist</div>
         </div>
       </div>
-
-      <!-- FAQ Quick Snippets -->
       <div>
         <div class="settings-box-label">💬 คลังข้อความตอบกลับด่วน</div>
         <div id="faq-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
-        
         <button class="btn-clear-all" id="btn-show-faq-form" onclick="toggleFaqForm(true)" style="min-height: 36px; font-size: 13px; border-style: dashed;">+ เพิ่มข้อความใหม่</button>
-        
         <div id="faq-form" style="display: none; flex-direction: column; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);">
           <input type="text" id="faq-title" class="search-bar" style="min-height: 40px; font-size: 13px;" placeholder="ชื่อหัวข้อ (เช่น แจ้งเลขบัญชี)">
           <textarea id="faq-text" class="note-input" style="min-height: 80px;" placeholder="พิมพ์ข้อความ..."></textarea>
@@ -407,8 +689,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
           </div>
         </div>
       </div>
-
-      <!-- Audit Tool -->
       <div style="border-top: 1px dashed var(--border-light); padding-top: 16px;">
         <div class="settings-box-label">📊 Database Audit Coverage</div>
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
@@ -430,21 +710,51 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
           </div>
         </div>
       </div>
-
     </div>
   </div>
-</div>
-
-<div id="mobile-sticky-bar" class="sticky-bar">
-  <button id="btn-scroll-cart" class="gen-btn" disabled onclick="scrollToCart()">Review & Export (0)</button>
 </div>
 
 <div class="toast" id="toast">✅ Copied to clipboard</div>
 
 <script>
-// ═══════════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════════
+// ============================================================================
+// SHARED UTILITIES & MODALS
+// ============================================================================
+function showAlert(msg) {
+  document.getElementById('alert-msg').innerText = msg;
+  openModal('custom-alert');
+}
+
+function showConfirm(msg, onYes) {
+  document.getElementById('confirm-msg').innerText = msg;
+  document.getElementById('btn-confirm-yes').onclick = () => {
+    closeModal('custom-confirm');
+    onYes();
+  };
+  openModal('custom-confirm');
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Navigation Switcher
+function switchView(viewId) {
+  document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + viewId).classList.add('active');
+  document.getElementById('tab-' + (viewId === 'upload-center' ? 'upload' : 'tools')).classList.add('active');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+
+// ============================================================================
+// UPLOAD CENTER LOGIC (ORIGINAL PARSER + DATA)
+// ============================================================================
 const GROUPS = [
   { label:'POCKET MEMORIES', emoji:'📸', expanded: false, products:[
     { id:'pocket-polaroid', name:'Pocket Polaroid (NFC)', emoji:'📷', type:'polaroid-nfc', methods: ['drive'], canvaUrl: null, nfc: true },
@@ -479,7 +789,6 @@ const GROUPS = [
   ]}
 ];
 
-// Parser Aliases
 const PARSER_ALIASES = {
   'pocket-polaroid': ['pocket polaroid (nfc)', 'pocket polaroid', 'pocket pola', 'polaroid nfc'],
   'mini-cd': ['mini cd box (nfc)', 'mini cd box', 'cd box', 'cd', 'nfc mini cd box'],
@@ -512,9 +821,9 @@ const PARSER_ALIASES = {
 function normalizeText(text) {
   if (!text) return '';
   return text.toLowerCase()
-    .replace(/\(nfc\)/gi, 'nfc') // Replace (NFC) with nfc
-    .replace(/[™®!]/g, '')      // Remove ™, ®, !
-    .replace(/\s+/g, ' ')       // Collapse extra spaces
+    .replace(/\(nfc\)/gi, 'nfc') 
+    .replace(/[™®!]/g, '')      
+    .replace(/\s+/g, ' ')       
     .trim();
 }
 
@@ -529,11 +838,7 @@ Object.keys(PARSER_ALIASES).forEach(id => {
 });
 FLAT_ALIASES.sort((a, b) => b.alias.length - a.alias.length);
 
-const METHOD_LABELS = {
-  'canva': 'Canva Template',
-  'drive': 'Google Drive',
-  'quick': 'ส่งแบบง่าย (ร้านจัดให้)'
-};
+const METHOD_LABELS = { 'canva': 'Canva Template', 'drive': 'Google Drive', 'quick': 'ส่งแบบง่าย' };
 
 const DEFAULT_PRESETS = [
   { label: '💿 CD BOX 1 (ส่งแบบง่าย)', items: { 'mini-cd': {qty: 1, method: 'quick'} } },
@@ -572,6 +877,7 @@ let state = {
   collectionMode: 'drive', 
   opts: { music: false, drive: false, canva: false, checklist: false },
   search: '',
+  exportView: 'customer', 
   customPresets: [],
   faqSnippets: [],
   manualEditPreview: false, 
@@ -579,14 +885,10 @@ let state = {
   unconfiguredProducts: [] 
 };
 
-// ═══════════════════════════════════════════════
-// INITIALIZATION & PRESETS
-// ═══════════════════════════════════════════════
 function init() {
   try {
     let saved = localStorage.getItem('tinkle_presets_v2');
     if (saved) state.customPresets = JSON.parse(saved);
-    
     let savedFaq = localStorage.getItem('tinkle_faq_v1');
     if (savedFaq) state.faqSnippets = JSON.parse(savedFaq);
     else state.faqSnippets = [{ id: 1, title: '💳 แจ้งเลขบัญชี', text: 'ธนาคารกสิกรไทย\nเลขบัญชี: 123-4-56789-0\nชื่อบัญชี: บจก. ทิงเกิล กู๊ดดี้ส์' }];
@@ -599,58 +901,35 @@ function init() {
   runProductAudit();
 }
 
-// ═══════════════════════════════════════════════
-// MODAL LOGIC
-// ═══════════════════════════════════════════════
-function openModal(id) {
-  document.getElementById(id).classList.add('active');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('active');
-}
 function openChecklist() {
   document.getElementById('checklist-box').value = buildProductionChecklist();
   openModal('checklist-modal');
 }
 function copyChecklist() {
-  let text = document.getElementById('checklist-box').value;
-  copyText(text, '✅ Copied Checklist');
+  copyText(document.getElementById('checklist-box').value, '✅ Copied Checklist');
 }
 
-// ═══════════════════════════════════════════════
-// FAQ SNIPPETS LOGIC
-// ═══════════════════════════════════════════════
+// FAQ Snippets
 function toggleFaqForm(show) {
   document.getElementById('faq-form').style.display = show ? 'flex' : 'none';
   document.getElementById('btn-show-faq-form').style.display = show ? 'none' : 'flex';
-  if(!show) {
-    document.getElementById('faq-title').value = '';
-    document.getElementById('faq-text').value = '';
-  }
+  if(!show) { document.getElementById('faq-title').value = ''; document.getElementById('faq-text').value = ''; }
 }
-
 function saveFaq() {
-  let title = document.getElementById('faq-title').value.trim();
-  let text = document.getElementById('faq-text').value.trim();
-  if(!title || !text) return alert('กรุณากรอกชื่อหัวข้อและข้อความให้ครบถ้วน');
-  
+  let title = document.getElementById('faq-title').value.trim(), text = document.getElementById('faq-text').value.trim();
+  if(!title || !text) return showAlert('กรุณากรอกชื่อหัวข้อและข้อความให้ครบถ้วน');
   state.faqSnippets.push({ id: Date.now(), title, text });
   localStorage.setItem('tinkle_faq_v1', JSON.stringify(state.faqSnippets));
-  
-  toggleFaqForm(false);
-  renderFaq();
-  showToast('✅ บันทึกข้อความด่วนแล้ว');
+  toggleFaqForm(false); renderFaq(); showToast('✅ บันทึกข้อความด่วนแล้ว');
 }
-
 function deleteFaq(id, event) {
   event.stopPropagation();
-  if(confirm('ต้องการลบข้อความตอบกลับด่วนนี้ใช่หรือไม่?')) {
+  showConfirm('ต้องการลบข้อความตอบกลับด่วนนี้ใช่หรือไม่?', () => {
     state.faqSnippets = state.faqSnippets.filter(f => f.id !== id);
     localStorage.setItem('tinkle_faq_v1', JSON.stringify(state.faqSnippets));
     renderFaq();
-  }
+  });
 }
-
 function renderFaq() {
   const container = document.getElementById('faq-list');
   container.innerHTML = '';
@@ -659,42 +938,29 @@ function renderFaq() {
      return;
   }
   state.faqSnippets.forEach(f => {
-    let el = document.createElement('div');
-    el.className = 'faq-item';
+    let el = document.createElement('div'); el.className = 'faq-item';
     el.onclick = () => copyText(f.text, '✅ คัดลอก: ' + f.title);
-    el.innerHTML = `
-      <span class="faq-title">📄 ${f.title}</span>
-      <span class="faq-del" onclick="deleteFaq(${f.id}, event)">🗑️</span>
-    `;
+    el.innerHTML = `<span class="faq-title">📄 ${f.title}</span><span class="faq-del" onclick="deleteFaq(${f.id}, event)">🗑️</span>`;
     container.appendChild(el);
   });
 }
 
-// ═══════════════════════════════════════════════
-// PRODUCT DATABASE AUDIT LOGIC
-// ═══════════════════════════════════════════════
+// Product Audit
 function runProductAudit() {
-  let totalProducts = 0;
-  let configuredProducts = 0;
-  let missingProducts = 0;
-
+  let totalProducts = 0, configuredProducts = 0, missingProducts = 0;
   GROUPS.forEach(group => {
     group.products.forEach(p => {
       totalProducts++;
-      if (!!PARSER_ALIASES[p.id]) configuredProducts++;
-      else missingProducts++;
+      if (!!PARSER_ALIASES[p.id]) configuredProducts++; else missingProducts++;
     });
   });
-
   document.getElementById('audit-total-count').textContent = totalProducts;
   document.getElementById('audit-active-count').textContent = configuredProducts;
   document.getElementById('audit-missing-count').textContent = missingProducts;
   document.getElementById('audit-coverage-pct').textContent = (totalProducts > 0 ? Math.round((configuredProducts / totalProducts) * 100) : 0) + '%';
 }
 
-// ═══════════════════════════════════════════════
-// ORDER PARSER LOGIC
-// ═══════════════════════════════════════════════
+// Order Parser
 function applyParsedOrder() {
   const text = document.getElementById('order-parser-input').value;
   if (!text.trim()) return showToast('กรุณาวางข้อความออเดอร์ก่อนค่ะ');
@@ -721,9 +987,7 @@ function applyParsedOrder() {
   for (let i = 0; i < lines.length; i++) {
     let rawLine = lines[i].trim();
     if (!rawLine) continue;
-
     let normalizedLine = normalizeText(rawLine);
-
     if (skipKeywords.some(kw => normalizedLine.includes(kw.toLowerCase()))) continue;
 
     let matchedFrameKey = null;
@@ -731,14 +995,12 @@ function applyParsedOrder() {
       for (let pat of fDef.patterns) {
         if (normalizedLine.includes(pat.toLowerCase())) {
           if (fDef.key === 'กรอบดำ' && (normalizedLine.includes('น้ำเงิน') || normalizedLine.includes('แดง') || normalizedLine.includes('blue') || normalizedLine.includes('red'))) continue; 
-          matchedFrameKey = fDef.key;
-          break;
+          matchedFrameKey = fDef.key; break;
         }
       }
       if (matchedFrameKey) break;
     }
 
-    // PRIORITY 1: Frame Variant Detection (Film Slide NFC)
     if (matchedFrameKey) {
       let cleanLine = normalizedLine.replace(/\d+\s*บาท/gi, ''); 
       let qtyMatch = cleanLine.match(/(?:x|\*|จำนวน|=)\s*(\d+)/) || cleanLine.match(/(\d+)/);
@@ -747,60 +1009,39 @@ function applyParsedOrder() {
       continue; 
     }
 
-    // PRIORITY 2: Product Alias Detection
     let matchedProductId = null;
     for (let item of FLAT_ALIASES) {
-      if (normalizedLine.includes(item.alias)) {
-        matchedProductId = item.id;
-        break;
-      }
+      if (normalizedLine.includes(item.alias)) { matchedProductId = item.id; break; }
     }
 
     if (matchedProductId) {
       if ((matchedProductId === 'film-slide' || matchedProductId === 'film-slide-nfc') && Object.keys(detectedFrames).length > 0) continue;
-
       let searchStr = normalizedLine + " " + (lines[i+1] ? normalizeText(lines[i+1]) : "");
       let qtyMatch = searchStr.match(/(?:x|\*|จำนวน|=)\s*(\d+)/);
       let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
 
       let existing = foundProducts.find(p => p.id === matchedProductId);
-      if (existing) {
-        existing.qty = Math.max(existing.qty, qty); 
-      } else {
-        foundProducts.push({ id: matchedProductId, qty: qty });
-      }
+      if (existing) existing.qty = Math.max(existing.qty, qty); 
+      else foundProducts.push({ id: matchedProductId, qty: qty });
       continue; 
     }
 
-    // PRIORITY 3: Option Check (Bypass standard product options)
     if (optionKeywords.some(opt => normalizedLine.includes(opt))) continue; 
 
-    // PRIORITY 4: Missing Product Configuration Warning Check
     if (normalizedLine.match(/(?:x|\*|จำนวน|=)\s*\d+/) || normalizedLine.match(/บาท/) || rawLine.match(/^[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/)) {
       let potentialName = rawLine.replace(/[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/g, '').split(/x|\*|จำนวน|=|\d+|บาท/i)[0].trim();
       let normalizedPotential = normalizeText(potentialName);
-      
-      let isStillPotential = potentialName.length > 3 &&
-        !optionKeywords.some(opt => normalizedPotential.includes(opt)) &&
-        !skipKeywords.some(kw => normalizedPotential.includes(kw.toLowerCase()));
+      let isStillPotential = potentialName.length > 3 && !optionKeywords.some(opt => normalizedPotential.includes(opt)) && !skipKeywords.some(kw => normalizedPotential.includes(kw.toLowerCase()));
 
-      if (FLAT_ALIASES.some(item => normalizedPotential.includes(item.alias) || item.alias.includes(normalizedPotential))) {
-        isStillPotential = false;
-      }
-
+      if (FLAT_ALIASES.some(item => normalizedPotential.includes(item.alias) || item.alias.includes(normalizedPotential))) isStillPotential = false;
       for (let fDef of frameDefinitions) {
-        for (let pat of fDef.patterns) {
-          if (normalizedPotential.includes(pat.toLowerCase())) isStillPotential = false;
-        }
+        for (let pat of fDef.patterns) { if (normalizedPotential.includes(pat.toLowerCase())) isStillPotential = false; }
       }
 
-      if (isStillPotential && !state.unconfiguredProducts.includes(potentialName)) {
-        state.unconfiguredProducts.push(potentialName);
-      }
+      if (isStillPotential && !state.unconfiguredProducts.includes(potentialName)) state.unconfiguredProducts.push(potentialName);
     }
   }
 
-  // Populate Film Slide NFC if frame variants were extracted
   if (Object.keys(detectedFrames).length > 0) {
     state.filmSlideFrames = detectedFrames;
     state.selected['film-slide-nfc'] = true;
@@ -809,7 +1050,6 @@ function applyParsedOrder() {
     state.methods['film-slide-nfc'] = 'drive';
   }
 
-  // Populate standard products to state
   foundProducts.forEach(p => {
     state.selected[p.id] = true;
     state.quantities[p.id] = p.qty;
@@ -817,19 +1057,16 @@ function applyParsedOrder() {
   });
 
   GROUPS.forEach(g => { g.expanded = g.products.some(p => state.selected[p.id]); });
-  renderProducts();
-  renderCart();
+  renderProducts(); renderCart();
 
   let notesArr = [];
   if (prov) notesArr.push(`จังหวัด: ${prov}`);
   if (eventDate) notesArr.push(`วันที่ใช้งาน: ${eventDate}`);
   if (amount) notesArr.push(`ยอดรวม: ${amount}`);
-  
   if (notesArr.length > 0) document.getElementById('order-note-input').value = notesArr.join('\n');
 
   let resultHtml = `<strong>📊 Parser Status</strong><br>`;
   
-  // DEBUG PANEL: Film Slide NFC Variants
   resultHtml += `<div style="background: #F0F6FA; border: 1px solid #AECDE0; padding: 8px; margin-top: 8px; margin-bottom: 8px; border-radius: 8px;">`;
   resultHtml += `<strong>🔍 DEBUG: Film Slide NFC Variants</strong><br>`;
   if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).length > 0) {
@@ -850,111 +1087,77 @@ function applyParsedOrder() {
   }
   
   const resBox = document.getElementById('parser-result');
-  resBox.innerHTML = resultHtml;
-  resBox.style.display = 'block';
+  resBox.innerHTML = resultHtml; resBox.style.display = 'block';
 
-  updatePreview();
-  showToast('✨ ดึงข้อมูลและเลือกสินค้าเรียบร้อย!');
+  updatePreview(); showToast('✨ ดึงข้อมูลและเลือกสินค้าเรียบร้อย!');
 }
 
 function clearParser() {
   document.getElementById('order-parser-input').value = '';
   document.getElementById('parser-result').style.display = 'none';
   document.getElementById('parser-result').innerHTML = '';
-  startOver();
-  showToast('🗑️ ล้างข้อความทั้งหมดแล้ว');
+  startOver(); showToast('🗑️ ล้างข้อความทั้งหมดแล้ว');
 }
 
 function renderPresets() {
-  const el = document.getElementById('preset-list');
-  el.innerHTML = '';
-  
+  const el = document.getElementById('preset-list'); el.innerHTML = '';
   state.customPresets.forEach((p, i) => {
-    let btn = document.createElement('div');
-    btn.className = 'preset-btn custom';
-    btn.textContent = p.label;
+    let btn = document.createElement('div'); btn.className = 'preset-btn custom'; btn.textContent = p.label;
     btn.onclick = () => applyPresetObj(p.items);
-    
-    let del = document.createElement('div');
-    del.className = 'preset-del';
-    del.textContent = '×';
-    del.onclick = (e) => { e.stopPropagation(); deletePreset(i); };
-    
-    btn.appendChild(del);
-    el.appendChild(btn);
+    let del = document.createElement('div'); del.className = 'preset-del'; del.textContent = '×';
+    del.onclick = (e) => { e.stopPropagation(); showConfirm('ต้องการลบ Preset นี้ใช่หรือไม่?', () => { deletePreset(i); }); };
+    btn.appendChild(del); el.appendChild(btn);
   });
-
   DEFAULT_PRESETS.forEach((p) => {
-    let btn = document.createElement('button');
-    btn.className = 'preset-btn';
-    btn.textContent = p.label;
-    btn.onclick = () => applyPresetObj(p.items);
-    el.appendChild(btn);
+    let btn = document.createElement('button'); btn.className = 'preset-btn'; btn.textContent = p.label;
+    btn.onclick = () => applyPresetObj(p.items); el.appendChild(btn);
   });
 }
 
 function applyPresetObj(itemsObj) {
   state.selected = {}; state.quantities = {}; state.methods = {};
-  state.filmSlideFrames = null;
-  state.unconfiguredProducts = [];
+  state.filmSlideFrames = null; state.unconfiguredProducts = [];
   Object.entries(itemsObj).forEach(([id, data]) => {
-    state.selected[id] = true;
-    state.quantities[id] = data.qty;
-    
-    let p = PMAP[id];
-    let m = data.method || p.methods[0];
-    if (m === 'standard') {
-        if (p.methods.includes('canva')) m = 'canva';
-        else if (p.methods.includes('drive')) m = 'drive';
-    }
+    state.selected[id] = true; state.quantities[id] = data.qty;
+    let p = PMAP[id]; let m = data.method || p.methods[0];
+    if (m === 'standard') { if (p.methods.includes('canva')) m = 'canva'; else if (p.methods.includes('drive')) m = 'drive'; }
     state.methods[id] = m;
   });
-  
   GROUPS.forEach(g => { g.expanded = g.products.some(p => state.selected[p.id]); });
-  document.getElementById('search-input').value = '';
-  state.search = '';
-  
-  renderProducts();
-  renderCart();
-  updatePreview();
-  showToast('✅ Load Preset Completed');
+  document.getElementById('search-input').value = ''; state.search = '';
+  renderProducts(); renderCart(); updatePreview(); showToast('✅ Load Preset Completed');
 }
 
 function saveCurrentPreset() {
   let count = Object.values(state.selected).filter(Boolean).length;
-  if (count === 0) return alert('กรุณาเลือกสินค้าก่อนบันทึก Preset');
-  
+  if (count === 0) return showAlert('กรุณาเลือกสินค้าก่อนบันทึก Preset');
   let name = prompt('ตั้งชื่อ Preset ใหม่ (เช่น รูปโปรไฟล์ 2 เซต):');
   if (!name || !name.trim()) return;
-  
   let items = {};
   Object.keys(state.selected).forEach(id => {
-    if (state.selected[id]) {
-      items[id] = {qty: state.quantities[id], method: state.methods[id] };
-    }
+    if (state.selected[id]) items[id] = {qty: state.quantities[id], method: state.methods[id] };
   });
-  
   state.customPresets.push({ label: name.trim(), items: items });
   localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
-  renderPresets();
-  showToast('✅ Saved Preset: ' + name);
+  renderPresets(); showToast('✅ Saved Preset: ' + name);
 }
 
-// ═══════════════════════════════════════════════
-// UI INTERACTIONS
-// ═══════════════════════════════════════════════
+function deletePreset(idx) {
+  state.customPresets.splice(idx, 1);
+  localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
+  renderPresets();
+}
+
 function setCollectionMethod(m) {
   state.collectionMode = m;
   document.getElementById('cm-drive').classList.toggle('active', m === 'drive');
   document.getElementById('cm-chat').classList.toggle('active', m === 'chat');
-  
   document.getElementById('cm-drive').style.background = m === 'drive' ? 'var(--surface)' : 'var(--bg-main)';
   document.getElementById('cm-chat').style.background = m === 'chat' ? 'var(--surface)' : 'var(--bg-main)';
   document.getElementById('cm-drive').style.borderColor = m === 'drive' ? 'var(--secondary)' : 'var(--border-light)';
   document.getElementById('cm-chat').style.borderColor = m === 'chat' ? 'var(--secondary)' : 'var(--border-light)';
   document.getElementById('cm-drive').style.color = m === 'drive' ? 'var(--secondary-text)' : 'var(--text-muted)';
   document.getElementById('cm-chat').style.color = m === 'chat' ? 'var(--secondary-text)' : 'var(--text-muted)';
-  
   updatePreview();
 }
 
@@ -965,23 +1168,18 @@ function toggleOpt(opt) {
 }
 
 function handleSearch() {
-  state.search = document.getElementById('search-input').value.toLowerCase();
-  renderProducts();
+  state.search = document.getElementById('search-input').value.toLowerCase(); renderProducts();
 }
 
 function toggleProduct(id) {
   state.selected[id] = !state.selected[id];
   if (state.selected[id] && !state.quantities[id]) {
-    state.quantities[id] = 1;
-    state.methods[id] = PMAP[id].methods[0];
+    state.quantities[id] = 1; state.methods[id] = PMAP[id].methods[0];
   } else if (!state.selected[id]) {
-    delete state.quantities[id];
-    delete state.methods[id];
+    delete state.quantities[id]; delete state.methods[id];
     if (id === 'film-slide-nfc') state.filmSlideFrames = null;
   }
-  renderProducts();
-  renderCart();
-  updatePreview();
+  renderProducts(); renderCart(); updatePreview();
 }
 
 function updateQty(id, delta) {
@@ -989,76 +1187,43 @@ function updateQty(id, delta) {
   if (q < 1) q = 1;
   state.quantities[id] = q;
   if (id === 'film-slide-nfc') state.filmSlideFrames = null; 
-  renderCart();
-  updatePreview();
+  renderCart(); updatePreview();
 }
 
 function updateMethod(id, method) {
-  state.methods[id] = method;
-  renderCart();
-  updatePreview();
+  state.methods[id] = method; renderCart(); updatePreview();
 }
 
 function removeProduct(id) {
-  state.selected[id] = false;
-  delete state.quantities[id];
-  delete state.methods[id];
+  state.selected[id] = false; delete state.quantities[id]; delete state.methods[id];
   if (id === 'film-slide-nfc') state.filmSlideFrames = null;
-  renderProducts();
-  renderCart();
-  updatePreview();
+  renderProducts(); renderCart(); updatePreview();
 }
 
-function scrollToCart() {
-  document.getElementById('cart-panel').scrollIntoView({ behavior: 'smooth' });
-}
-
-function syncPreviewEdit() {
-  state.manualEditPreview = true;
-}
+function scrollToCart() { document.getElementById('cart-panel').scrollIntoView({ behavior: 'smooth' }); }
+function syncPreviewEdit() { state.manualEditPreview = true; }
 
 function confirmClear() {
   let hasItems = Object.keys(state.selected).some(k => state.selected[k]);
-  if (hasItems) {
-    if (confirm('🚨 ต้องการล้างข้อมูลออเดอร์และตั้งค่าทั้งหมดใช่หรือไม่?')) startOver();
-  } else {
-    startOver();
-  }
+  if (hasItems) { showConfirm('🚨 ต้องการล้างข้อมูลออเดอร์และตั้งค่าทั้งหมดใช่หรือไม่?', startOver); } 
+  else { startOver(); }
 }
 
 function startOver() {
-  state.selected = {}; 
-  state.quantities = {}; 
-  state.methods = {}; 
+  state.selected = {}; state.quantities = {}; state.methods = {}; 
   state.opts = {music:false, drive:false, canva:false, checklist:false};
-  state.collectionMode = 'drive';
-  state.filmSlideFrames = null;
-  state.unconfiguredProducts = [];
+  state.collectionMode = 'drive'; state.filmSlideFrames = null; state.unconfiguredProducts = [];
   
   document.getElementById('order-note-input').value = '';
   document.getElementById('order-parser-input').value = '';
   document.getElementById('parser-result').style.display = 'none';
   
   setCollectionMethod('drive');
-  ['music','drive','canva','checklist'].forEach(o => { document.getElementById('opt-'+o).classList.remove('active'); });
+  ['music','drive','canva','checklist'].forEach(o => document.getElementById('opt-'+o).classList.remove('active'));
   
-  renderProducts();
-  renderCart();
-  updatePreview();
-  runProductAudit();
+  renderProducts(); renderCart(); updatePreview(); runProductAudit();
 }
 
-function deletePreset(idx) {
-  if(confirm('ต้องการลบ Preset นี้ใช่หรือไม่?')) {
-    state.customPresets.splice(idx, 1);
-    localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
-    renderPresets();
-  }
-}
-
-// ═══════════════════════════════════════════════
-// RENDERING & HELPERS
-// ═══════════════════════════════════════════════
 function renderProducts() {
   const container = document.getElementById('product-groups-container');
   container.innerHTML = '';
@@ -1087,15 +1252,11 @@ function renderProducts() {
       let card = document.createElement('div');
       card.className = `p-card ${isSel ? 'selected' : ''} ${p.oos ? 'oos' : ''}`;
       card.onclick = () => !p.oos && toggleProduct(p.id);
-      card.innerHTML = `
-        <div class="p-info"><span class="p-emoji">${p.emoji}</span> ${p.name}</div>
-        <div class="p-check"></div>
-      `;
+      card.innerHTML = `<div class="p-info"><span class="p-emoji">${p.emoji}</span> ${p.name}</div><div class="p-check"></div>`;
       body.appendChild(card);
     });
     
-    groupEl.appendChild(body);
-    container.appendChild(groupEl);
+    groupEl.appendChild(body); container.appendChild(groupEl);
   });
 
   if (!hasVisibleProducts && state.search !== '') {
@@ -1103,9 +1264,10 @@ function renderProducts() {
   }
 }
 
-function getPrefix(id) {
-   let parts = id.split('-');
-   return parts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+function getPicked() {
+  return Object.keys(state.selected).filter(id => state.selected[id]).map(id => ({
+    p: PMAP[id], qty: state.quantities[id], method: state.methods[id]
+  }));
 }
 
 function renderCart() {
@@ -1115,8 +1277,10 @@ function renderCart() {
   let picked = getPicked();
   
   let btnScroll = document.getElementById('btn-scroll-cart');
-  btnScroll.disabled = picked.length === 0;
-  btnScroll.textContent = `Review & Export (${picked.length})`;
+  if (btnScroll) {
+    btnScroll.disabled = picked.length === 0;
+    btnScroll.textContent = `Review & Export (${picked.length})`;
+  }
 
   if (picked.length === 0) {
     container.innerHTML = '<div class="empty-state">ยังไม่ได้เลือกสินค้า<br>กดเลือกสินค้าจากรายการด้านซ้ายได้เลยค่ะ</div>';
@@ -1126,31 +1290,22 @@ function renderCart() {
   
   picked.forEach(item => {
     let p = item.p, id = p.id;
-    let card = document.createElement('div');
-    card.className = 'cart-card';
-    
-    let header = document.createElement('div');
-    header.className = 'cart-card-header';
-    header.innerHTML = `
-      <div class="cart-card-title">${p.emoji} ${p.name}</div>
-      <button class="remove-btn" onclick="removeProduct('${id}')">Remove</button>
-    `;
+    let card = document.createElement('div'); card.className = 'cart-card';
+    let header = document.createElement('div'); header.className = 'cart-card-header';
+    header.innerHTML = `<div class="cart-card-title">${p.emoji} ${p.name}</div><button class="remove-btn" onclick="removeProduct('${id}')">Remove</button>`;
     card.appendChild(header);
     
-    let configRow = document.createElement('div');
-    configRow.className = 'cfg-row';
+    let configRow = document.createElement('div'); configRow.className = 'cfg-row';
     configRow.innerHTML = `
       <span class="cfg-label">จำนวน (ชิ้น)</span>
       <div class="qty-wrap">
         <button class="qty-btn" onclick="updateQty('${id}', -1)">-</button>
         <span class="qty-val">${state.quantities[id]}</span>
         <button class="qty-btn" onclick="updateQty('${id}', 1)">+</button>
-      </div>
-    `;
+      </div>`;
     card.appendChild(configRow);
     
-    let mthdGrid = document.createElement('div');
-    mthdGrid.className = 'method-grid';
+    let mthdGrid = document.createElement('div'); mthdGrid.className = 'method-grid';
     let currMthd = state.methods[id];
     
     p.methods.forEach(m => {
@@ -1159,15 +1314,13 @@ function renderCart() {
     card.appendChild(mthdGrid);
     
     if (p.canvaUrl && currMthd === 'canva') {
-      let tplWrap = document.createElement('div');
-      tplWrap.className = 'tpl-wrap';
+      let tplWrap = document.createElement('div'); tplWrap.className = 'tpl-wrap';
       tplWrap.innerHTML = `
         <button class="tpl-btn copy" onclick="copyText('${p.canvaUrl}', '✅ คัดลอก Template แล้ว')">🔗 Copy Template</button>
         <button class="tpl-btn open" onclick="window.open('${p.canvaUrl}')">↗ Open</button>
       `;
       card.appendChild(tplWrap);
     }
-    
     container.appendChild(card);
   });
 
@@ -1196,63 +1349,17 @@ function renderOrderSummary(picked) {
 }
 
 function updatePreview() {
+  if(state.manualEditPreview) return; // Prevent overwriting user edits unless state changed radically
   state.manualEditPreview = false; 
   document.getElementById('preview-box').value = buildCustomerMessage();
-  // Update checklist modal contents if open
   if(document.getElementById('checklist-modal').classList.contains('active')) {
     document.getElementById('checklist-box').value = buildProductionChecklist();
   }
 }
 
-// ═══════════════════════════════════════════════
-// EXPORT LOGIC
-// ═══════════════════════════════════════════════
-function copyActiveMessage() {
-  let text = document.getElementById('preview-box').value;
-  if(!text || text === "ยังไม่ได้เลือกสินค้า...") return showToast('กรุณาเลือกสินค้าก่อนคัดลอกค่ะ');
-  copyText(text, '✅ Copied Customer Message');
-}
-
-function shareToLine() {
-  let text = document.getElementById('preview-box').value;
-  if(!text || text === "ยังไม่ได้เลือกสินค้า...") return showToast('กรุณาเลือกสินค้าก่อนส่งเข้า LINE ค่ะ');
-  let url = 'https://line.me/R/msg/text/?' + encodeURIComponent(text);
-  window.open(url, '_blank');
-}
-
-function copyText(text, msg) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(() => fallbackCopy(text, msg));
-  } else { fallbackCopy(text, msg); }
-}
-
-function fallbackCopy(text, msg) {
-  var ta = document.createElement('textarea');
-  ta.value = text; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
-  document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,99999);
-  try { document.execCommand('copy'); showToast(msg); } catch(e){}
-  document.body.removeChild(ta);
-}
-
-function showToast(msg) {
-  var t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-// ═══════════════════════════════════════════════
-// MESSAGE BUILDERS
-// ═══════════════════════════════════════════════
-function getPicked() {
-  return Object.keys(state.selected).filter(id => state.selected[id]).map(id => ({
-    p: PMAP[id], qty: state.quantities[id], method: state.methods[id]
-  }));
-}
-
 function buildCustomerMessage() {
   let picked = getPicked();
   
-  // Generation Safety check: Warn user if unconfigured products exist
   let safetyWarning = '';
   if (state.unconfiguredProducts && state.unconfiguredProducts.length > 0) {
     safetyWarning = `⚠️ WARNING: Missing Product Configuration!\nระบบพบออเดอร์สินค้าที่ยังไม่มีการตั้งค่าจับคู่ฐานข้อมูล:\n` +
@@ -1521,25 +1628,18 @@ function buildCustomerMessage() {
 
 function buildProductionChecklist() {
   let picked = getPicked();
-  
   let safetyWarning = '';
   if (state.unconfiguredProducts && state.unconfiguredProducts.length > 0) {
     safetyWarning = `⚠️ WARNING: Missing Product Configuration!\nโปรดตั้งค่าสินค้าในฐานข้อมูลด่วน:\n` +
       state.unconfiguredProducts.map(p => `• ${p}`).join('\n') + `\n──────────────────────────────────\n\n`;
   }
-
   let hasFilmSlideNfc = picked.some(i => i.p.id === 'film-slide-nfc');
   let hasFrames = state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0);
-  if (hasFilmSlideNfc && !hasFrames) {
-    safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC ขาดข้อมูลสีกรอบ\n──────────────────────────────────\n\n`;
-  }
-
-  if (picked.length === 0) {
-    return safetyWarning ? safetyWarning + "ยังไม่ได้เลือกสินค้า..." : "ยังไม่ได้เลือกสินค้า...";
-  }
+  if (hasFilmSlideNfc && !hasFrames) safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC ขาดข้อมูลสีกรอบ\n──────────────────────────────────\n\n`;
+  
+  if (picked.length === 0) return safetyWarning ? safetyWarning + "ยังไม่ได้เลือกสินค้า..." : "ยังไม่ได้เลือกสินค้า...";
 
   let note = document.getElementById('order-note-input').value.trim();
-  
   let lines = [];
   if (safetyWarning) lines.push(safetyWarning);
 
@@ -1576,7 +1676,390 @@ function buildProductionChecklist() {
   return lines.join('\n');
 }
 
-// INIT
+// ============================================================================
+// IMAGE TOOLS LOGIC (PROCESSORS & FILE DETECTION)
+// ============================================================================
+
+const ToolConfig = {
+  'spin': {
+     maxFiles: 16,
+     maxSize: 1500,
+     exportName: 'StorySpinBox_Processed.zip'
+  },
+  'convert': {
+     maxFiles: 100,
+     exportName: 'ConvertToJPG.zip'
+  }
+};
+
+let rawFiles = []; 
+let processedImages = []; 
+let activeTool = 'spin';
+let spinCachedImages = []; 
+let convertNamingMode = 'orig';
+
+// File Type Detection via Magic Numbers
+async function getActualFileType(file) {
+  const buffer = await file.slice(0, 12).arrayBuffer();
+  const arr = new Uint8Array(buffer);
+  
+  if (arr.length < 4) return file.type || 'unknown';
+
+  if (arr[0] === 0xFF && arr[1] === 0xD8 && arr[2] === 0xFF) return 'image/jpeg';
+  if (arr[0] === 0x89 && arr[1] === 0x50 && arr[2] === 0x4E && arr[3] === 0x47) return 'image/png';
+  if (arr[0] === 0x42 && arr[1] === 0x4D) return 'image/bmp';
+  if ((arr[0] === 0x49 && arr[1] === 0x49 && arr[2] === 0x2A && arr[3] === 0x00) ||
+      (arr[0] === 0x4D && arr[1] === 0x4D && arr[2] === 0x00 && arr[3] === 0x2A)) return 'image/tiff';
+  
+  if (arr.length >= 12) {
+      if (arr[0] === 0x52 && arr[1] === 0x49 && arr[2] === 0x46 && arr[3] === 0x46 &&
+          arr[8] === 0x57 && arr[9] === 0x45 && arr[10] === 0x42 && arr[11] === 0x50) return 'image/webp';
+      
+      if (arr[4] === 0x66 && arr[5] === 0x74 && arr[6] === 0x79 && arr[7] === 0x70) {
+          const brand = String.fromCharCode(arr[8], arr[9], arr[10], arr[11]);
+          if (['heic', 'heix', 'hevc', 'hevx', 'mif1', 'msf1'].includes(brand)) return 'image/heic';
+      }
+  }
+
+  if (file.type && file.type.startsWith('image/')) return file.type;
+  if (file.name.toLowerCase().match(/\.(heic|heif)$/)) return 'image/heic';
+
+  return 'unknown';
+}
+
+function switchTool(toolId) {
+  document.querySelectorAll('.tool-menu-item').forEach(el => el.classList.remove('active'));
+  document.getElementById(`menu-${toolId}`).classList.add('active');
+  document.querySelectorAll('.workspace-card').forEach(el => el.classList.remove('active'));
+  document.getElementById(`panel-${toolId}`).classList.add('active');
+  activeTool = toolId;
+  clearTool(toolId, true);
+}
+
+function clearTool(toolId, silent=false) {
+  if(!silent) { showConfirm('ต้องการล้างรูปภาพทั้งหมดใช่หรือไม่?', () => executeClearTool(toolId)); } 
+  else { executeClearTool(toolId); }
+}
+
+function executeClearTool(toolId) {
+  rawFiles = []; processedImages = []; spinCachedImages = [];
+  document.getElementById(`dz-${toolId}`).style.display = 'flex';
+  document.getElementById(`sb-${toolId}`).style.display = 'none';
+  document.getElementById(`pg-${toolId}`).innerHTML = '';
+  document.getElementById(`btn-export-${toolId}`).disabled = true;
+  document.getElementById(`fi-${toolId}`).value = '';
+}
+
+// Bind Dropzones
+['spin', 'convert'].forEach(tool => {
+  const dz = document.getElementById(`dz-${tool}`);
+  const fi = document.getElementById(`fi-${tool}`);
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', e => { e.preventDefault(); dz.classList.remove('dragover'); });
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); if(e.dataTransfer.files.length) handleFiles(e.dataTransfer.files, tool); });
+  dz.addEventListener('click', () => fi.click());
+  fi.addEventListener('change', e => { if(e.target.files.length) handleFiles(e.target.files, tool); });
+});
+
+async function handleFiles(files, tool) {
+  let fileArray = Array.from(files);
+  fileArray.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+  
+  let validFiles = [];
+  let invalidCount = 0;
+
+  const overlayId = `processing-overlay-${tool}`;
+  const textId = `processing-text-${tool}`;
+  const overlay = document.getElementById(overlayId);
+  const procText = document.getElementById(textId);
+  
+  overlay.style.display = 'flex';
+  procText.innerText = 'กำลังตรวจสอบไฟล์...';
+
+  for (let f of fileArray) {
+     let actualType = await getActualFileType(f);
+     if (actualType.startsWith('image/')) {
+         f.detectedType = actualType;
+         validFiles.push(f);
+     } else {
+         invalidCount++;
+     }
+  }
+
+  overlay.style.display = 'none';
+
+  if (validFiles.length === 0) {
+    showAlert('ไม่พบไฟล์รูปภาพที่รองรับ หรือไฟล์อาจเสียหาย');
+    return;
+  }
+  if (invalidCount > 0) showToast(`ข้ามไฟล์ที่ไม่ใช่รูปภาพจำนวน ${invalidCount} ไฟล์`);
+  
+  let max = ToolConfig[tool].maxFiles;
+  if (validFiles.length > max) {
+    showAlert(`ระบบรองรับสูงสุด ${max} รูป ระบบจะเลือกเฉพาะ ${max} รูปแรก`);
+    validFiles = validFiles.slice(0, max);
+  }
+
+  rawFiles = validFiles;
+  
+  if(tool === 'spin') await processSpinBoxPipeline();
+  if(tool === 'convert') await processConvertPipeline();
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+// ---------------------------------------------------
+// STORY SPIN BOX PIPELINE
+// ---------------------------------------------------
+async function processSpinBoxPipeline() {
+  const overlay = document.getElementById('processing-overlay-spin');
+  const procText = document.getElementById('processing-text-spin');
+  overlay.style.display = 'flex';
+  processedImages = []; spinCachedImages = [];
+  
+  for (let i = 0; i < rawFiles.length; i++) {
+    procText.innerText = `กำลังประมวลผลไฟล์ ${i + 1}/${rawFiles.length}...`;
+    try {
+      let file = rawFiles[i];
+      let objectUrl = null;
+
+      if (file.detectedType === 'image/heic') {
+        if (typeof heic2any !== 'undefined') {
+          const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
+          objectUrl = URL.createObjectURL(Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob);
+        } else {
+          console.error("HEIC converter not loaded"); 
+          showAlert("ระบบแปลงไฟล์ HEIC ยังโหลดไม่สำเร็จ หรือถูกบล็อกโดยเบราว์เซอร์");
+          continue; 
+        }
+      } else {
+        objectUrl = URL.createObjectURL(file);
+      }
+
+      const img = await loadImage(objectUrl);
+      spinCachedImages.push(img); 
+      
+      const dataUrl = await generateSpinBoxCanvas(img);
+      processedImages.push({ filename: `${i + 1}.jpg`, dataUrl: dataUrl });
+      URL.revokeObjectURL(objectUrl);
+    } catch(err) { console.error(`Error processing file ${i}:`, err); }
+  }
+
+  overlay.style.display = 'none';
+  renderToolPreview('spin');
+}
+
+async function reRenderSpinPreviews() {
+  if (spinCachedImages.length === 0) return;
+  processedImages = [];
+  for (let i = 0; i < spinCachedImages.length; i++) {
+    const dataUrl = await generateSpinBoxCanvas(spinCachedImages[i]);
+    processedImages.push({ filename: `${i + 1}.jpg`, dataUrl: dataUrl });
+  }
+  renderToolPreview('spin');
+}
+
+function generateSpinBoxCanvas(img) {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const rawSize = Math.min(img.width, img.height); 
+    const startX = (img.width - rawSize) / 2;
+    const startY = (img.height - rawSize) / 2;
+    const outputSize = Math.min(rawSize, ToolConfig['spin'].maxSize);
+
+    canvas.width = outputSize;
+    canvas.height = outputSize;
+    ctx.drawImage(img, startX, startY, rawSize, rawSize, 0, 0, outputSize, outputSize);
+
+    const colorMode = document.getElementById('spin-color').value;
+    const thickness = parseInt(document.getElementById('spin-thick').value);
+    const opacity = parseFloat(document.getElementById('spin-opacity').value);
+    const midY = outputSize / 2;
+    
+    let guideColor = 'rgba(255,255,255,0.5)';
+    if (colorMode === 'white') guideColor = `rgba(255,255,255,${opacity})`;
+    else if (colorMode === 'black') guideColor = `rgba(0,0,0,${opacity})`;
+    else {
+      try {
+        let imgData = ctx.getImageData(0, Math.max(0, midY - 5), outputSize, 10).data;
+        let r=0, g=0, b=0;
+        for(let i=0; i<imgData.length; i+=4){ r+=imgData[i]; g+=imgData[i+1]; b+=imgData[i+2]; }
+        let pxCount = imgData.length / 4;
+        let brightness = ((r/pxCount)*299 + (g/pxCount)*587 + (b/pxCount)*114) / 1000;
+        guideColor = brightness > 128 ? `rgba(0,0,0,${opacity})` : `rgba(255,255,255,${opacity})`;
+      } catch(e) { guideColor = `rgba(255,255,255,${opacity})`; }
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(0, midY);
+    ctx.lineTo(outputSize, midY);
+    ctx.strokeStyle = guideColor;
+    ctx.lineWidth = thickness;
+    ctx.stroke();
+
+    resolve(canvas.toDataURL('image/jpeg', 0.95));
+  });
+}
+
+// ---------------------------------------------------
+// CONVERT TO JPG PIPELINE
+// ---------------------------------------------------
+function setConvertNaming(mode) {
+  convertNamingMode = mode;
+  document.getElementById('btn-name-orig').classList.toggle('active', mode === 'orig');
+  document.getElementById('btn-name-seq').classList.toggle('active', mode === 'seq');
+  if (processedImages.length > 0 && activeTool === 'convert') {
+    processedImages.forEach((img, i) => {
+      if (mode === 'seq') {
+        img.filename = `${i + 1}.jpg`;
+      } else {
+        let oldName = rawFiles[i].name;
+        let lastDotIndex = oldName.lastIndexOf('.');
+        let base = lastDotIndex <= 0 ? oldName : oldName.substring(0, lastDotIndex);
+        img.filename = `${base}.jpg`;
+      }
+    });
+    renderToolPreview('convert');
+  }
+}
+
+async function processConvertPipeline() {
+  const overlay = document.getElementById('processing-overlay-convert');
+  const procText = document.getElementById('processing-text-convert');
+  overlay.style.display = 'flex';
+  processedImages = [];
+  
+  for (let i = 0; i < rawFiles.length; i++) {
+    procText.innerText = `กำลังแปลงไฟล์ ${i + 1}/${rawFiles.length}...`;
+    try {
+      let file = rawFiles[i];
+      let finalDataUrl = null;
+      let fName = '';
+
+      if (convertNamingMode === 'seq') {
+        fName = `${i + 1}.jpg`;
+      } else {
+        let oldName = file.name;
+        let lastDotIndex = oldName.lastIndexOf('.');
+        let base = lastDotIndex <= 0 ? oldName : oldName.substring(0, lastDotIndex);
+        fName = `${base}.jpg`;
+      }
+
+      if (file.detectedType === 'image/jpeg' || file.detectedType === 'image/jpg') {
+        finalDataUrl = await new Promise((res) => {
+          let reader = new FileReader();
+          reader.onload = e => res(e.target.result);
+          reader.readAsDataURL(file);
+        });
+      } else if (file.detectedType === 'image/heic') {
+        if (typeof heic2any !== 'undefined') {
+          const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 1.0 });
+          let blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+          finalDataUrl = await new Promise((res) => {
+            let reader = new FileReader();
+            reader.onload = e => res(e.target.result);
+            reader.readAsDataURL(blob);
+          });
+        } else {
+          console.error("HEIC converter not loaded");
+          showAlert("ระบบแปลงไฟล์ HEIC ยังโหลดไม่สำเร็จ หรือถูกบล็อกโดยเบราว์เซอร์");
+          continue;
+        }
+      } else {
+        let objUrl = URL.createObjectURL(file);
+        const img = await loadImage(objUrl);
+        const cvs = document.createElement('canvas');
+        cvs.width = img.naturalWidth;
+        cvs.height = img.naturalHeight;
+        cvs.getContext('2d').drawImage(img, 0, 0);
+        finalDataUrl = cvs.toDataURL('image/jpeg', 1.0);
+        URL.revokeObjectURL(objUrl);
+      }
+
+      if (finalDataUrl) processedImages.push({ filename: fName, dataUrl: finalDataUrl });
+    } catch(err) { console.error(`Error processing file ${i}:`, err); }
+  }
+
+  overlay.style.display = 'none';
+  renderToolPreview('convert');
+}
+
+// ---------------------------------------------------
+// SHARED UTILS (PREVIEW & ZIP)
+// ---------------------------------------------------
+function renderToolPreview(tool) {
+  const dz = document.getElementById(`dz-${tool}`);
+  const sb = document.getElementById(`sb-${tool}`);
+  const count = document.getElementById(`count-${tool}`);
+  const pg = document.getElementById(`pg-${tool}`);
+  const btn = document.getElementById(`btn-export-${tool}`);
+
+  dz.style.display = processedImages.length > 0 ? 'none' : 'flex';
+  sb.style.display = processedImages.length > 0 ? 'flex' : 'none';
+  btn.disabled = processedImages.length === 0;
+
+  let max = ToolConfig[tool].maxFiles;
+  count.innerText = `เตรียมไฟล์สำเร็จ ${processedImages.length} / ${max} รูป`;
+  
+  pg.innerHTML = '';
+  processedImages.forEach((imgObj) => {
+    let div = document.createElement('div');
+    div.className = 'img-preview-item';
+    let guideHtml = tool === 'spin' ? `<div class="guide-line"></div>` : '';
+    div.innerHTML = `
+      <img src="${imgObj.dataUrl}" alt="${imgObj.filename}">
+      ${guideHtml}
+      <div class="badge">${imgObj.filename}</div>
+    `;
+    pg.appendChild(div);
+  });
+}
+
+async function downloadZip(tool) {
+  if (processedImages.length === 0) return;
+  
+  const overlayId = `processing-overlay-${tool}`;
+  const textId = `processing-text-${tool}`;
+  const exportName = ToolConfig[tool].exportName;
+
+  document.getElementById(overlayId).style.display = 'flex';
+  document.getElementById(textId).innerText = 'กำลังสร้างไฟล์ ZIP...';
+
+  try {
+    const zip = new JSZip();
+    processedImages.forEach(img => {
+      const base64Data = img.dataUrl.split(',')[1];
+      zip.file(img.filename, base64Data, {base64: true});
+    });
+
+    const content = await zip.generateAsync({type:"blob"});
+    const zipUrl = URL.createObjectURL(content);
+    const a = document.createElement('a');
+    a.href = zipUrl;
+    a.download = exportName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(zipUrl);
+
+    showToast('📦 ดาวน์โหลด ZIP เรียบร้อย!');
+  } catch(err) {
+    console.error(err);
+    showAlert('เกิดข้อผิดพลาดในการสร้างไฟล์ ZIP');
+  } finally {
+    document.getElementById(overlayId).style.display = 'none';
+  }
+}
+
+// INIT Upload Center
 init();
 </script>
 </body>
