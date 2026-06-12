@@ -5,136 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tinkle Goodies — Upload Center & Tools</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<!-- Image Processing Libraries -->
 <script src="https://unpkg.com/heic2any"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
 <style>
 :root {
-  /* LIGHT MODE (Pastel) */
-  --bg-main: #F7F5F0;
-  --surface: #FFFFFF;
-  --surface-alt: #FDFBF7;
-  
-  --primary: #EFA1B6;
-  --primary-hover: #E38AA2;
-  --primary-light: #FFF2F6;
-  --primary-text: #B85B7A;
-  --primary-grad: linear-gradient(135deg, #F8BBD0 0%, #EFA1B6 100%);
-  
-  --secondary: #AECDE0;
-  --secondary-light: #F0F6FA;
-  --secondary-text: #5A7E9A;
-  
-  --mint: #A8E6CF;
-  --mint-text: #3D8C7A;
-  
-  --purple: #CDB4DB;
-  --purple-light: #F6F2FA;
-  --purple-text: #7A5CB3;
-  
-  --text-main: #2C2927;
-  --text-muted: #8E8682;
-  
-  --border-light: rgba(0, 0, 0, 0.06);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.06);
-  --radius-lg: 20px;
-  --radius-md: 16px;
-  --radius-sm: 10px;
+--bg-main: #F7F5F0; --surface: #FFFFFF; --surface-alt: #FDFBF7;
+--primary: #EFA1B6; --primary-hover: #E38AA2; --primary-light: #FFF2F6; --primary-text: #B85B7A;
+--primary-grad: linear-gradient(135deg, #F8BBD0 0%, #EFA1B6 100%);
+--secondary: #AECDE0; --secondary-light: #F0F6FA; --secondary-text: #5A7E9A;
+--mint: #A8E6CF; --mint-text: #3D8C7A; --purple: #CDB4DB; --purple-light: #F6F2FA; --purple-text: #7A5CB3;
+--text-main: #2C2927; --text-muted: #8E8682; --border-light: rgba(0, 0, 0, 0.06);
+--shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04); --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.06);
+--radius-lg: 20px; --radius-md: 16px; --radius-sm: 10px;
+--primary-subtle: rgba(239, 161, 182, 0.4); --secondary-subtle: rgba(174, 205, 224, 0.4);
 }
-
 @media (prefers-color-scheme: dark) {
-  :root {
-    /* DARK MODE */
-    --bg-main: #141312;
-    --surface: #221F1E;
-    --surface-alt: #2D2A28;
-    
-    --primary: #D6748E;
-    --primary-hover: #E88CA4;
-    --primary-light: #3D222A;
-    --primary-text: #F8C8D5;
-    --primary-grad: linear-gradient(135deg, #C2637D 0%, #D6748E 100%);
-    
-    --secondary: #648BA6;
-    --secondary-light: #23313D;
-    --secondary-text: #AECDE0;
-    
-    --mint: #5CA18B;
-    --mint-text: #A8E6CF;
-    
-    --purple: #9A7BAA;
-    --purple-light: #312338;
-    --purple-text: #DCC9E8;
-    
-    --text-main: #F4EFEB;
-    --text-muted: #A8A19D;
-    
-    --border-light: rgba(255, 255, 255, 0.08);
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.4);
-  }
+:root {
+--bg-main: #141312; --surface: #221F1E; --surface-alt: #2D2A28;
+--primary: #D6748E; --primary-hover: #E88CA4; --primary-light: #3D222A; --primary-text: #F8C8D5;
+--primary-grad: linear-gradient(135deg, #C2637D 0%, #D6748E 100%);
+--secondary: #648BA6; --secondary-light: #23313D; --secondary-text: #AECDE0;
+--mint: #5CA18B; --mint-text: #A8E6CF; --purple: #9A7BAA; --purple-light: #312338; --purple-text: #DCC9E8;
+--text-main: #F4EFEB; --text-muted: #A8A19D; --border-light: rgba(255, 255, 255, 0.08);
+--shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3); --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.4);
+--primary-subtle: rgba(214, 116, 142, 0.4); --secondary-subtle: rgba(100, 139, 166, 0.4);
 }
-
+}
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
-
-/* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
 body { background: var(--bg-main); color: var(--text-main); font-size: 14px; line-height: 1.5; padding-bottom: 100px; }
-
-/* HEADER & NAVBAR */
 header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 0 20px; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-light); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; height: 65px;}
 @media (prefers-color-scheme: dark) { header { background: rgba(34, 31, 30, 0.9); } }
 .logo-area { display: flex; flex-direction: column; align-items: flex-start; }
 .logo-name { font-size: 16px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 8px;}
 .logo-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); font-weight: 600; display: block; margin-top: 2px;}
-
 .nav-tabs { display: flex; gap: 8px; height: 100%; align-items: flex-end;}
 .nav-tab { padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s;}
 .nav-tab.active { color: var(--primary-text); border-bottom-color: var(--primary); }
 .nav-tab:hover:not(.active) { color: var(--text-main); }
-
-/* MAIN APP VIEW CONTAINERS */
 .view-container { display: none; }
 .view-container.active { display: block; }
-
-/* ---------------------------------------------------
-   UPLOAD CENTER VIEW STYLES 
-   --------------------------------------------------- */
-.app-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  max-width: 100%;
-}
-
+.app-container { display: flex; flex-direction: column; gap: 16px; padding: 16px; max-width: 100%; }
 @media (min-width: 1024px) {
-  .app-container {
-    display: grid;
-    grid-template-columns: 35% 65%;
-    gap: 24px;
-    padding: 24px;
-    height: calc(100vh - 65px);
-    overflow: hidden;
-    max-width: 1440px;
-    margin: 0 auto;
-  }
-  .panel-left { height: 100%; overflow-y: auto; padding: 4px; scrollbar-width: thin; display: flex; flex-direction: column; gap: 16px; }
-  .panel-right { display: flex; flex-direction: column; height: 100%; overflow: hidden; gap: 16px; }
-  .right-top-scroll { flex: 0 1 45%; overflow-y: auto; padding: 4px; scrollbar-width: thin; display: flex; flex-direction: column; gap: 16px; }
-  .right-bottom-fixed { flex: 1 0 50%; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); box-shadow: var(--shadow-float); overflow: hidden; }
-  #mobile-sticky-bar { display: none !important; }
-  body { overflow: hidden; padding-bottom: 0; }
+.app-container { display: grid; grid-template-columns: 35% 65%; gap: 24px; padding: 24px; height: calc(100vh - 65px); overflow: hidden; max-width: 1440px; margin: 0 auto; }
+.panel-left { height: 100%; overflow-y: auto; padding: 4px; scrollbar-width: thin; display: flex; flex-direction: column; gap: 16px; }
+.panel-right { display: flex; flex-direction: column; height: 100%; overflow: hidden; gap: 16px; }
+.right-top-scroll { flex: 0 1 45%; overflow-y: auto; padding: 4px; scrollbar-width: thin; display: flex; flex-direction: column; gap: 16px; }
+.right-bottom-fixed { flex: 1 0 50%; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); box-shadow: var(--shadow-float); overflow: hidden; }
+#mobile-sticky-bar { display: none !important; }
+body { overflow: hidden; padding-bottom: 0; }
 }
-
 .section-title { font-size: 14px; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;}
-
 .presets-wrap { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
 .presets-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
 .presets-scroll::-webkit-scrollbar { display: none; }
@@ -143,25 +67,20 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .preset-btn:active { transform: scale(0.95); }
 .preset-btn.custom { border-style: dashed; color: var(--purple-text); border-color: var(--purple-text); }
 .preset-del { position: absolute; right: 0; top: 0; transform: translate(30%, -30%); background: var(--bg-main); border: 1px solid var(--border-light); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; color: var(--text-muted); z-index: 2;}
-
 .btn-micro-action { font-size: 11px; padding: 4px 12px; border-radius: 100px; border: 1px solid var(--primary); background: var(--primary-light); color: var(--primary-text); cursor: pointer; font-weight: 600; min-height: 30px;}
 .btn-micro-action:hover { background: var(--primary); color: var(--surface); }
-
 .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; flex-shrink: 0; }
 @media (max-width: 767px) { .settings-grid { grid-template-columns: 1fr; } }
 .set-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 10px; }
 .set-title { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;}
-
 .parser-input { width: 100%; flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-main); font-size: 13px; outline: none; resize: vertical; font-family: 'Prompt', sans-serif;}
 .parser-input:focus { border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px var(--primary-light); }
 .btn-parse { width: 100%; min-height: 40px; border-radius: 10px; background: var(--text-main); color: var(--surface); font-size: 13px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;}
 .btn-parse:active { transform: scale(0.98); }
 .btn-clear { background: var(--surface-alt); color: var(--text-main); border: 1px solid var(--border-light); }
 .parser-result { margin-top: 8px; padding: 12px; border-radius: 10px; background: var(--bg-main); border: 1px solid var(--border-light); font-size: 12px; line-height: 1.6; }
-
 .search-bar { width: 100%; min-height: 44px; border-radius: 100px; border: 1px solid var(--border-light); background: var(--surface); padding: 0 16px; font-size: 14px; color: var(--text-main); outline: none; box-shadow: var(--shadow-sm); transition: 0.2s; flex-shrink: 0; }
 .search-bar:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
-
 .product-group { background: var(--surface); border-radius: var(--radius-md); border: 1px solid var(--border-light); overflow: hidden; box-shadow: var(--shadow-sm); flex-shrink: 0; }
 .group-header { padding: 14px 16px; font-size: 13px; font-weight: 700; color: var(--text-main); background: var(--surface-alt); display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
 .group-header .icon { color: var(--text-muted); font-size: 10px; transition: transform 0.2s; width: 16px; text-align: center; }
@@ -176,7 +95,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .p-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-light); display: flex; align-items: center; justify-content: center; background: var(--surface); }
 .p-card.selected .p-check { background: var(--primary); border-color: var(--primary); }
 .p-card.selected .p-check::after { content: '✓'; color: white; font-size: 12px; }
-
 .cart-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
 .cart-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .cart-card-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
@@ -184,19 +102,15 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .qty-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--surface); font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .qty-val { font-size: 14px; font-weight: 700; min-width: 20px; text-align: center; }
 .remove-btn { color: var(--text-muted); background: none; border: none; font-size: 12px; cursor: pointer; text-decoration: underline; }
-
 .method-grid { display: grid; grid-template-columns: 1fr; gap: 6px; margin-bottom: 12px; }
 @media (min-width: 400px) { .method-grid { grid-template-columns: 1fr 1fr; } }
 .mth-btn { min-height: 40px; border-radius: 10px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; }
 .mth-btn.active { background: var(--surface); border-color: var(--primary); color: var(--primary-text); box-shadow: 0 0 0 1px var(--primary); }
-
 .seg-control { display: flex; background: var(--bg-main); border-radius: 10px; padding: 4px; border: 1px solid var(--border-light); }
 .seg-btn { flex: 1; text-align: center; font-size: 12px; font-weight: 600; min-height: 38px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); cursor: pointer;}
 .seg-btn.active { background: var(--surface); color: var(--primary-text); box-shadow: var(--shadow-sm); border: 1px solid var(--primary-subtle); }
 .note-input { width: 100%; min-height: 60px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-main); font-size: 13px; outline: none; resize: vertical;}
-
 .summary-box { background: var(--surface-alt); border: 1px dashed var(--border-light); border-radius: var(--radius-md); padding: 16px; margin-bottom: 8px;}
-
 .preview-header { padding: 12px 16px; border-bottom: 1px solid var(--border-light); background: var(--surface-alt); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;}
 .preview-header-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; color: var(--text-main); }
 .preview-box { width: 100%; padding: 16px; font-size: 13px; white-space: pre-wrap; color: var(--text-main); background: var(--bg-main); flex: 1; overflow-y: auto; border: none; resize: none; outline: none; line-height: 1.6;}
@@ -204,8 +118,6 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .btn-copy-main { width: 100%; min-height: 54px; background: var(--primary-grad); color: white; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;}
 .btn-line { background: #06C755; color: white; min-height: 54px; border: none; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center;}
 .btn-clear-all { width: 100%; min-height: 44px; border-radius: 12px; background: var(--bg-main); color: var(--text-muted); font-size: 13px; font-weight: 600; border: 1px dashed var(--border-light); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-
-/* MODALS */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.2s;}
 .modal-overlay.active { display: flex; opacity: 1; }
 .modal-content { background: var(--surface); width: 90%; max-width: 500px; border-radius: var(--radius-md); box-shadow: var(--shadow-float); display: flex; flex-direction: column; max-height: 85vh; transform: translateY(20px); transition: 0.2s;}
@@ -213,1732 +125,1574 @@ header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -web
 .modal-header { padding: 16px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; font-weight: 700; background: var(--surface-alt); border-radius: var(--radius-md) var(--radius-md) 0 0;}
 .modal-body { padding: 16px; overflow-y: auto; }
 .btn-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
-
-/* OPTIONAL CHIPS & FAQ */
 .opt-chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
 .opt-chip { padding: 0 14px; min-height: 36px; border-radius: 100px; border: 1px solid var(--border-light); background: var(--bg-main); color: var(--text-muted); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer;}
 .opt-chip.active { background: var(--primary-light); color: var(--primary-text); border-color: var(--primary-text); }
 .faq-item { display: flex; align-items: center; justify-content: space-between; background: var(--surface-alt); border: 1px solid var(--border-light); padding: 10px 14px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
 .faq-del { color: var(--text-muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); }
-
-/* OTHER */
 .sticky-bar { position: fixed; bottom: 0; left: 0; width: 100%; padding: 16px; background: var(--surface); border-top: 1px solid var(--border-light); box-shadow: var(--shadow-float); z-index: 90; display: flex; gap: 12px;}
 .gen-btn { flex: 1; min-height: 50px; border-radius: 100px; background: var(--text-main); color: var(--bg-main); font-size: 14px; font-weight: 700; border: none; cursor: pointer; }
 .empty-state { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 13px; font-weight: 500; background: var(--surface); border: 1px dashed var(--border-light); border-radius: var(--radius-md); }
 .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--mint); color: #1A3D33; padding: 12px 24px; border-radius: 100px; font-size: 13px; font-weight: 700; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000; white-space: nowrap; box-shadow: 0 8px 24px rgba(92, 161, 139, 0.3); }
 .toast.show { transform: translateX(-50%) translateY(0); }
-
-/* ---------------------------------------------------
-   IMAGE TOOLS VIEW STYLES
-   --------------------------------------------------- */
-.tools-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  max-width: 1440px;
-  margin: 0 auto;
-}
-@media (min-width: 768px) {
-  .tools-container {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 24px;
-    padding: 24px;
-    height: calc(100vh - 65px);
-  }
-  .tool-sidebar { height: 100%; overflow-y: auto; }
-  .tool-workspace { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
-}
-
-.tool-menu-item {
-  padding: 14px 16px;
-  border-radius: var(--radius-md);
-  background: var(--bg-main);
-  border: 1px solid var(--border-light);
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
+.tools-container { display: flex; flex-direction: column; gap: 16px; padding: 16px; max-width: 1440px; margin: 0 auto; }
+@media (min-width: 768px) { .tools-container { display: grid; grid-template-columns: 280px 1fr; gap: 24px; padding: 24px; height: calc(100vh - 65px); } .tool-sidebar { height: 100%; overflow-y: auto; } .tool-workspace { height: 100%; display: flex; flex-direction: column; overflow: hidden; } }
+.tool-menu-item { padding: 14px 16px; border-radius: var(--radius-md); background: var(--bg-main); border: 1px solid var(--border-light); font-weight: 600; font-size: 14px; color: var(--text-muted); cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .tool-menu-item:hover { background: var(--surface); border-color: var(--primary-subtle); }
 .tool-menu-item.active { background: var(--primary-light); color: var(--primary-text); border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
 .tool-menu-item.disabled { opacity: 0.5; pointer-events: none; }
-
-.workspace-card {
-  background: var(--surface);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-float);
-  display: none; 
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
+.workspace-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); display: none; flex-direction: column; height: 100%; overflow: hidden; }
 .workspace-card.active { display: flex; }
-
-.ws-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border-light);
-  background: var(--surface-alt);
-}
+.ws-header { padding: 20px 24px; border-bottom: 1px solid var(--border-light); background: var(--surface-alt); }
 .ws-title { font-size: 18px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
 .ws-desc { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-
-.ws-body {
-  padding: 24px;
-  overflow-y: auto;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.drop-zone {
-  border: 2px dashed var(--secondary);
-  border-radius: var(--radius-md);
-  background: var(--secondary-light);
-  padding: 40px 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
+.ws-body { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+.drop-zone { border: 2px dashed var(--secondary); border-radius: var(--radius-md); background: var(--secondary-light); padding: 40px 20px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 .drop-zone.dragover { background: #E2EFF7; border-color: var(--secondary-text); }
 .drop-zone .icon { font-size: 32px; }
 .drop-zone .main-text { font-size: 15px; font-weight: 700; color: var(--text-main); }
 .drop-zone .sub-text { font-size: 12px; color: var(--text-muted); }
-
-.preview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 16px;
-}
-.img-preview-item {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  border: 1px solid var(--border-light);
-  background: var(--bg-main);
-  box-shadow: var(--shadow-sm);
-}
-.img-preview-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.img-preview-item .badge {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 100px;
-  backdrop-filter: blur(4px);
-  z-index: 2;
-}
-
-/* Settings Form in Tools */
-.tool-settings-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  background: var(--bg-main);
-  padding: 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-}
-.tool-set-col {
-  flex: 1;
-  min-width: 120px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.tool-select {
-  width: 100%;
-  height: 40px;
-  border-radius: 8px;
-  border: 1px solid var(--border-light);
-  background: var(--surface);
-  color: var(--text-main);
-  padding: 0 12px;
-  font-family: 'Prompt', sans-serif;
-  font-size: 13px;
-  outline: none;
-}
-
-.ws-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-light);
-  background: var(--surface);
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-/* Loader Overlay */
+.preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
+.img-preview-item { position: relative; width: 100%; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-light); background: var(--bg-main); box-shadow: var(--shadow-sm); }
+.img-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+.img-preview-item .badge { position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.6); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 100px; backdrop-filter: blur(4px); z-index: 2; }
+.tool-settings-row { display: flex; flex-wrap: wrap; gap: 16px; background: var(--bg-main); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-light); }
+.tool-set-col { flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 8px; }
+.tool-select { width: 100%; height: 40px; border-radius: 8px; border: 1px solid var(--border-light); background: var(--surface); color: var(--text-main); padding: 0 12px; font-family: 'Prompt', sans-serif; font-size: 13px; outline: none; }
+.ws-footer { padding: 16px 24px; border-top: 1px solid var(--border-light); background: var(--surface); display: flex; justify-content: flex-end; gap: 12px; }
 #processing-overlay-spin, #processing-overlay-convert { display: none; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); z-index: 50; flex-direction: column; align-items: center; justify-content: center; border-radius: var(--radius-lg); }
 .spinner { width: 40px; height: 40px; border: 4px solid var(--primary-light); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px;}
 @keyframes spin { 100% { transform: rotate(360deg); } }
+.settings-box-label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: block; }
 </style>
 </head>
 <body>
-
 <header>
-  <div class="logo-area">
-    <div class="logo-name">🎞️ Tinkle Goodies</div>
-    <span class="logo-sub">Workspace</span>
-  </div>
-  <div class="nav-tabs">
-    <div class="nav-tab active" id="tab-upload" onclick="switchView('upload-center')">📤 Upload Center</div>
-    <div class="nav-tab" id="tab-tools" onclick="switchView('image-tools')">🎨 Image Utilities</div>
-  </div>
+<div class="logo-area">
+<div class="logo-name">🎞️ Tinkle Goodies</div>
+<span class="logo-sub">Workspace</span>
+</div>
+<div class="nav-tabs">
+<div class="nav-tab active" id="tab-upload" onclick="switchView('upload-center')">📤 Upload Center</div>
+<div class="nav-tab" id="tab-tools" onclick="switchView('image-tools')">🎨 Image Utilities</div>
+</div>
 </header>
 
-<!-- ==========================================
-     VIEW 1: UPLOAD CENTER
-     ========================================== -->
 <div id="view-upload-center" class="view-container active">
-  <div class="app-container">
-    
-    <!-- LEFT PANEL -->
-    <div class="panel-left">
-      <div class="presets-wrap">
-        <div class="section-title">
-          <div>⭐ ออเดอร์ฮิต (ด่วน)</div>
-          <button class="btn-micro-action" onclick="saveCurrentPreset()">+ Save</button>
-        </div>
-        <div class="presets-scroll" id="preset-list"></div>
-      </div>
-      <input type="text" id="search-input" class="search-bar" placeholder="🔍 ค้นหาสินค้า (เช่น CD, Film...)" oninput="handleSearch()">
-      <div id="product-groups-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
-    </div>
-
-    <!-- RIGHT PANEL -->
-    <div class="panel-right" id="cart-panel">
-      <!-- TOP SCROLLABLE -->
-      <div class="right-top-scroll">
-        <div class="settings-grid">
-          <div class="set-card" style="grid-row: span 2;">
-            <div class="set-title">📋 Order Parser (แกะออเดอร์อัตโนมัติ)</div>
-            <textarea id="order-parser-input" class="parser-input" placeholder="วางออเดอร์ที่นี่... ระบบจะจัดสินค้าให้ทันที"></textarea>
-            <div style="display: flex; gap: 8px;">
-              <button class="btn-parse" style="flex: 3;" onclick="applyParsedOrder()">✨ Parse Order</button>
-              <button class="btn-parse btn-clear" style="flex: 1;" onclick="clearParser()">🗑️ Clear</button>
-            </div>
-            <div id="parser-result" class="parser-result" style="display: none;"></div>
-          </div>
-
-          <div class="set-card">
-            <div class="set-title">📂 File Collection Method</div>
-            <div class="seg-control">
-              <button class="seg-btn active" id="cm-drive" onclick="setCollectionMethod('drive')">Google Drive</button>
-              <button class="seg-btn" id="cm-chat" onclick="setCollectionMethod('chat')">Chat Only</button>
-            </div>
-          </div>
-          
-          <div class="set-card">
-            <div class="set-title">✍️ Order Note</div>
-            <textarea id="order-note-input" class="note-input" placeholder="พิมพ์หมายเหตุถึงลูกค้า (ถ้ามี)..." oninput="updatePreview()"></textarea>
-          </div>
-        </div>
-
-        <div>
-          <div class="section-title" style="margin-top: 8px;">🛍️ สินค้าที่เลือก</div>
-          <div id="cart-container" style="display: flex; flex-direction: column; gap: 12px;">
-            <div class="empty-state">ยังไม่ได้เลือกสินค้า</div>
-          </div>
-        </div>
-
-        <div class="summary-box" id="summary-box" style="display: none;">
-          <div class="section-title">📦 Order Summary</div>
-          <div id="order-summary-content" style="font-size: 13px; color: var(--text-main); margin-top: 8px;"></div>
-        </div>
-      </div>
-
-      <!-- BOTTOM FIXED (PREVIEW) -->
-      <div class="right-bottom-fixed">
-        <div class="preview-header">
-          <div class="preview-header-title">💬 Customer Message</div>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn-micro-action" onclick="openModal('tools-modal')">🛠️ Tools & Settings</button>
-            <button class="btn-micro-action" onclick="openChecklist()">📋 Checklist</button>
-          </div>
-        </div>
-        <textarea class="preview-box" id="preview-box" placeholder="ข้อความจะแสดงที่นี่..." oninput="syncPreviewEdit()"></textarea>
-        <div class="action-area">
-          <div style="display: flex; gap: 8px; width: 100%;">
-            <button class="btn-copy-main" style="flex: 2;" onclick="copyActiveMessage()">💌 Copy Message</button>
-            <button class="btn-line" style="flex: 1;" onclick="shareToLine()">🟢 ส่งเข้า LINE</button>
-          </div>
-          <button class="btn-clear-all" onclick="confirmClear()">🗑️ ล้างออเดอร์และเริ่มใหม่</button>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="app-container">
+<div class="panel-left">
+<div class="presets-wrap">
+<div class="section-title">
+<div>⭐ ออเดอร์ฮิต (ด่วน)</div>
+<button class="btn-micro-action" onclick="saveCurrentPreset()">+ Save</button>
+</div>
+<div class="presets-scroll" id="preset-list"></div>
+</div>
+<input type="text" id="search-input" class="search-bar" placeholder="🔍 ค้นหาสินค้า (เช่น CD, Film...)" oninput="handleSearch()">
+<div id="product-groups-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
 </div>
 
-<!-- ==========================================
-     VIEW 2: IMAGE TOOLS
-     ========================================== -->
+<div class="panel-right" id="cart-panel">
+<div class="right-top-scroll">
+<div class="settings-grid">
+<div class="set-card" style="grid-row: span 2;">
+<div class="set-title">📋 Order Parser (แกะออเดอร์อัตโนมัติ)</div>
+<textarea id="order-parser-input" class="parser-input" placeholder="วางออเดอร์ที่นี่... ระบบจะจัดสินค้าให้ทันที"></textarea>
+<div style="display: flex; gap: 8px;">
+<button class="btn-parse" style="flex: 3;" onclick="applyParsedOrder()">✨ Parse Order</button>
+<button class="btn-parse btn-clear" style="flex: 1;" onclick="clearParser()">🗑️ Clear</button>
+</div>
+<div id="parser-result" class="parser-result" style="display: none;"></div>
+</div>
+<div class="set-card">
+<div class="set-title">📂 File Collection Method</div>
+<div class="seg-control">
+<button class="seg-btn active" id="cm-drive" onclick="setCollectionMethod('drive')">Google Drive</button>
+<button class="seg-btn" id="cm-chat" onclick="setCollectionMethod('chat')">Chat Only</button>
+</div>
+</div>
+<div class="set-card">
+<div class="set-title">✍️ Order Note</div>
+<textarea id="order-note-input" class="note-input" placeholder="พิมพ์หมายเหตุถึงลูกค้า (ถ้ามี)..." oninput="updatePreview()"></textarea>
+</div>
+</div>
+<div>
+<div class="section-title" style="margin-top: 8px;">🛍️ สินค้าที่เลือก</div>
+<div id="cart-container" style="display: flex; flex-direction: column; gap: 12px;">
+<div class="empty-state">ยังไม่ได้เลือกสินค้า</div>
+</div>
+</div>
+<div class="summary-box" id="summary-box" style="display: none;">
+<div class="section-title">📦 Order Summary</div>
+<div id="order-summary-content" style="font-size: 13px; color: var(--text-main); margin-top: 8px;"></div>
+</div>
+</div>
+
+<div class="right-bottom-fixed">
+<div class="preview-header">
+<div class="preview-header-title">💬 Customer Message</div>
+<div style="display: flex; gap: 8px;">
+<button class="btn-micro-action" onclick="openModal('tools-modal')">🛠️ Tools & Settings</button>
+<button class="btn-micro-action" onclick="openChecklist()">📋 Checklist</button>
+</div>
+</div>
+<textarea class="preview-box" id="preview-box" placeholder="ข้อความจะแสดงที่นี่..." oninput="syncPreviewEdit()"></textarea>
+<div class="action-area">
+<div style="display: flex; gap: 8px; width: 100%;">
+<button class="btn-copy-main" style="flex: 2;" onclick="copyActiveMessage()">💌 Copy Message</button>
+<button class="btn-line" style="flex: 1;" onclick="shareToLine()">🟢 ส่งเข้า LINE</button>
+</div>
+<button class="btn-clear-all" onclick="confirmClear()">🗑️ ล้างออเดอร์และเริ่มใหม่</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
 <div id="view-image-tools" class="view-container">
-  <div class="tools-container">
-    
-    <!-- Sidebar -->
-    <div class="tool-sidebar">
-      <div class="section-title" style="margin-bottom: 12px;">Image Utilities</div>
-      <div class="tool-menu-item active" id="menu-spin" onclick="switchTool('spin')">🎡 Story Spin Box</div>
-      <div class="tool-menu-item" id="menu-convert" onclick="switchTool('convert')">🖼️ Convert to JPG</div>
-      <div class="tool-menu-item disabled">📏 Resize Images (เร็วๆ นี้)</div>
-      <div class="tool-menu-item disabled">🎞️ Film Strip (เร็วๆ นี้)</div>
-      <div class="tool-menu-item disabled">🎬 Memory Film (เร็วๆ นี้)</div>
-    </div>
-
-    <!-- Workspace -->
-    <div class="tool-workspace">
-      
-      <!-- TOOL: SPIN BOX -->
-      <div class="workspace-card active" id="panel-spin">
-        <div id="processing-overlay-spin">
-          <div class="spinner"></div>
-          <div id="processing-text-spin" style="font-weight: 700; font-size: 15px;">กำลังประมวลผล...</div>
-        </div>
-        <div class="ws-header">
-          <div class="ws-title">🎡 Story Spin Box Processor</div>
-          <div class="ws-desc">เตรียมไฟล์ 16 รูป (Crop 1:1, ไม่เกิน 1500px, ขีดเส้นกลางแนวนอน, แปลง JPG อัตโนมัติ)</div>
-        </div>
-        <div class="ws-body">
-          <div class="tool-settings-row">
-            <div class="tool-set-col">
-              <span class="settings-box-label">Cut Guide Color</span>
-              <select id="spin-color" class="tool-select" onchange="reRenderSpinPreviews()">
-                <option value="auto">Auto (สีตรงข้ามภาพ)</option>
-                <option value="white">White (สีขาว)</option>
-                <option value="black">Black (สีดำ)</option>
-              </select>
-            </div>
-            <div class="tool-set-col">
-              <span class="settings-box-label">Guide Thickness</span>
-              <select id="spin-thick" class="tool-select" onchange="reRenderSpinPreviews()">
-                <option value="1">1 px</option>
-                <option value="2">2 px</option>
-                <option value="3">3 px</option>
-              </select>
-            </div>
-            <div class="tool-set-col">
-              <span class="settings-box-label">Guide Opacity</span>
-              <select id="spin-opacity" class="tool-select" onchange="reRenderSpinPreviews()">
-                <option value="0.25">25%</option>
-                <option value="0.5" selected>50%</option>
-                <option value="0.75">75%</option>
-              </select>
-            </div>
-          </div>
-          <div class="drop-zone" id="dz-spin">
-            <div class="icon">📥</div>
-            <div class="main-text">ลากไฟล์รูปมาวาง หรือคลิกที่นี่</div>
-            <div class="sub-text">รองรับภาพทุกชนิดรวมถึงไฟล์ไม่มีนามสกุล (สูงสุด 16 รูป)</div>
-            <input type="file" id="fi-spin" multiple style="display: none;">
-          </div>
-          <div id="sb-spin" style="display: none; justify-content: space-between; align-items: center; background: var(--primary-light); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--primary-subtle);">
-             <div style="font-weight: 600; color: var(--primary-text);" id="count-spin">เลือกแล้ว 0 / 16 รูป</div>
-             <button class="btn-micro-action" onclick="clearTool('spin')">🗑️ ล้างทั้งหมด</button>
-          </div>
-          <div class="preview-grid" id="pg-spin"></div>
-        </div>
-        <div class="ws-footer">
-          <button class="btn-copy-main" id="btn-export-spin" disabled onclick="downloadZip('spin')" style="min-height: 48px; width: auto; padding: 0 32px;">📦 ดาวน์โหลด StorySpinBox.zip</button>
-        </div>
-      </div>
-
-      <!-- TOOL: CONVERT TO JPG -->
-      <div class="workspace-card" id="panel-convert">
-        <div id="processing-overlay-convert">
-          <div class="spinner"></div>
-          <div id="processing-text-convert" style="font-weight: 700; font-size: 15px;">กำลังแปลงไฟล์...</div>
-        </div>
-        <div class="ws-header">
-          <div class="ws-title">🖼️ Convert To JPG</div>
-          <div class="ws-desc">แปลงไฟล์ HEIC, PNG, WEBP หรือไฟล์ไม่มีนามสกุลเป็น JPG (Quality 100%, ห้ามบีบอัด, คงขนาดเดิมเป๊ะ)</div>
-        </div>
-        <div class="ws-body">
-          <div class="tool-settings-row">
-            <div class="tool-set-col" style="flex: unset; width: 100%;">
-              <span class="settings-box-label">ตั้งชื่อไฟล์ Output</span>
-              <div class="seg-control" style="max-width: 400px;">
-                <button class="seg-btn active" id="btn-name-orig" onclick="setConvertNaming('orig')">ชื่อเดิม (IMG_001.jpg)</button>
-                <button class="seg-btn" id="btn-name-seq" onclick="setConvertNaming('seq')">เรียงลำดับ (1.jpg)</button>
-              </div>
-            </div>
-          </div>
-          <div class="drop-zone" id="dz-convert">
-            <div class="icon">📥</div>
-            <div class="main-text">ลากไฟล์รูปมาวาง หรือคลิกที่นี่</div>
-            <div class="sub-text">รองรับภาพทุกชนิดรวมถึงไฟล์ไม่มีนามสกุล (สูงสุด 100 รูป/ครั้ง)</div>
-            <input type="file" id="fi-convert" multiple style="display: none;">
-          </div>
-          <div id="sb-convert" style="display: none; justify-content: space-between; align-items: center; background: var(--secondary-light); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--secondary-subtle);">
-             <div style="font-weight: 600; color: var(--secondary-text);" id="count-convert">เตรียมไฟล์ 0 / 100 รูป</div>
-             <button class="btn-micro-action" style="background:var(--surface); border-color:var(--secondary-text); color:var(--secondary-text);" onclick="clearTool('convert')">🗑️ ล้างทั้งหมด</button>
-          </div>
-          <div class="preview-grid" id="pg-convert"></div>
-        </div>
-        <div class="ws-footer">
-          <button class="btn-copy-main" id="btn-export-convert" disabled onclick="downloadZip('convert')" style="min-height: 48px; width: auto; padding: 0 32px; background: var(--secondary); box-shadow: none;">📦 ดาวน์โหลด ConvertToJPG.zip</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
+<div class="tools-container">
+<div class="tool-sidebar">
+<div class="section-title" style="margin-bottom: 12px;">Image Utilities</div>
+<div class="tool-menu-item active" id="menu-spin" onclick="switchTool('spin')">🎡 Story Spin Box</div>
+<div class="tool-menu-item" id="menu-convert" onclick="switchTool('convert')">🖼️ Convert to JPG</div>
+<div class="tool-menu-item disabled">📏 Resize Images (เร็วๆ นี้)</div>
+<div class="tool-menu-item disabled">🎞️ Film Strip (เร็วๆ นี้)</div>
+<div class="tool-menu-item disabled">🎬 Memory Film (เร็วๆ นี้)</div>
+</div>
+<div class="tool-workspace">
+<div class="workspace-card active" id="panel-spin">
+<div id="processing-overlay-spin"><div class="spinner"></div><div id="processing-text-spin" style="font-weight: 700; font-size: 15px;">กำลังประมวลผล...</div></div>
+<div class="ws-header">
+<div class="ws-title">🎡 Story Spin Box Processor</div>
+<div class="ws-desc">เตรียมไฟล์ 16 รูป (Crop 1:1, ไม่เกิน 1500px, ขีดเส้นกลางแนวนอน, แปลง JPG อัตโนมัติ)</div>
+</div>
+<div class="ws-body">
+<div class="tool-settings-row">
+<div class="tool-set-col"><span class="settings-box-label">Cut Guide Color</span><select id="spin-color" class="tool-select" onchange="reRenderSpinPreviews()"><option value="auto">Auto (สีตรงข้ามภาพ)</option><option value="white">White (สีขาว)</option><option value="black">Black (สีดำ)</option></select></div>
+<div class="tool-set-col"><span class="settings-box-label">Guide Thickness</span><select id="spin-thick" class="tool-select" onchange="reRenderSpinPreviews()"><option value="1">1 px</option><option value="2">2 px</option><option value="3">3 px</option></select></div>
+<div class="tool-set-col"><span class="settings-box-label">Guide Opacity</span><select id="spin-opacity" class="tool-select" onchange="reRenderSpinPreviews()"><option value="0.25">25%</option><option value="0.5" selected>50%</option><option value="0.75">75%</option></select></div>
+</div>
+<div class="drop-zone" id="dz-spin"><div class="icon">📥</div><div class="main-text">ลากไฟล์รูปมาวาง หรือคลิกที่นี่</div><div class="sub-text">รองรับภาพทุกชนิดรวมถึงไฟล์ไม่มีนามสกุล (สูงสุด 16 รูป)</div><input type="file" id="fi-spin" multiple style="display: none;"></div>
+<div id="sb-spin" style="display: none; justify-content: space-between; align-items: center; background: var(--primary-light); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--primary-subtle);">
+<div style="font-weight: 600; color: var(--primary-text);" id="count-spin">เลือกแล้ว 0 / 16 รูป</div>
+<button class="btn-micro-action" onclick="clearTool('spin')">🗑️ ล้างทั้งหมด</button>
+</div>
+<div class="preview-grid" id="pg-spin"></div>
+</div>
+<div class="ws-footer"><button class="btn-copy-main" id="btn-export-spin" disabled onclick="downloadZip('spin')" style="min-height: 48px; width: auto; padding: 0 32px;">📦 ดาวน์โหลด StorySpinBox.zip</button></div>
+</div>
+<div class="workspace-card" id="panel-convert">
+<div id="processing-overlay-convert"><div class="spinner"></div><div id="processing-text-convert" style="font-weight: 700; font-size: 15px;">กำลังแปลงไฟล์...</div></div>
+<div class="ws-header">
+<div class="ws-title">🖼️ Convert To JPG</div>
+<div class="ws-desc">แปลงไฟล์ HEIC, PNG, WEBP หรือไฟล์ไม่มีนามสกุลเป็น JPG (Quality 100%, ห้ามบีบอัด, คงขนาดเดิมเป๊ะ)</div>
+</div>
+<div class="ws-body">
+<div class="tool-settings-row">
+<div class="tool-set-col" style="flex: unset; width: 100%;">
+<span class="settings-box-label">ตั้งชื่อไฟล์ Output</span>
+<div class="seg-control" style="max-width: 400px;">
+<button class="seg-btn active" id="btn-name-orig" onclick="setConvertNaming('orig')">ชื่อเดิม (IMG_001.jpg)</button>
+<button class="seg-btn" id="btn-name-seq" onclick="setConvertNaming('seq')">เรียงลำดับ (1.jpg)</button>
+</div>
+</div>
+</div>
+<div class="drop-zone" id="dz-convert"><div class="icon">📥</div><div class="main-text">ลากไฟล์รูปมาวาง หรือคลิกที่นี่</div><div class="sub-text">รองรับภาพทุกชนิดรวมถึงไฟล์ไม่มีนามสกุล (สูงสุด 100 รูป/ครั้ง)</div><input type="file" id="fi-convert" multiple style="display: none;"></div>
+<div id="sb-convert" style="display: none; justify-content: space-between; align-items: center; background: var(--secondary-light); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--secondary-subtle);">
+<div style="font-weight: 600; color: var(--secondary-text);" id="count-convert">เตรียมไฟล์ 0 / 100 รูป</div>
+<button class="btn-micro-action" style="background:var(--surface); border-color:var(--secondary-text); color:var(--secondary-text);" onclick="clearTool('convert')">🗑️ ล้างทั้งหมด</button>
+</div>
+<div class="preview-grid" id="pg-convert"></div>
+</div>
+<div class="ws-footer"><button class="btn-copy-main" id="btn-export-convert" disabled onclick="downloadZip('convert')" style="min-height: 48px; width: auto; padding: 0 32px; background: var(--secondary); box-shadow: none;">📦 ดาวน์โหลด ConvertToJPG.zip</button></div>
+</div>
+</div>
+</div>
 </div>
 
-<!-- ==========================================
-     MODALS & OVERLAYS
-     ========================================== -->
 <div class="modal-overlay" id="custom-alert">
-  <div class="modal-content" style="max-width: 320px; padding: 24px; text-align: center;">
-    <div style="font-size: 15px; font-weight: 600; margin-bottom: 24px; color: var(--text-main);" id="alert-msg"></div>
-    <button class="btn-copy-main" style="min-height: 44px; border-radius: 100px;" onclick="closeModal('custom-alert')">ตกลง</button>
-  </div>
+<div class="modal-content" style="max-width: 320px; padding: 24px; text-align: center;">
+<div style="font-size: 15px; font-weight: 600; margin-bottom: 24px; color: var(--text-main);" id="alert-msg"></div>
+<button class="btn-copy-main" style="min-height: 44px; border-radius: 100px;" onclick="closeModal('custom-alert')">ตกลง</button>
 </div>
-
+</div>
 <div class="modal-overlay" id="custom-confirm">
-  <div class="modal-content" style="max-width: 320px; padding: 24px; text-align: center;">
-    <div style="font-size: 15px; font-weight: 600; margin-bottom: 24px; color: var(--text-main);" id="confirm-msg"></div>
-    <div style="display: flex; gap: 12px; justify-content: center;">
-      <button class="btn-copy-main" style="min-height: 44px; flex: 1; border-radius: 100px;" id="btn-confirm-yes">ตกลง</button>
-      <button class="btn-clear-all" style="min-height: 44px; flex: 1; border-radius: 100px;" onclick="closeModal('custom-confirm')">ยกเลิก</button>
-    </div>
-  </div>
+<div class="modal-content" style="max-width: 320px; padding: 24px; text-align: center;">
+<div style="font-size: 15px; font-weight: 600; margin-bottom: 24px; color: var(--text-main);" id="confirm-msg"></div>
+<div style="display: flex; gap: 12px; justify-content: center;">
+<button class="btn-copy-main" style="min-height: 44px; flex: 1; border-radius: 100px;" id="btn-confirm-yes">ตกลง</button>
+<button class="btn-clear-all" style="min-height: 44px; flex: 1; border-radius: 100px;" onclick="closeModal('custom-confirm')">ยกเลิก</button>
 </div>
-
+</div>
+</div>
 <div class="modal-overlay" id="checklist-modal" onclick="closeModal('checklist-modal')">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      📋 Production Checklist
-      <button class="btn-close" onclick="closeModal('checklist-modal')">×</button>
-    </div>
-    <div class="modal-body" style="padding: 0;">
-      <textarea class="preview-box" id="checklist-box" style="min-height: 300px; border-radius: 0;"></textarea>
-    </div>
-    <div class="action-area" style="border-radius: 0 0 var(--radius-md) var(--radius-md);">
-      <button class="btn-copy-main" onclick="copyChecklist()">📝 Copy Checklist</button>
-    </div>
-  </div>
+<div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-header">📋 Production Checklist<button class="btn-close" onclick="closeModal('checklist-modal')">×</button></div>
+<div class="modal-body" style="padding: 0;"><textarea class="preview-box" id="checklist-box" style="min-height: 300px; border-radius: 0;"></textarea></div>
+<div class="action-area" style="border-radius: 0 0 var(--radius-md) var(--radius-md);"><button class="btn-copy-main" onclick="copyChecklist()">📝 Copy Checklist</button></div>
 </div>
-
+</div>
 <div class="modal-overlay" id="tools-modal" onclick="closeModal('tools-modal')">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      🛠️ Tools & Settings
-      <button class="btn-close" onclick="closeModal('tools-modal')">×</button>
-    </div>
-    <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px;">
-      <div>
-        <div class="settings-box-label">💡 แนบคู่มือเพิ่มเติมให้ลูกค้า</div>
-        <div class="opt-chip-wrap">
-          <div class="opt-chip" id="opt-music" onclick="toggleOpt('music')">วิธีส่งเพลง</div>
-          <div class="opt-chip" id="opt-drive" onclick="toggleOpt('drive')">วิธีแชร์ Drive</div>
-          <div class="opt-chip" id="opt-canva" onclick="toggleOpt('canva')">แชร์ Canva</div>
-          <div class="opt-chip" id="opt-checklist" onclick="toggleOpt('checklist')">Checklist</div>
-        </div>
-      </div>
-      <div>
-        <div class="settings-box-label">💬 คลังข้อความตอบกลับด่วน</div>
-        <div id="faq-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
-        <button class="btn-clear-all" id="btn-show-faq-form" onclick="toggleFaqForm(true)" style="min-height: 36px; font-size: 13px; border-style: dashed;">+ เพิ่มข้อความใหม่</button>
-        <div id="faq-form" style="display: none; flex-direction: column; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);">
-          <input type="text" id="faq-title" class="search-bar" style="min-height: 40px; font-size: 13px;" placeholder="ชื่อหัวข้อ (เช่น แจ้งเลขบัญชี)">
-          <textarea id="faq-text" class="note-input" style="min-height: 80px;" placeholder="พิมพ์ข้อความ..."></textarea>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn-parse" style="flex: 2; min-height: 40px;" onclick="saveFaq()">💾 บันทึก</button>
-            <button class="btn-parse btn-clear" style="flex: 1; min-height: 40px;" onclick="toggleFaqForm(false)">ยกเลิก</button>
-          </div>
-        </div>
-      </div>
-      <div style="border-top: 1px dashed var(--border-light); padding-top: 16px;">
-        <div class="settings-box-label">📊 Database Audit Coverage</div>
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
-          <div style="background: var(--bg-main); padding: 8px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 10px; color: var(--text-muted);">Total</div>
-            <div style="font-size: 14px; font-weight: 700;" id="audit-total-count">0</div>
-          </div>
-          <div style="background: var(--bg-main); padding: 8px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 10px; color: var(--text-muted);">Active</div>
-            <div style="font-size: 14px; font-weight: 700; color: var(--mint-text);" id="audit-active-count">0</div>
-          </div>
-          <div style="background: var(--bg-main); padding: 8px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 10px; color: var(--text-muted);">Warning</div>
-            <div style="font-size: 14px; font-weight: 700; color: var(--primary-text);" id="audit-missing-count">0</div>
-          </div>
-          <div style="background: var(--bg-main); padding: 8px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 10px; color: var(--text-muted);">Coverage</div>
-            <div style="font-size: 14px; font-weight: 700; color: var(--secondary-text);" id="audit-coverage-pct">0%</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-header">🛠️ Tools & Settings<button class="btn-close" onclick="closeModal('tools-modal')">×</button></div>
+<div class="modal-body" style="display: flex; flex-direction: column; gap: 20px;">
+<div>
+<div class="settings-box-label">💡 แนบคู่มือเพิ่มเติมให้ลูกค้า</div>
+<div class="opt-chip-wrap">
+<div class="opt-chip" id="opt-music" onclick="toggleOpt('music')">วิธีส่งเพลง</div>
+<div class="opt-chip" id="opt-drive" onclick="toggleOpt('drive')">วิธีแชร์ Drive</div>
+<div class="opt-chip" id="opt-canva" onclick="toggleOpt('canva')">แชร์ Canva</div>
+<div class="opt-chip" id="opt-checklist" onclick="toggleOpt('checklist')">Checklist</div>
 </div>
-
+</div>
+<div>
+<div class="settings-box-label">📊 Product Database Coverage</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+<div style="background: var(--bg-main); border-radius: 8px; padding: 8px 12px; border: 1px solid var(--border-light);">ทั้งหมด: <strong id="audit-total-count">-</strong> รายการ</div>
+<div style="background: var(--bg-main); border-radius: 8px; padding: 8px 12px; border: 1px solid var(--border-light);">ตั้งค่าแล้ว: <strong id="audit-active-count" style="color:var(--mint-text)">-</strong> รายการ</div>
+<div style="background: var(--bg-main); border-radius: 8px; padding: 8px 12px; border: 1px solid var(--border-light);">ขาดอยู่: <strong id="audit-missing-count" style="color:var(--primary-text)">-</strong> รายการ</div>
+<div style="background: var(--bg-main); border-radius: 8px; padding: 8px 12px; border: 1px solid var(--border-light);">Coverage: <strong id="audit-coverage-pct">-</strong></div>
+</div>
+</div>
+<div>
+<div class="settings-box-label">💬 คลังข้อความตอบกลับด่วน</div>
+<div id="faq-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
+<button class="btn-clear-all" id="btn-show-faq-form" onclick="toggleFaqForm(true)" style="min-height: 36px; font-size: 13px; border-style: dashed;">+ เพิ่มข้อความใหม่</button>
+<div id="faq-form" style="display: none; flex-direction: column; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);">
+<input type="text" id="faq-title" class="search-bar" style="min-height: 40px; font-size: 13px;" placeholder="ชื่อหัวข้อ (เช่น แจ้งเลขบัญชี)">
+<textarea id="faq-text" class="note-input" style="min-height: 80px;" placeholder="พิมพ์ข้อความ..."></textarea>
+<div style="display: flex; gap: 8px;">
+<button class="btn-parse" style="flex: 2; min-height: 40px;" onclick="saveFaq()">💾 บันทึก</button>
+<button class="btn-parse btn-clear" style="flex: 1; min-height: 40px;" onclick="toggleFaqForm(false)">ยกเลิก</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 <div id="mobile-sticky-bar" class="sticky-bar">
-  <button id="btn-scroll-cart" class="gen-btn" disabled onclick="scrollToCart()">Review & Export (0)</button>
+<button id="btn-scroll-cart" class="gen-btn" disabled onclick="scrollToCart()">Review & Export (0)</button>
 </div>
-
 <div class="toast" id="toast">✅ Copied to clipboard</div>
 
 <script>
 // ============================================================================
-// SHARED UTILITIES & MODALS
+// 1. DATA DEFINITIONS
 // ============================================================================
-function showAlert(msg) {
-  document.getElementById('alert-msg').innerText = msg;
-  openModal('custom-alert');
-}
+const GIFT_SETS = [
+{ giftSetId: 'signature_y2k', giftSetName: 'Signature Y2K Vibes', contents: [{ productId: 'mini-cd', quantity: 1 }, { productId: 'vinyl-record', quantity: 1 }] },
+{ giftSetId: 'analog_traveler', giftSetName: 'Analog Traveler Set', contents: [{ productId: 'disposable-cam', quantity: 1 }, { productId: 'memory-film', quantity: 1 }] },
+{ giftSetId: 'midnight_lullaby', giftSetName: 'Midnight Lullaby Set', contents: [{ productId: 'film-lamp', quantity: 1 }, { productId: 'melody-filmbook', quantity: 1 }] },
+{ giftSetId: 'fanclub_fave', giftSetName: 'Fanclub Fave Set', contents: [{ productId: 'pin-badge', quantity: 10 }, { productId: 'card-nfc', quantity: 10 }] },
+{ giftSetId: 'mixtape_archive', giftSetName: 'Mixtape Archive Set', contents: [{ productId: 'cassette', quantity: 1 }, { productId: 'floppy', quantity: 1 }] },
+{ giftSetId: 'chapters_of_us', giftSetName: 'Chapters of Us', contents: [{ productId: 'story-spin', quantity: 1 }, { productId: 'film-strip', quantity: 1 }] },
+{ giftSetId: 'magic_memory', giftSetName: 'Magic Memory Set', contents: [{ productId: 'snowglobe', quantity: 1 }, { productId: 'film-strip', quantity: 1 }] },
+{ giftSetId: 'digital_nostalgia', giftSetName: 'Digital Nostalgia Set', contents: [{ productId: 'floppy', quantity: 1 }, { productId: 'card-nfc', quantity: 1 }] },
+{ giftSetId: 'slide_party_pack', giftSetName: 'Slide Party Pack', contents: [{ productId: 'film-slide-nfc', quantity: 10 }, { productId: 'film-slide', quantity: 20 }] },
+{ giftSetId: 'fanclub_pro_pack', giftSetName: 'Fanclub Pro Pack', contents: [{ productId: 'film-slide-nfc', quantity: 30 }, { productId: 'pin-badge', quantity: 20 }], packingNote: 'Auto Include: กรอบกระดาษ, ซอง PVC, โซ่ไข่ปลา' },
+{ giftSetId: 'ultimate_vinyl', giftSetName: 'Ultimate Vinyl Collection', contents: [{ productId: 'vinyl-record', quantity: 1 }, { productId: 'vinyl-heart', quantity: 1 }, { productId: 'pocket-vinyl', quantity: 1 }] },
+{ giftSetId: 'snapshot_memories', giftSetName: 'Snapshot Memories Set', contents: [{ productId: 'memory-film', quantity: 1 }, { productId: 'film-strip', quantity: 1 }] },
+{ giftSetId: 'desk_magic_decor', giftSetName: 'Desk Magic Decor', contents: [{ productId: 'polaroid', quantity: 1 }, { productId: 'snowglobe', quantity: 1 }] },
+{ giftSetId: 'listening_room', giftSetName: 'The Listening Room', contents: [{ productId: 'vinyl-set', quantity: 1 }, { productId: 'film-lamp', quantity: 1 }] },
+{ giftSetId: 'little_diary', giftSetName: 'Little Diary Combo', contents: [{ productId: 'melody-filmbook', quantity: 1 }, { productId: 'card-nfc', quantity: 1 }] }
+];
 
-function showConfirm(msg, onYes) {
-  document.getElementById('confirm-msg').innerText = msg;
-  document.getElementById('btn-confirm-yes').onclick = () => {
-    closeModal('custom-confirm');
-    onYes();
-  };
-  openModal('custom-confirm');
-}
-
-function showToast(msg) {
-  var t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-function copyActiveMessage() {
-  let text = document.getElementById('preview-box').value;
-  if(!text || text === "ยังไม่ได้เลือกสินค้า...") return showToast('กรุณาเลือกสินค้าก่อนคัดลอกค่ะ');
-  copyText(text, '✅ Copied Customer Message');
-}
-
-function shareToLine() {
-  let text = document.getElementById('preview-box').value;
-  if(!text || text === "ยังไม่ได้เลือกสินค้า...") return showToast('กรุณาเลือกสินค้าก่อนส่งเข้า LINE ค่ะ');
-  let url = 'https://line.me/R/msg/text/?' + encodeURIComponent(text);
-  window.open(url, '_blank');
-}
-
-function copyText(text, msg) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(() => fallbackCopy(text, msg));
-  } else { fallbackCopy(text, msg); }
-}
-
-function fallbackCopy(text, msg) {
-  var ta = document.createElement('textarea');
-  ta.value = text; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
-  document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,99999);
-  try { document.execCommand('copy'); showToast(msg); } catch(e){}
-  document.body.removeChild(ta);
-}
-
-// Navigation Switcher
-function switchView(viewId) {
-  document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-  document.getElementById('view-' + viewId).classList.add('active');
-  document.getElementById('tab-' + (viewId === 'upload-center' ? 'upload' : 'tools')).classList.add('active');
-}
-
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-// ============================================================================
-// UPLOAD CENTER LOGIC (ORIGINAL PARSER + DATA)
-// ============================================================================
 const GROUPS = [
-  { label:'POCKET MEMORIES', emoji:'📸', expanded: false, products:[
-    { id:'pocket-polaroid', name:'Pocket Polaroid (NFC)', emoji:'📷', type:'polaroid-nfc', methods: ['drive'], canvaUrl: null, nfc: true },
-    { id:'mini-cd',         name:'Mini CD Box (NFC)',     emoji:'💿', type:'canva-cd', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/w0yzuhiy266lb3x', canva_mode: 'per_item' },
-    { id:'pocket-tape',     name:'Pocket Tape (NFC)',     emoji:'📼', type:'canva-tape', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/69k4hboiwx9vj3x', canva_mode: 'per_item' },
-    { id:'vinyl-record',    name:'Vinyl Record (NFC)',    emoji:'🎵', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
-    { id:'vinyl-heart',     name:'Vinyl Heart (NFC)',     emoji:'💗', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
-    { id:'pocket-vinyl',    name:'Pocket Vinyl (NFC)',    emoji:'🎶', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i7zuygv1t0cri6w', canva_mode: 'multi_page' }
-  ]},
-  { label:'ECHOES OF SOUND', emoji:'🔊', expanded: false, products:[
-    { id:'polaroid',        name:'Polaroid Soundframe',   emoji:'📸', type:'polaroid', methods: ['drive'] },
-    { id:'film-slide-nfc',  name:'Film Slide (NFC)',      emoji:'🎞️', type:'film-slide-nfc', methods: ['drive'] },
-    { id:'vinyl-nfc',       name:'Vinyl (NFC)',           emoji:'💽', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
-    { id:'floppy',          name:'Floppy Disk (NFC)',     emoji:'💾', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/42irx4kok3gnmah', canva_mode: 'multi_page' },
-    { id:'pin-badge',       name:'Pin Badge (NFC)',       emoji:'📌', type:'pin-nfc',   methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i12gg5v1ndisbyc', canva_mode: 'multi_page' },
-    { id:'card-nfc',        name:'Card (NFC)',            emoji:'🃏', type:'card-nfc',  methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/2o5j12d0b62lqei', canva_mode: 'multi_page' }
-  ]},
-  { label:'EVERYDAY NOSTALGIA', emoji:'🕰️', expanded: false, products:[
-    { id:'disposable-cam',  name:'ONE SHOT! Personalized Camera', emoji:'📷', type:'canva-simple', methods: ['canva'], canvaUrl:'https://canva.link/rlll254pser2243', canva_mode: 'multi_page' },
-    { id:'film-lamp',       name:'Vintage Lamp',          emoji:'💡', type:'film-lamp', methods: ['drive'] },
-    { id:'cassette',        name:'Custom Cassette Tape',  emoji:'📼', type:'cassette', methods: ['canva'], canvaUrl:'https://canva.link/thvmpl2jmlbbcoc', canva_mode: 'per_item' },
-    { id:'memory-film',     name:'Memory Film',           emoji:'🎬', type:'memory-film', methods: ['drive'] },
-    { id:'film-slide',      name:'Film Slide',            emoji:'🎞️', type:'drive-photo', methods: ['drive'] },
-    { id:'film-strip',      name:'Film Strip',            emoji:'🎞️', type:'film-strip', methods: ['drive'] },
-    { id:'postcard-film',   name:'Postcard Film',         emoji:'📬', type:'drive-photo', methods: ['drive'] },
-    { id:'melody-filmbook', name:'Melody Filmbook (NFC)', emoji:'📖', type:'melody-filmbook', methods: ['drive'] }
-  ]},
-  { label:'MOMENTS IN MOTION', emoji:'🎡', expanded: false, products:[
-    { id:'story-spin',      name:'Story Spin Box (NFC)',  emoji:'🎡', type:'story-spin', methods: ['drive'] },
-    { id:'vinyl-set',       name:'Vinyl Record Set (NFC)',emoji:'🎵', type:'canva-vinylset', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
-    { id:'snowglobe',       name:'Snowglobe Story (NFC)', emoji:'🔮', type:'snowglobe', methods: ['drive'] }
-  ]}
+{ label:'POCKET MEMORIES', emoji:'📸', expanded: false, products:[
+{ id:'pocket-polaroid', name:'Pocket Polaroid (NFC)', emoji:'📷', type:'polaroid-nfc', methods: ['drive'], canvaUrl: null, nfc: true },
+{ id:'mini-cd', name:'Mini CD Box (NFC)', emoji:'💿', type:'canva-cd', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/w0yzuhiy266lb3x', canva_mode: 'per_item' },
+{ id:'pocket-tape', name:'Pocket Tape (NFC)', emoji:'📼', type:'canva-tape', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/69k4hboiwx9vj3x', canva_mode: 'per_item' },
+{ id:'vinyl-record', name:'Vinyl Record (NFC)', emoji:'🎵', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
+{ id:'vinyl-heart', name:'Vinyl Heart (NFC)', emoji:'💗', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
+{ id:'pocket-vinyl', name:'Pocket Vinyl (NFC)', emoji:'🎶', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i7zuygv1t0cri6w', canva_mode: 'multi_page' }
+]},
+{ label:'ECHOES OF SOUND', emoji:'🔊', expanded: false, products:[
+{ id:'polaroid', name:'Polaroid Soundframe', emoji:'📸', type:'polaroid', methods: ['drive'] },
+{ id:'film-slide-nfc', name:'Film Slide (NFC)', emoji:'🎞️', type:'film-slide-nfc', methods: ['drive'] },
+{ id:'vinyl-nfc', name:'Vinyl (NFC)', emoji:'💽', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
+{ id:'floppy', name:'Floppy Disk (NFC)', emoji:'💾', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/42irx4kok3gnmah', canva_mode: 'multi_page' },
+{ id:'pin-badge', name:'Pin Badge (NFC)', emoji:'📌', type:'pin-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i12gg5v1ndisbyc', canva_mode: 'multi_page' },
+{ id:'card-nfc', name:'Card (NFC)', emoji:'🃏', type:'card-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/2o5j12d0b62lqei', canva_mode: 'multi_page' }
+]},
+{ label:'EVERYDAY NOSTALGIA', emoji:'🕰️', expanded: false, products:[
+{ id:'disposable-cam', name:'ONE SHOT! Personalized Camera', emoji:'📷', type:'canva-simple', methods: ['canva'], canvaUrl:'https://canva.link/rlll254pser2243', canva_mode: 'multi_page' },
+{ id:'film-lamp', name:'Vintage Lamp', emoji:'💡', type:'film-lamp', methods: ['drive'] },
+{ id:'cassette', name:'Custom Cassette Tape', emoji:'📼', type:'cassette', methods: ['canva'], canvaUrl:'https://canva.link/thvmpl2jmlbbcoc', canva_mode: 'per_item' },
+{ id:'memory-film', name:'Memory Film', emoji:'🎬', type:'memory-film', methods: ['drive'] },
+{ id:'film-slide', name:'Film Slide', emoji:'🎞️', type:'drive-photo', methods: ['drive'] },
+{ id:'film-strip', name:'Film Strip', emoji:'🎞️', type:'film-strip', methods: ['drive'] },
+{ id:'postcard-film', name:'Postcard Film', emoji:'📬', type:'drive-photo', methods: ['drive'] },
+{ id:'melody-filmbook', name:'Melody Filmbook (NFC)', emoji:'📖', type:'melody-filmbook', methods: ['drive'] }
+]},
+{ label:'MOMENTS IN MOTION', emoji:'🎡', expanded: false, products:[
+{ id:'story-spin', name:'Story Spin Box (NFC)', emoji:'🎡', type:'story-spin', methods: ['drive'] },
+{ id:'vinyl-set', name:'Vinyl Record Set (NFC)',emoji:'🎵', type:'canva-vinylset', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
+{ id:'snowglobe', name:'Snowglobe Story (NFC)', emoji:'🔮', type:'snowglobe', methods: ['drive'] }
+]},
+{ label: '🎁 GIFT SETS (ชุดเซ็ต)', emoji: '🎁', expanded: false, isGiftSetGroup: true, products: GIFT_SETS.map(gs => ({ id: gs.giftSetId, name: gs.giftSetName, emoji: '🎁', isGiftSet: true, methods: ['drive'] })) }
 ];
 
 const PARSER_ALIASES = {
-  'pocket-polaroid': ['pocket polaroid (nfc)', 'pocket polaroid', 'pocket pola', 'polaroid nfc'],
-  'mini-cd': ['mini cd box (nfc)', 'mini cd box', 'cd box', 'cd', 'nfc mini cd box'],
-  'pocket-tape': ['pocket tape (nfc)', 'pocket tape', 'tape nfc', 'พวงกุญแจเทป'],
-  'vinyl-record': ['vinyl record (nfc)', 'vinyl record', 'vinyl record nfc', 'แผ่นหมุน', 'ไวนิลแผ่นหมุน'],
-  'vinyl-heart': ['vinyl heart (nfc)', 'vinyl heart', 'heart vinyl', 'ไวนิลหัวใจ', 'แผ่นหมุนหัวใจ'],
-  'pocket-vinyl': ['pocket vinyl (nfc)', 'pocket vinyl'],
-  
-  'polaroid': ['polaroid soundframe', 'polaroid', 'โพลาลอยด์', 'โพลารอยด์', 'soundframe'],
-  'film-slide-nfc': ['film slide (nfc)', 'film slide nfc', 'slide nfc', 'ฟิล์มสไลด์ nfc', 'สไลด์ nfc'],
-  'vinyl-nfc': ['vinyl (nfc)', 'vinyl nfc', 'vinyl', 'ไวนิล nfc', 'ไวนิล'],
-  'floppy': ['floppy disk (nfc)', 'floppy disk', 'floppy', 'ดิสก์'],
-  'pin-badge': ['pin badge (nfc)', 'pin badge', 'pin nfc', 'เข็มกลัด'],
-  'card-nfc': ['card (nfc)', 'card nfc', 'nfc card', 'การ์ด nfc', 'card'],
-
-  'disposable-cam': ['one shot! personalized camera', 'one shot camera', 'personalized camera', 'custom disposable camera', 'one shot', 'disposable camera', 'กล้องฟิล์ม'],
-  'film-lamp': ['vintage lamp', 'film lamp', 'โคมไฟฟิล์ม', 'film slide lamp', 'โคมไฟ'],
-  'cassette': ['custom cassette tape', 'cassette tape', 'cassette', 'ตลับเทป', 'คาสเซ็ท'],
-  'memory-film': ['memory film', 'film roll', 'film reel', 'ม้วนฟิล์ม'],
-  'film-slide': ['film slide', 'ฟิล์มสไลด์', 'film slide ธรรมดา'],
-  'film-strip': ['film strip', 'filmstrip'],
-  'postcard-film': ['postcard film', 'โปสการ์ดฟิล์ม', 'โปสการ์ด', 'postcard'],
-  'melody-filmbook': ['melody filmbook (nfc)', 'melody filmbook', 'filmbook', 'สมุดภาพ'],
-
-  'story-spin': ['story spin box (nfc)', 'story spin box', 'spin box', 'story spin', 'กล่องหมุน'],
-  'vinyl-set': ['vinyl record set (nfc)', 'vinyl record set', 'vinyl set', 'เซ็ตแผ่นเสียง'],
-  'snowglobe': ['snowglobe story (nfc)', 'snowglobe story', 'snow globe', 'snowglobe', 'สโนว์โกลบ']
+'pocket-polaroid': ['pocket polaroid (nfc)', 'pocket polaroid', 'pocket pola', 'polaroid nfc'],
+'mini-cd': ['mini cd box (nfc)', 'mini cd box', 'cd box', 'cd', 'nfc mini cd box'],
+'pocket-tape': ['pocket tape (nfc)', 'pocket tape', 'tape nfc', 'พวงกุญแจเทป'],
+'vinyl-record': ['vinyl record (nfc)', 'vinyl record', 'vinyl record nfc', 'แผ่นหมุน', 'ไวนิลแผ่นหมุน'],
+'vinyl-heart': ['vinyl heart (nfc)', 'vinyl heart', 'heart vinyl', 'ไวนิลหัวใจ', 'แผ่นหมุนหัวใจ'],
+'pocket-vinyl': ['pocket vinyl (nfc)', 'pocket vinyl'],
+'polaroid': ['polaroid soundframe', 'polaroid', 'โพลาลอยด์', 'โพลารอยด์', 'soundframe'],
+'film-slide-nfc': ['film slide (nfc)', 'film slide nfc', 'slide nfc', 'ฟิล์มสไลด์ nfc', 'สไลด์ nfc'],
+'vinyl-nfc': ['vinyl (nfc)', 'vinyl nfc', 'vinyl', 'ไวนิล nfc', 'ไวนิล'],
+'floppy': ['floppy disk (nfc)', 'floppy disk', 'floppy', 'ดิสก์'],
+'pin-badge': ['pin badge (nfc)', 'pin badge', 'pin nfc', 'เข็มกลัด'],
+'card-nfc': ['card (nfc)', 'card nfc', 'nfc card', 'การ์ด nfc', 'card'],
+'disposable-cam': ['one shot! personalized camera', 'one shot camera', 'personalized camera', 'custom disposable camera', 'one shot', 'disposable camera', 'กล้องฟิล์ม'],
+'film-lamp': ['vintage lamp', 'film lamp', 'โคมไฟฟิล์ม', 'film slide lamp', 'โคมไฟ'],
+'cassette': ['custom cassette tape', 'cassette tape', 'cassette', 'ตลับเทป', 'คาสเซ็ท'],
+'memory-film': ['memory film', 'film roll', 'film reel', 'ม้วนฟิล์ม'],
+'film-slide': ['film slide', 'ฟิล์มสไลด์', 'film slide ธรรมดา'],
+'film-strip': ['film strip', 'filmstrip'],
+'postcard-film': ['postcard film', 'โปสการ์ดฟิล์ม', 'โปสการ์ด', 'postcard'],
+'melody-filmbook': ['melody filmbook (nfc)', 'melody filmbook', 'filmbook', 'สมุดภาพ'],
+'story-spin': ['story spin box (nfc)', 'story spin box', 'spin box', 'story spin', 'กล่องหมุน'],
+'vinyl-set': ['vinyl record set (nfc)', 'vinyl record set', 'vinyl set', 'เซ็ตแผ่นเสียง'],
+'snowglobe': ['snowglobe story (nfc)', 'snowglobe story', 'snow globe', 'snowglobe', 'สโนว์โกลบ'],
+'signature_y2k': ['signature y2k vibes', 'y2k vibes'],
+'analog_traveler': ['analog traveler set', 'analog traveler'],
+'midnight_lullaby': ['midnight lullaby set', 'midnight lullaby'],
+'fanclub_fave': ['fanclub fave set', 'fanclub fave'],
+'mixtape_archive': ['mixtape archive set', 'mixtape archive'],
+'chapters_of_us': ['chapters of us'],
+'magic_memory': ['magic memory set', 'magic memory'],
+'digital_nostalgia': ['digital nostalgia set', 'digital nostalgia'],
+'slide_party_pack': ['slide party pack', 'slide party'],
+'fanclub_pro_pack': ['fanclub pro pack', 'fanclub pro'],
+'ultimate_vinyl': ['ultimate vinyl collection', 'ultimate vinyl'],
+'snapshot_memories': ['snapshot memories set', 'snapshot memories'],
+'desk_magic_decor': ['desk magic decor', 'desk magic'],
+'listening_room': ['the listening room', 'listening room'],
+'little_diary': ['little diary combo', 'little diary']
 };
 
 function normalizeText(text) {
-  if (!text) return '';
-  return text.toLowerCase().replace(/\(nfc\)/gi, 'nfc').replace(/[™®!]/g, '').replace(/\s+/g, ' ').trim();
+if (!text) return '';
+return text.toLowerCase().replace(/\(nfc\)/gi, 'nfc').replace(/[™®!]/g, '').replace(/\s+/g, ' ').trim();
 }
 
 let FLAT_ALIASES = [];
 Object.keys(PARSER_ALIASES).forEach(id => {
-   PARSER_ALIASES[id].forEach(alias => {
-      let normalizedAlias = normalizeText(alias);
-      if (normalizedAlias && !FLAT_ALIASES.some(x => x.id === id && x.alias === normalizedAlias)) {
-         FLAT_ALIASES.push({ id, alias: normalizedAlias });
-      }
-   });
+PARSER_ALIASES[id].forEach(alias => {
+let normalizedAlias = normalizeText(alias);
+if (normalizedAlias && !FLAT_ALIASES.some(x => x.id === id && x.alias === normalizedAlias)) {
+FLAT_ALIASES.push({ id, alias: normalizedAlias });
+}
+});
 });
 FLAT_ALIASES.sort((a, b) => b.alias.length - a.alias.length);
 
 const METHOD_LABELS = { 'canva': 'Canva Template', 'drive': 'Google Drive', 'quick': 'ส่งแบบง่าย' };
-
 const DEFAULT_PRESETS = [
-  { label: '💿 CD BOX 1 (ส่งแบบง่าย)', items: { 'mini-cd': {qty: 1, method: 'quick'} } },
-  { label: '💿 CD BOX 2', items: { 'mini-cd': {qty: 2, method: 'canva'} } },
-  { label: '💿 CD BOX 1 + VINYL 1', items: { 'mini-cd': {qty: 1, method: 'canva'}, 'vinyl-record': {qty: 1, method: 'canva'} } },
-  { label: '🎡 SPIN BOX 1', items: { 'story-spin': {qty: 1, method: 'drive'} } },
-  { label: '🎵 VINYL NFC 1', items: { 'vinyl-record': {qty: 1, method: 'canva'} } },
-  { label: '🎞 FILM SLIDE NFC 10', items: { 'film-slide-nfc': {qty: 10, method: 'drive'} } }
+{ label: '💿 CD BOX 1 (ส่งแบบง่าย)', items: { 'mini-cd': {qty: 1, method: 'quick'} } },
+{ label: '🎡 SPIN BOX 1', items: { 'story-spin': {qty: 1, method: 'drive'} } },
+{ label: '🎁 Slide Party Pack', items: { 'slide_party_pack': {qty: 1, method: 'drive'} } }
 ];
 
 const PMAP = {};
-GROUPS.forEach(g => g.products.forEach(p => PMAP[p.id] = p));
+GROUPS.forEach(g => {
+if (g.isGiftSetGroup) return;
+g.products.forEach(p => PMAP[p.id] = { ...p, isGiftSet: false });
+});
+GIFT_SETS.forEach(gs => PMAP[gs.giftSetId] = {
+id: gs.giftSetId,
+name: gs.giftSetName,
+emoji: '🎁',
+isGiftSet: true,
+methods: ['drive'],
+packingNote: gs.packingNote || null
+});
 
 const frameDefinitions = [
-  { key: 'กรอบพลาสติก', displayName: 'กรอบพลาสติก', patterns: ['กรอบพลาสติก', 'plastic', 'slide plastic'] },
-  { key: 'กรอบเหลือง', displayName: 'กรอบเหลือง', patterns: ['กรอบเหลือง', 'เหลือง', 'yellow'] },
-  { key: 'กรอบขอบแดง', displayName: 'กรอบขอบแดง', patterns: ['กรอบขอบแดง', 'ขอบแดง', 'red border'] },
-  { key: 'Font แดง', displayName: 'Font แดง', patterns: ['font แดง', 'ฟอนต์แดง', 'red font'] },
-  { key: 'Font น้ำเงินดำ', displayName: 'Font น้ำเงินดำ', patterns: ['font น้ำเงินดำ', 'ฟอนต์น้ำเงินดำ', 'blue font'] },
-  { key: 'ขอบมนแดงดำ', displayName: 'ขอบมนแดงดำ', patterns: ['ขอบมนแดงดำ', 'rounded red black'] },
-  { key: 'ขอบมน Font ชมพูเข้ม', displayName: 'ขอบมนชมพูเข้ม', patterns: ['ขอบมน font ชมพูเข้ม', 'ขอบมนชมพู', 'rounded pink'] },
-  { key: 'กรอบดำ', displayName: 'กรอบดำ', patterns: ['กรอบดำ', 'black'] }
+{ key: 'กรอบพลาสติก', displayName: 'กรอบพลาสติก', patterns: ['กรอบพลาสติก', 'plastic', 'slide plastic'] },
+{ key: 'กรอบเหลือง', displayName: 'กรอบเหลือง', patterns: ['กรอบเหลือง', 'เหลือง', 'yellow'] },
+{ key: 'กรอบขอบแดง', displayName: 'กรอบขอบแดง', patterns: ['กรอบขอบแดง', 'ขอบแดง', 'red border'] },
+{ key: 'Font แดง', displayName: 'Font แดง', patterns: ['font แดง', 'ฟอนต์แดง', 'red font'] },
+{ key: 'Font น้ำเงินดำ', displayName: 'Font น้ำเงินดำ', patterns: ['font น้ำเงินดำ', 'ฟอนต์น้ำเงินดำ', 'blue font'] },
+{ key: 'ขอบมนแดงดำ', displayName: 'ขอบมนแดงดำ', patterns: ['ขอบมนแดงดำ', 'rounded red black'] },
+{ key: 'ขอบมน Font ชมพูเข้ม', displayName: 'ขอบมนชมพูเข้ม', patterns: ['ขอบมน font ชมพูเข้ม', 'ขอบมนชมพู', 'rounded pink'] },
+{ key: 'กรอบดำ', displayName: 'กรอบดำ', patterns: ['กรอบดำ', 'black'] }
 ];
 
-// STATE
+const HANGING_ACCESSORY_PATTERNS = [
+{ key: 'rope_keychain', displayName: 'พวงกุญแจเชือก', patterns: ['พวงกุญแจเชือก', 'พวงกุญแจ', 'เชือก'] },
+{ key: 'ball_chain_acrylic', displayName: 'โซ่ไข่ปลา + จี้อะคริลิก', patterns: ['โซ่ไข่ปลา', 'จี้อะคริลิก', 'จี้อะคริลิค', 'ball chain'] }
+];
+
+// ============================================================================
+// 2. STATE MANAGEMENT
+// ============================================================================
 let state = {
-  selected: {}, quantities: {}, methods: {}, collectionMode: 'drive', 
-  opts: { music: false, drive: false, canva: false, checklist: false },
-  search: '', exportView: 'customer', customPresets: [], faqSnippets: [],
-  manualEditPreview: false, filmSlideFrames: null, unconfiguredProducts: [] 
+selected: {}, quantities: {}, methods: {}, collectionMode: 'drive',
+opts: { music: false, drive: false, canva: false, checklist: false },
+search: '', exportView: 'customer', customPresets: [], faqSnippets: [],
+manualEditPreview: false, filmSlideFrames: null, unconfiguredProducts: [], productOptions: {}
 };
 
-function init() {
-  try {
-    let saved = localStorage.getItem('tinkle_presets_v2');
-    if (saved) state.customPresets = JSON.parse(saved);
-    let savedFaq = localStorage.getItem('tinkle_faq_v1');
-    if (savedFaq) state.faqSnippets = JSON.parse(savedFaq);
-    else state.faqSnippets = [{ id: 1, title: '💳 แจ้งเลขบัญชี', text: 'ธนาคารกสิกรไทย\nเลขบัญชี: 123-4-56789-0\nชื่อบัญชี: บจก. ทิงเกิล กู๊ดดี้ส์' }];
-  } catch(e) {}
-  renderPresets(); renderFaq(); renderProducts(); renderCart(); updatePreview(); runProductAudit();
+// ============================================================================
+// 3. CORE LOGIC: EXPANSION & MERGING
+// ============================================================================
+function expandAndMergeCart() {
+let tempMap = {};
+let currentSelection = Object.keys(state.selected).filter(id => state.selected[id]).map(id => ({
+p: PMAP[id], qty: state.quantities[id], method: state.methods[id]
+}));
+
+currentSelection.forEach(item => {
+if (item.p && item.p.isGiftSet) {
+const giftSet = GIFT_SETS.find(gs => gs.giftSetId === item.p.id);
+if (giftSet) {
+giftSet.contents.forEach(content => {
+const pId = content.productId;
+const qty = content.quantity * item.qty;
+if (!tempMap[pId]) {
+const prod = GROUPS.flatMap(g => g.products).find(p => p.id === pId);
+tempMap[pId] = {
+id: pId,
+qty: 0,
+method: prod && prod.methods ? prod.methods[0] : 'drive',
+packingNote: giftSet.packingNote || null
+};
+}
+tempMap[pId].qty += qty;
+});
+}
+} else if (item.p) {
+const pId = item.p.id;
+if (!tempMap[pId]) {
+tempMap[pId] = {
+id: pId,
+qty: item.qty,
+method: item.method,
+packingNote: null
+};
+} else {
+tempMap[pId].qty += item.qty;
+}
+}
+});
+
+let newSelected = {};
+let newQuantities = {};
+let newMethods = {};
+
+Object.values(tempMap).forEach(item => {
+newSelected[item.id] = true;
+newQuantities[item.id] = item.qty;
+newMethods[item.id] = item.method;
+});
+
+state.selected = newSelected;
+state.quantities = newQuantities;
+state.methods = newMethods;
 }
 
-function openChecklist() {
-  document.getElementById('checklist-box').value = buildProductionChecklist();
-  openModal('checklist-modal');
-}
-function copyChecklist() {
-  copyText(document.getElementById('checklist-box').value, '✅ Copied Checklist');
-}
-
-function toggleFaqForm(show) {
-  document.getElementById('faq-form').style.display = show ? 'flex' : 'none';
-  document.getElementById('btn-show-faq-form').style.display = show ? 'none' : 'flex';
-  if(!show) { document.getElementById('faq-title').value = ''; document.getElementById('faq-text').value = ''; }
-}
-
-function saveFaq() {
-  let title = document.getElementById('faq-title').value.trim(), text = document.getElementById('faq-text').value.trim();
-  if(!title || !text) return showAlert('กรุณากรอกชื่อหัวข้อและข้อความให้ครบถ้วน');
-  state.faqSnippets.push({ id: Date.now(), title, text });
-  localStorage.setItem('tinkle_faq_v1', JSON.stringify(state.faqSnippets));
-  toggleFaqForm(false); renderFaq(); showToast('✅ บันทึกข้อความด่วนแล้ว');
-}
-
-function deleteFaq(id, event) {
-  event.stopPropagation();
-  showConfirm('ต้องการลบข้อความตอบกลับด่วนนี้ใช่หรือไม่?', () => {
-    state.faqSnippets = state.faqSnippets.filter(f => f.id !== id);
-    localStorage.setItem('tinkle_faq_v1', JSON.stringify(state.faqSnippets));
-    renderFaq();
-  });
-}
-
-function renderFaq() {
-  const container = document.getElementById('faq-list');
-  container.innerHTML = '';
-  if(state.faqSnippets.length === 0) {
-     container.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px 0;">ยังไม่มีข้อความด่วน กดเพิ่มได้เลยค่ะ</div>'; return;
-  }
-  state.faqSnippets.forEach(f => {
-    let el = document.createElement('div'); el.className = 'faq-item';
-    el.onclick = () => copyText(f.text, '✅ คัดลอก: ' + f.title);
-    el.innerHTML = `<span class="faq-title">📄 ${f.title}</span><span class="faq-del" onclick="deleteFaq(${f.id}, event)">🗑️</span>`;
-    container.appendChild(el);
-  });
-}
-
-function runProductAudit() {
-  let totalProducts = 0, configuredProducts = 0, missingProducts = 0;
-  GROUPS.forEach(group => { group.products.forEach(p => { totalProducts++; if (!!PARSER_ALIASES[p.id]) configuredProducts++; else missingProducts++; }); });
-  document.getElementById('audit-total-count').textContent = totalProducts;
-  document.getElementById('audit-active-count').textContent = configuredProducts;
-  document.getElementById('audit-missing-count').textContent = missingProducts;
-  document.getElementById('audit-coverage-pct').textContent = (totalProducts > 0 ? Math.round((configuredProducts / totalProducts) * 100) : 0) + '%';
-}
-
+// ============================================================================
+// 4. PARSER LOGIC
+// ============================================================================
 function applyParsedOrder() {
-  const text = document.getElementById('order-parser-input').value;
-  if (!text.trim()) return showToast('กรุณาวางข้อความออเดอร์ก่อนค่ะ');
-  
-  document.getElementById('order-note-input').value = '';
-  state.filmSlideFrames = null; state.unconfiguredProducts = [];
+const text = document.getElementById('order-parser-input').value;
+if (!text.trim()) return showToast('กรุณาวางข้อความออเดอร์ก่อนค่ะ');
 
-  let provMatch = text.match(/(?:จังหวัด(?:ปลายทาง)?|จัดส่งไปที่)[:\s]*\n*\s*([^\n]+)/i);
-  let dateMatch = text.match(/(?:วันที่(?:ต้องการ)?ใช้งาน|วันที่ใช้)[:\s]*\n*\s*([^\n]+)/i);
-  let amtMatch = text.match(/(?:ยอดรวม(?:ทั้งสิ้น)?|รวม)[:\s]*\n*\s*([^\n]+)/i);
+document.getElementById('order-note-input').value = '';
+state.filmSlideFrames = null;
+state.unconfiguredProducts = [];
+state.productOptions = {};
+state.selected = {}; state.quantities = {}; state.methods = {};
 
-  let prov = provMatch ? provMatch[1].trim() : '';
-  let eventDate = dateMatch ? dateMatch[1].trim() : '';
-  let amount = amtMatch ? amtMatch[1].trim() : '';
+let provMatch = text.match(/(?:จังหวัด(?:ปลายทาง)?|จัดส่งไปที่)[:\s]*\n*\s*([^\n]+)/i);
+let dateMatch = text.match(/(?:วันที่(?:ต้องการ)?ใช้งาน|วันที่ใช้)[:\s]*\n*\s*([^\n]+)/i);
+let amtMatch = text.match(/(?:ยอดรวม(?:ทั้งสิ้น)?|รวม)[:\s]*\n*\s*([^\n]+)/i);
 
-  let detectedFrames = {}; let foundProducts = []; let lines = text.split('\n');
+let prov = provMatch ? provMatch[1].trim() : '';
+let eventDate = dateMatch ? dateMatch[1].trim() : '';
+let amount = amtMatch ? amtMatch[1].trim() : '';
 
-  const optionKeywords = ['แบบมาตรฐาน', 'รุ่นมาตรฐาน', 'standard', 'standard version'];
-  const skipKeywords = ['จังหวัดปลายทาง', 'จังหวัด', 'จัดส่งไปที่', 'วันที่ต้องการใช้งาน', 'วันที่ใช้งาน', 'วันที่ใช้', 'ยอดรวมทั้งสิ้น', 'ยอดรวม', 'รวม', 'ค่าจัดส่ง', 'สรุปออเดอร์', 'สนใจสั่งสินค้า', 'ข้อมูลสำหรับจัดคิวงาน', 'คิวแทรก/งานด่วน', 'รอตามรอบได้', 'กำหนดจัดส่ง'];
-  const variantPatterns = [
-    'ซองซิปขุ่น+จี้อะคริลิค', 'กล่องแพ็กเกจใส+พื้นหลัง',
-    'ซองซิปขุ่น', 'กล่องแพ็กเกจใส', 'จี้ดาว', 'จี้หัวใจ', 'จี้อะคริลิค', 'ซองซิป', 'กล่องแพ็กเกจ',
-    'ตลับใส', 'ตลับแดง',
-    'แบบมาตรฐาน', 'รุ่นมาตรฐาน', 'standard', 'standard version'
-  ];
+let detectedFrames = {};
+let foundProducts = [];
+let lines = text.split('\n');
 
-  let currentProduct = null;
+const optionKeywords = [
+  // Standard/upgrade variants
+  'แบบมาตรฐาน', 'รุ่นมาตรฐาน', 'standard', 'standard version', 'อัปเกรด', 'เปลี่ยนเป็น', 'limited', '✨',
+  'กรอบกระดาษ', 'แผ่นสีขาวขุ่น',
+  // Hanging accessory options (pocket-polaroid and others)
+  'พวงกุญแจ', 'เชือก', 'โซ่ไข่ปลา', 'จี้อะคริลิก', 'จี้อะคริลิค', 'จี้ดาว', 'จี้หัวใจ', 'จี้',
+  // Package/color options
+  'สีสินค้า', 'สีกรอบ', 'สีตลับ', 'กล่อง', 'ตลับ', 'ซอง', 'แพ็กเกจ',
+  // Misc metadata
+  'อัปเกรดแพ็กเกจ', 'อัปเกรดกรอบ', 'limited edition'
+];
+const skipKeywords = ['จังหวัดปลายทาง', 'จังหวัด', 'จัดส่งไปที่', 'วันที่ต้องการใช้งาน', 'วันที่ใช้งาน', 'วันที่ใช้', 'ยอดรวมทั้งสิ้น', 'ยอดรวม', 'รวม', 'ค่าจัดส่ง', 'สรุปออเดอร์', 'สนใจสั่งสินค้า', 'ข้อมูลสำหรับจัดคิวงาน', 'คิวแทรก/งานด่วน', 'รอตามรอบได้', 'กำหนดจัดส่ง'];
+const variantPatterns = ['ซองซิปขุ่น+จี้อะคริลิค', 'กล่องแพ็กเกจใส+พื้นหลัง', 'ซองซิปขุ่น', 'กล่องแพ็กเกจใส', 'จี้ดาว', 'จี้หัวใจ', 'จี้อะคริลิค', 'จี้อะคริลิก', 'ซองซิป', 'กล่องแพ็กเกจ', 'ตลับใส', 'ตลับแดง', 'แบบมาตรฐาน', 'รุ่นมาตรฐาน', 'standard', 'standard version', 'พวงกุญแจเชือก', 'โซ่ไข่ปลา'];
 
-  for (let i = 0; i < lines.length; i++) {
-    let rawLine = lines[i].trim();
-    if (!rawLine) continue;
-    let normalizedLine = normalizeText(rawLine);
-    if (skipKeywords.some(kw => normalizedLine.includes(kw.toLowerCase()))) continue;
+let currentProduct = null;
 
-    let matchedFrameKey = null;
-    for (let fDef of frameDefinitions) {
-      for (let pat of fDef.patterns) {
-        if (normalizedLine.includes(pat.toLowerCase())) {
-          if (fDef.key === 'กรอบดำ' && (normalizedLine.includes('น้ำเงิน') || normalizedLine.includes('แดง') || normalizedLine.includes('blue') || normalizedLine.includes('red'))) continue; 
-          matchedFrameKey = fDef.key; break;
-        }
-      }
-      if (matchedFrameKey) break;
-    }
+for (let i = 0; i < lines.length; i++) {
+let rawLine = lines[i].trim();
+if (!rawLine) continue;
+let normalizedLine = normalizeText(rawLine);
 
-    if (matchedFrameKey) {
-      let cleanLine = normalizedLine.replace(/\d+\s*บาท/gi, ''); 
-      let qtyMatch = cleanLine.match(/(?:x|\*|จำนวน|=|\s)\s*(\d+)/);
-      let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
-      detectedFrames[matchedFrameKey] = (detectedFrames[matchedFrameKey] || 0) + qty;
-      currentProduct = 'film-slide-nfc';
-      continue; 
-    }
+if (skipKeywords.some(kw => normalizedLine.includes(kw.toLowerCase()))) continue;
 
-    let matchedProductId = null;
-    for (let item of FLAT_ALIASES) { if (normalizedLine.includes(item.alias)) { matchedProductId = item.id; break; } }
+let matchedFrameKey = null;
+for (let fDef of frameDefinitions) {
+for (let pat of fDef.patterns) {
+if (normalizedLine.includes(pat.toLowerCase())) {
+if (fDef.key === 'กรอบดำ' && (normalizedLine.includes('น้ำเงิน') || normalizedLine.includes('แดง') || normalizedLine.includes('blue') || normalizedLine.includes('red'))) continue;
+matchedFrameKey = fDef.key; break;
+}
+}
+if (matchedFrameKey) break;
+}
 
-    if (matchedProductId) {
-      if ((matchedProductId === 'film-slide' || matchedProductId === 'film-slide-nfc') && Object.keys(detectedFrames).length > 0) continue;
-      currentProduct = matchedProductId;
-      
-      let hasExplicitQtyOnLine = /(?:x|\*|จำนวน|=)\s*(\d+)/.test(normalizedLine);
-      let searchStr = normalizedLine + " " + (lines[i+1] ? normalizeText(lines[i+1]) : "");
-      let qtyMatch = searchStr.match(/(?:x|\*|จำนวน|=)\s*(\d+)/);
-      let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+if (matchedFrameKey) {
+let cleanLine = normalizedLine.replace(/\d+\s*บาท/gi, '');
+let qtyMatch = cleanLine.match(/(?:x|\*|จำนวน|=)\s*(\d+)/i);
+let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+detectedFrames[matchedFrameKey] = (detectedFrames[matchedFrameKey] || 0) + qty;
+currentProduct = 'film-slide-nfc';
+continue;
+}
 
-      let existing = foundProducts.find(p => p.id === matchedProductId);
-      if (existing) existing.qty = Math.max(existing.qty, qty); 
-      else foundProducts.push({ id: matchedProductId, qty: qty, isHeader: !hasExplicitQtyOnLine });
-      continue; 
-    }
+let matchedId = null;
+for (let item of FLAT_ALIASES) {
+if (normalizedLine.includes(item.alias)) {
+matchedId = item.id;
+break;
+}
+}
 
-    let isVariant = variantPatterns.some(v => normalizedLine.includes(normalizeText(v)));
-    if (isVariant) {
-        if (currentProduct && currentProduct !== 'film-slide-nfc' && currentProduct !== 'film-slide') {
-             let cleanLine = normalizedLine.replace(/\d+\s*บาท/gi, ''); 
-             let vQtyMatch = cleanLine.match(/(?:x|\*|จำนวน|=|\s)\s*(\d+)/);
-             let vQty = vQtyMatch ? parseInt(vQtyMatch[1], 10) : 1;
-             
-             let parent = foundProducts.find(p => p.id === currentProduct);
-             if (parent) {
-                 if (parent.isHeader) {
-                     parent.qty = vQty;
-                     parent.isHeader = false;
-                 } else {
-                     parent.qty += vQty;
-                 }
-             }
-        }
-        continue;
-    }
+if (matchedId) {
+if ((matchedId === 'film-slide' || matchedId === 'film-slide-nfc') && Object.keys(detectedFrames).length > 0) continue;
 
-    if (normalizedLine.match(/(?:x|\*|จำนวน|=)\s*\d+/) || normalizedLine.match(/บาท/) || rawLine.match(/^[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/)) {
-      let potentialName = rawLine.replace(/[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/g, '').split(/x|\*|จำนวน|=|\d+|บาท/i)[0].trim();
-      let normalizedPotential = normalizeText(potentialName);
-      let isStillPotential = potentialName.length > 3 && !optionKeywords.some(opt => normalizedPotential.includes(opt)) && !skipKeywords.some(kw => normalizedPotential.includes(kw.toLowerCase()));
+currentProduct = matchedId;
+let searchStr = normalizedLine + " " + (lines[i+1] ? normalizeText(lines[i+1]) : "");
+let qtyMatch = searchStr.match(/(?:x|\*|จำนวน|=)\s*(\d+)/i);
+let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
 
-      if (FLAT_ALIASES.some(item => normalizedPotential.includes(item.alias) || item.alias.includes(normalizedPotential))) isStillPotential = false;
-      for (let fDef of frameDefinitions) { for (let pat of fDef.patterns) { if (normalizedPotential.includes(pat.toLowerCase())) isStillPotential = false; } }
+const targetEntity = PMAP[matchedId];
+foundProducts.push({
+id: matchedId,
+qty: qty,
+isGiftSet: targetEntity ? targetEntity.isGiftSet : false
+});
+continue;
+}
 
-      if (isStillPotential && !state.unconfiguredProducts.includes(potentialName)) state.unconfiguredProducts.push(potentialName);
-    }
-  }
+// Detect hanging accessory options for pocket-polaroid (and future products)
+let matchedAccessory = null;
+for (let acc of HANGING_ACCESSORY_PATTERNS) {
+if (acc.patterns.some(p => normalizedLine.includes(p.toLowerCase()))) {
+matchedAccessory = acc; break;
+}
+}
+if (matchedAccessory) {
+if (currentProduct) {
+if (!state.productOptions[currentProduct]) state.productOptions[currentProduct] = {};
+state.productOptions[currentProduct].hanging_accessory = matchedAccessory.key;
+}
+continue;
+}
 
-  if (Object.keys(detectedFrames).length > 0) {
-    state.filmSlideFrames = detectedFrames;
-    state.selected['film-slide-nfc'] = true;
-    let totalQty = Object.values(detectedFrames).reduce((sum, q) => sum + q, 0);
-    state.quantities['film-slide-nfc'] = totalQty;
-    state.methods['film-slide-nfc'] = 'drive';
-  }
+let isOptionLine = optionKeywords.some(kw => normalizedLine.includes(kw.toLowerCase())) || variantPatterns.some(v => normalizedLine.includes(normalizeText(v)));
+if (isOptionLine) {
+continue;
+}
 
-  foundProducts.forEach(p => {
-    state.selected[p.id] = true; state.quantities[p.id] = p.qty; state.methods[p.id] = PMAP[p.id].methods[0];
-  });
+if (normalizedLine.match(/(?:x|\*|จำนวน|=)\s*\d+/) || normalizedLine.match(/บาท/) || rawLine.match(/^[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/)) {
+let potentialName = rawLine.replace(/[-*•🎨💿📷📼🎵🔮🎞️📬📖🎡💾🃏📌]/g, '').split(/x|\*|จำนวน|=|\d+|บาท/i)[0].trim();
+let normalizedPotential = normalizeText(potentialName);
+// Skip if it matches any option/accessory keyword — extra safety net
+let isAccessoryOrOption = optionKeywords.some(kw => normalizedPotential.includes(kw.toLowerCase())) ||
+HANGING_ACCESSORY_PATTERNS.some(acc => acc.patterns.some(p => normalizedPotential.includes(p.toLowerCase())));
+let isStillPotential = potentialName.length > 3 && !isAccessoryOrOption && !skipKeywords.some(kw => normalizedPotential.includes(kw.toLowerCase()));
 
-  GROUPS.forEach(g => { g.expanded = g.products.some(p => state.selected[p.id]); });
-  renderProducts(); renderCart();
+if (isStillPotential && !FLAT_ALIASES.some(item => normalizedPotential.includes(item.alias) || item.alias.includes(normalizedPotential))) {
+if (!state.unconfiguredProducts.includes(potentialName)) {
+state.unconfiguredProducts.push(potentialName);
+}
+}
+}
+}
 
-  let notesArr = [];
-  if (prov) notesArr.push(`จังหวัด: ${prov}`);
-  if (eventDate) notesArr.push(`วันที่ใช้งาน: ${eventDate}`);
-  if (amount) notesArr.push(`ยอดรวม: ${amount}`);
-  if (notesArr.length > 0) document.getElementById('order-note-input').value = notesArr.join('\n');
+foundProducts.forEach(p => {
+state.selected[p.id] = true;
+state.quantities[p.id] = p.qty;
+let prod = PMAP[p.id];
+state.methods[p.id] = prod && prod.methods ? prod.methods[0] : 'drive';
+});
 
-  let resultHtml = `<strong>📊 Parser Status</strong><br>`;
-  resultHtml += `<div style="background: #F0F6FA; border: 1px solid #AECDE0; padding: 8px; margin-top: 8px; margin-bottom: 8px; border-radius: 8px;">`;
-  resultHtml += `<strong>🔍 DEBUG: Film Slide NFC Variants</strong><br>`;
-  if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).length > 0) {
-    Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-      let fDef = frameDefinitions.find(d => d.key === fName);
-      let dispName = fDef ? fDef.displayName : fName;
-      resultHtml += `<span style="font-size: 11px;">${dispName} = ${fQty}</span><br>`;
-    });
-  } else {
-    resultHtml += `<span style="font-size: 11px; color: var(--text-muted);">(ไม่มีข้อมูล Variant กรอบ)</span><br>`;
-  }
-  resultHtml += `</div>`;
+if (Object.keys(detectedFrames).length > 0) {
+state.filmSlideFrames = detectedFrames;
+state.selected['film-slide-nfc'] = true;
+let totalQty = Object.values(detectedFrames).reduce((sum, q) => sum + q, 0);
+state.quantities['film-slide-nfc'] = totalQty;
+state.methods['film-slide-nfc'] = 'drive';
+}
 
-  if (getPicked().length > 0 || state.unconfiguredProducts.length > 0) {
-     resultHtml += `<span style="color:var(--mint-text)">✅ ดึงข้อมูลสำเร็จ กรุณาตรวจสอบ Order Summary</span>`;
-  } else {
-     resultHtml += `<span style="color:var(--text-muted)">❌ ไม่พบรายการสินค้าที่รู้จัก</span>`;
-  }
-  
-  const resBox = document.getElementById('parser-result');
-  resBox.innerHTML = resultHtml; resBox.style.display = 'block';
+expandAndMergeCart();
 
-  updatePreview(); showToast('✨ ดึงข้อมูลและเลือกสินค้าเรียบร้อย!');
+GROUPS.forEach(g => {
+g.expanded = g.products.some(p => state.selected[p.id]);
+});
+
+let notesArr = [];
+if (prov) notesArr.push(`จังหวัด: ${prov}`);
+if (eventDate) notesArr.push(`วันที่ใช้งาน: ${eventDate}`);
+if (amount) notesArr.push(`ยอดรวม: ${amount}`);
+if (notesArr.length > 0) document.getElementById('order-note-input').value = notesArr.join('\n');
+
+let resultHtml = `<strong>📊 Parser Status</strong><br>`;
+resultHtml += `<div style="background: #F0F6FA; border: 1px solid #AECDE0; padding: 8px; margin-top: 8px; margin-bottom: 8px; border-radius: 8px;">`;
+resultHtml += `<strong>🔍 DEBUG: Film Slide NFC Variants</strong><br>`;
+if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).length > 0) {
+Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
+let fDef = frameDefinitions.find(d => d.key === fName);
+let dispName = fDef ? fDef.displayName : fName;
+resultHtml += `<span style="font-size: 11px;">${dispName} = ${fQty}</span><br>`;
+});
+} else {
+resultHtml += `<span style="font-size: 11px; color: var(--text-muted);">(ไม่มีข้อมูล Variant กรอบ)</span><br>`;
+}
+resultHtml += `</div>`;
+
+if (getPicked().length > 0 || state.unconfiguredProducts.length > 0) {
+resultHtml += `<span style="color:var(--mint-text)">✅ ดึงข้อมูลและขยายเซ็ตเรียบร้อย! ตรวจสอบ Order Summary</span>`;
+} else {
+resultHtml += `<span style="color:var(--text-muted)">❌ ไม่พบรายการสินค้าที่รู้จัก</span>`;
+}
+
+const resBox = document.getElementById('parser-result');
+resBox.innerHTML = resultHtml; resBox.style.display = 'block';
+renderProducts(); renderCart(); updatePreview();
+showToast('✨ ดึงข้อมูลและเลือกสินค้าเรียบร้อย!');
 }
 
 function clearParser() {
-  document.getElementById('order-parser-input').value = '';
-  document.getElementById('parser-result').style.display = 'none';
-  document.getElementById('parser-result').innerHTML = '';
-  startOver(); showToast('🗑️ ล้างข้อความทั้งหมดแล้ว');
+document.getElementById('order-parser-input').value = '';
+document.getElementById('parser-result').style.display = 'none';
+document.getElementById('parser-result').innerHTML = '';
+startOver(); showToast('🗑️ ล้างข้อความทั้งหมดแล้ว');
 }
 
-function renderPresets() {
-  const el = document.getElementById('preset-list'); el.innerHTML = '';
-  state.customPresets.forEach((p, i) => {
-    let btn = document.createElement('div'); btn.className = 'preset-btn custom'; btn.textContent = p.label;
-    btn.onclick = () => applyPresetObj(p.items);
-    let del = document.createElement('div'); del.className = 'preset-del'; del.textContent = '×';
-    del.onclick = (e) => { e.stopPropagation(); showConfirm('ต้องการลบ Preset นี้ใช่หรือไม่?', () => { deletePreset(i); }); };
-    btn.appendChild(del); el.appendChild(btn);
-  });
-  DEFAULT_PRESETS.forEach((p) => {
-    let btn = document.createElement('button'); btn.className = 'preset-btn'; btn.textContent = p.label;
-    btn.onclick = () => applyPresetObj(p.items); el.appendChild(btn);
-  });
+// ============================================================================
+// 5. UI RENDERING (FIXED GIFT SET TICKING)
+// ============================================================================
+function renderProducts() {
+const container = document.getElementById('product-groups-container');
+container.innerHTML = '';
+let hasVisibleProducts = false;
+
+GROUPS.forEach((g) => {
+let visibleProducts = g.products.filter(p => p.name.toLowerCase().includes(state.search));
+if (visibleProducts.length === 0) return;
+hasVisibleProducts = true;
+
+let isExpanded = state.search !== '' || g.expanded;
+let groupEl = document.createElement('div');
+groupEl.className = `product-group ${isExpanded ? 'open' : ''}`;
+
+let header = document.createElement('div');
+header.className = 'group-header';
+header.innerHTML = `<span class="icon">▶</span> ${g.emoji} ${g.label}`;
+header.onclick = () => { g.expanded = !g.expanded; renderProducts(); };
+groupEl.appendChild(header);
+
+let body = document.createElement('div');
+body.className = 'group-body';
+visibleProducts.forEach(p => {
+let isSel = !!state.selected[p.id];
+
+// FIX: If it's a gift set, consider it selected if its expanded products are in the cart
+if (p.isGiftSet && !isSel) {
+const gs = GIFT_SETS.find(g => g.giftSetId === p.id);
+if (gs) {
+const hasContents = gs.contents.some(c => state.selected[c.productId]);
+if (hasContents) isSel = true;
+}
 }
 
-function applyPresetObj(itemsObj) {
-  state.selected = {}; state.quantities = {}; state.methods = {};
-  state.filmSlideFrames = null; state.unconfiguredProducts = [];
-  Object.entries(itemsObj).forEach(([id, data]) => {
-    state.selected[id] = true; state.quantities[id] = data.qty;
-    let p = PMAP[id]; let m = data.method || p.methods[0];
-    if (m === 'standard') { if (p.methods.includes('canva')) m = 'canva'; else if (p.methods.includes('drive')) m = 'drive'; }
-    state.methods[id] = m;
-  });
-  GROUPS.forEach(g => { g.expanded = g.products.some(p => state.selected[p.id]); });
-  document.getElementById('search-input').value = ''; state.search = '';
-  renderProducts(); renderCart(); updatePreview(); showToast('✅ Load Preset Completed');
+let card = document.createElement('div');
+card.className = `p-card ${isSel ? 'selected' : ''}`;
+card.onclick = () => toggleProduct(p.id);
+card.innerHTML = `<div class="p-info"><span class="p-emoji">${p.emoji}</span> ${p.name}</div><div class="p-check"></div>`;
+body.appendChild(card);
+});
+groupEl.appendChild(body); container.appendChild(groupEl);
+});
+
+if (!hasVisibleProducts && state.search !== '') {
+container.innerHTML = '<div class="empty-state">🔍 ไม่พบสินค้าที่ค้นหา<br>กรุณาลองใช้คำอื่น เช่น "cd" หรือ "ฟิล์ม" ค่ะ</div>';
+}
 }
 
-function saveCurrentPreset() {
-  let count = Object.values(state.selected).filter(Boolean).length;
-  if (count === 0) return showAlert('กรุณาเลือกสินค้าก่อนบันทึก Preset');
-  let name = prompt('ตั้งชื่อ Preset ใหม่ (เช่น รูปโปรไฟล์ 2 เซต):');
-  if (!name || !name.trim()) return;
-  let items = {};
-  Object.keys(state.selected).forEach(id => {
-    if (state.selected[id]) items[id] = {qty: state.quantities[id], method: state.methods[id] };
-  });
-  state.customPresets.push({ label: name.trim(), items: items });
-  localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
-  renderPresets(); showToast('✅ Saved Preset: ' + name);
-}
-
-function deletePreset(idx) {
-  state.customPresets.splice(idx, 1);
-  localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
-  renderPresets();
-}
-
-function setCollectionMethod(m) {
-  state.collectionMode = m;
-  document.getElementById('cm-drive').classList.toggle('active', m === 'drive');
-  document.getElementById('cm-chat').classList.toggle('active', m === 'chat');
-  document.getElementById('cm-drive').style.background = m === 'drive' ? 'var(--surface)' : 'var(--bg-main)';
-  document.getElementById('cm-chat').style.background = m === 'chat' ? 'var(--surface)' : 'var(--bg-main)';
-  document.getElementById('cm-drive').style.borderColor = m === 'drive' ? 'var(--secondary)' : 'var(--border-light)';
-  document.getElementById('cm-chat').style.borderColor = m === 'chat' ? 'var(--secondary)' : 'var(--border-light)';
-  document.getElementById('cm-drive').style.color = m === 'drive' ? 'var(--secondary-text)' : 'var(--text-muted)';
-  document.getElementById('cm-chat').style.color = m === 'chat' ? 'var(--secondary-text)' : 'var(--text-muted)';
-  updatePreview();
-}
-
-function toggleOpt(opt) {
-  state.opts[opt] = !state.opts[opt];
-  document.getElementById('opt-'+opt).classList.toggle('active', state.opts[opt]);
-  updatePreview();
-}
-
-function handleSearch() {
-  state.search = document.getElementById('search-input').value.toLowerCase(); renderProducts();
-}
-
+// FIX: Improved toggle logic for Gift Sets
 function toggleProduct(id) {
-  state.selected[id] = !state.selected[id];
-  if (state.selected[id] && !state.quantities[id]) {
-    state.quantities[id] = 1; state.methods[id] = PMAP[id].methods[0];
-  } else if (!state.selected[id]) {
-    delete state.quantities[id]; delete state.methods[id];
-    if (id === 'film-slide-nfc') state.filmSlideFrames = null;
-  }
-  renderProducts(); renderCart(); updatePreview();
+const p = PMAP[id];
+if (!p) return;
+
+if (p.isGiftSet) {
+const gs = GIFT_SETS.find(g => g.giftSetId === id);
+const isActive = gs && gs.contents.some(c => state.selected[c.productId]);
+
+if (isActive) {
+gs.contents.forEach(c => {
+delete state.selected[c.productId];
+delete state.quantities[c.productId];
+delete state.methods[c.productId];
+});
+} else {
+state.selected[id] = true;
+state.quantities[id] = 1;
+state.methods[id] = p.methods ? p.methods[0] : 'drive';
+}
+} else {
+state.selected[id] = !state.selected[id];
+if (state.selected[id] && !state.quantities[id]) {
+state.quantities[id] = 1;
+state.methods[id] = p.methods ? p.methods[0] : 'drive';
+} else if (!state.selected[id]) {
+delete state.quantities[id];
+delete state.methods[id];
+if (id === 'film-slide-nfc') state.filmSlideFrames = null;
+}
+}
+
+expandAndMergeCart();
+renderProducts();
+renderCart();
+updatePreview();
 }
 
 function updateQty(id, delta) {
-  let q = (state.quantities[id] || 1) + delta;
-  if (q < 1) q = 1;
-  state.quantities[id] = q;
-  if (id === 'film-slide-nfc') state.filmSlideFrames = null; 
-  renderCart(); updatePreview();
+let q = (state.quantities[id] || 1) + delta;
+if (q < 1) q = 1;
+state.quantities[id] = q;
+if (id === 'film-slide-nfc') state.filmSlideFrames = null;
+expandAndMergeCart();
+renderCart(); updatePreview();
 }
 
 function updateMethod(id, method) {
-  state.methods[id] = method; renderCart(); updatePreview();
+state.methods[id] = method;
+expandAndMergeCart();
+renderCart(); updatePreview();
 }
 
 function removeProduct(id) {
-  state.selected[id] = false; delete state.quantities[id]; delete state.methods[id];
-  if (id === 'film-slide-nfc') state.filmSlideFrames = null;
-  renderProducts(); renderCart(); updatePreview();
+state.selected[id] = false;
+delete state.quantities[id];
+delete state.methods[id];
+if (id === 'film-slide-nfc') state.filmSlideFrames = null;
+expandAndMergeCart();
+renderProducts(); renderCart(); updatePreview();
 }
 
 function scrollToCart() { document.getElementById('cart-panel').scrollIntoView({ behavior: 'smooth' }); }
 function syncPreviewEdit() { state.manualEditPreview = true; }
 
 function confirmClear() {
-  let hasItems = Object.keys(state.selected).some(k => state.selected[k]);
-  if (hasItems) { showConfirm('🚨 ต้องการล้างข้อมูลออเดอร์และตั้งค่าทั้งหมดใช่หรือไม่?', startOver); } 
-  else { startOver(); }
+let hasItems = Object.keys(state.selected).some(k => state.selected[k]);
+if (hasItems) { showConfirm('🚨 ต้องการล้างข้อมูลออเดอร์และตั้งค่าทั้งหมดใช่หรือไม่?', startOver); }
+else { startOver(); }
 }
 
 function startOver() {
-  state.selected = {}; state.quantities = {}; state.methods = {}; 
-  state.opts = {music:false, drive:false, canva:false, checklist:false};
-  state.collectionMode = 'drive'; state.filmSlideFrames = null; state.unconfiguredProducts = [];
-  
-  document.getElementById('order-note-input').value = '';
-  document.getElementById('order-parser-input').value = '';
-  document.getElementById('parser-result').style.display = 'none';
-  
-  setCollectionMethod('drive');
-  ['music','drive','canva','checklist'].forEach(o => document.getElementById('opt-'+o).classList.remove('active'));
-  
-  renderProducts(); renderCart(); updatePreview(); runProductAudit();
+state.selected = {}; state.quantities = {}; state.methods = {};
+state.opts = {music:false, drive:false, canva:false, checklist:false};
+state.collectionMode = 'drive'; state.filmSlideFrames = null; state.unconfiguredProducts = []; state.productOptions = {};
+document.getElementById('order-note-input').value = '';
+document.getElementById('order-parser-input').value = '';
+document.getElementById('parser-result').style.display = 'none';
+setCollectionMethod('drive');
+['music','drive','canva','checklist'].forEach(o => document.getElementById('opt-'+o).classList.remove('active'));
+renderProducts(); renderCart(); updatePreview(); runProductAudit();
 }
 
-function renderProducts() {
-  const container = document.getElementById('product-groups-container');
-  container.innerHTML = '';
-  let hasVisibleProducts = false;
-  
-  GROUPS.forEach((g) => {
-    let visibleProducts = g.products.filter(p => p.name.toLowerCase().includes(state.search));
-    if (visibleProducts.length === 0) return;
-    
-    hasVisibleProducts = true;
-    let isExpanded = state.search !== '' || g.expanded;
-    let groupEl = document.createElement('div');
-    groupEl.className = `product-group ${isExpanded ? 'open' : ''}`;
-    
-    let header = document.createElement('div');
-    header.className = 'group-header';
-    header.innerHTML = `<span class="icon">▶</span> ${g.emoji} ${g.label}`;
-    header.onclick = () => { g.expanded = !g.expanded; renderProducts(); };
-    groupEl.appendChild(header);
-    
-    let body = document.createElement('div');
-    body.className = 'group-body';
-    
-    visibleProducts.forEach(p => {
-      let isSel = !!state.selected[p.id];
-      let card = document.createElement('div');
-      card.className = `p-card ${isSel ? 'selected' : ''} ${p.oos ? 'oos' : ''}`;
-      card.onclick = () => !p.oos && toggleProduct(p.id);
-      card.innerHTML = `<div class="p-info"><span class="p-emoji">${p.emoji}</span> ${p.name}</div><div class="p-check"></div>`;
-      body.appendChild(card);
-    });
-    
-    groupEl.appendChild(body); container.appendChild(groupEl);
-  });
+function renderPresets() {
+const el = document.getElementById('preset-list'); el.innerHTML = '';
+state.customPresets.forEach((p, i) => {
+let btn = document.createElement('div'); btn.className = 'preset-btn custom'; btn.textContent = p.label;
+btn.onclick = () => applyPresetObj(p.items);
+let del = document.createElement('div'); del.className = 'preset-del'; del.textContent = '×';
+del.onclick = (e) => { e.stopPropagation(); showConfirm('ต้องการลบ Preset นี้ใช่หรือไม่?', () => { deletePreset(i); }); };
+btn.appendChild(del); el.appendChild(btn);
+});
+DEFAULT_PRESETS.forEach((p) => {
+let btn = document.createElement('button'); btn.className = 'preset-btn'; btn.textContent = p.label;
+btn.onclick = () => applyPresetObj(p.items); el.appendChild(btn);
+});
+}
 
-  if (!hasVisibleProducts && state.search !== '') {
-    container.innerHTML = '<div class="empty-state">🔍 ไม่พบสินค้าที่ค้นหา<br>กรุณาลองใช้คำอื่น เช่น "cd" หรือ "ฟิล์ม" ค่ะ</div>';
-  }
+function applyPresetObj(itemsObj) {
+state.selected = {}; state.quantities = {}; state.methods = {};
+state.filmSlideFrames = null; state.unconfiguredProducts = [];
+Object.entries(itemsObj).forEach(([id, data]) => {
+state.selected[id] = true; state.quantities[id] = data.qty;
+let p = PMAP[id]; let m = data.method || (p && p.methods ? p.methods[0] : 'drive');
+state.methods[id] = m;
+});
+expandAndMergeCart();
+GROUPS.forEach(g => { g.expanded = g.products.some(p => state.selected[p.id]); });
+document.getElementById('search-input').value = ''; state.search = '';
+renderProducts(); renderCart(); updatePreview(); showToast('✅ Load Preset Completed');
+}
+
+function saveCurrentPreset() {
+let count = Object.values(state.selected).filter(Boolean).length;
+if (count === 0) return showAlert('กรุณาเลือกสินค้าก่อนบันทึก Preset');
+let name = prompt('ตั้งชื่อ Preset ใหม่ (เช่น รูปโปรไฟล์ 2 เซต):');
+if (!name || !name.trim()) return;
+
+let items = {};
+Object.keys(state.selected).forEach(id => {
+if (state.selected[id]) items[id] = {qty: state.quantities[id], method: state.methods[id] };
+});
+
+state.customPresets.push({ label: name.trim(), items: items });
+localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
+renderPresets(); showToast('✅ Saved Preset: ' + name);
+}
+
+function deletePreset(idx) {
+state.customPresets.splice(idx, 1);
+localStorage.setItem('tinkle_presets_v2', JSON.stringify(state.customPresets));
+renderPresets();
+}
+
+function setCollectionMethod(m) {
+state.collectionMode = m;
+document.getElementById('cm-drive').classList.toggle('active', m === 'drive');
+document.getElementById('cm-chat').classList.toggle('active', m === 'chat');
+document.getElementById('cm-drive').style.background = m === 'drive' ? 'var(--surface)' : 'var(--bg-main)';
+document.getElementById('cm-chat').style.background = m === 'chat' ? 'var(--surface)' : 'var(--bg-main)';
+document.getElementById('cm-drive').style.borderColor = m === 'drive' ? 'var(--secondary)' : 'var(--border-light)';
+document.getElementById('cm-chat').style.borderColor = m === 'chat' ? 'var(--secondary)' : 'var(--border-light)';
+document.getElementById('cm-drive').style.color = m === 'drive' ? 'var(--secondary-text)' : 'var(--text-muted)';
+document.getElementById('cm-chat').style.color = m === 'chat' ? 'var(--secondary-text)' : 'var(--text-muted)';
+updatePreview();
+}
+
+function toggleOpt(opt) {
+state.opts[opt] = !state.opts[opt];
+document.getElementById('opt-'+opt).classList.toggle('active', state.opts[opt]);
+updatePreview();
+}
+
+function handleSearch() {
+state.search = document.getElementById('search-input').value.toLowerCase(); renderProducts();
 }
 
 function getPicked() {
-  return Object.keys(state.selected).filter(id => state.selected[id]).map(id => ({
-    p: PMAP[id], qty: state.quantities[id], method: state.methods[id]
-  }));
+return Object.keys(state.selected).filter(id => state.selected[id]).map(id => ({
+p: PMAP[id], qty: state.quantities[id], method: state.methods[id]
+}));
 }
 
 function renderCart() {
-  const container = document.getElementById('cart-container');
-  container.innerHTML = '';
-  
-  let picked = getPicked();
-  
-  let btnScroll = document.getElementById('btn-scroll-cart');
-  if (btnScroll) {
-    btnScroll.disabled = picked.length === 0;
-    btnScroll.textContent = `Review & Export (${picked.length})`;
-  }
+const container = document.getElementById('cart-container');
+container.innerHTML = '';
+let picked = getPicked();
+let btnScroll = document.getElementById('btn-scroll-cart');
 
-  if (picked.length === 0) {
-    container.innerHTML = '<div class="empty-state">ยังไม่ได้เลือกสินค้า<br>กดเลือกสินค้าจากรายการด้านซ้ายได้เลยค่ะ</div>';
-    document.getElementById('summary-box').style.display = 'none';
-    return;
-  }
-  
-  picked.forEach(item => {
-    let p = item.p, id = p.id;
-    let card = document.createElement('div'); card.className = 'cart-card';
-    let header = document.createElement('div'); header.className = 'cart-card-header';
-    header.innerHTML = `<div class="cart-card-title">${p.emoji} ${p.name}</div><button class="remove-btn" onclick="removeProduct('${id}')">Remove</button>`;
-    card.appendChild(header);
-    
-    let configRow = document.createElement('div'); configRow.className = 'cfg-row';
-    configRow.innerHTML = `
-      <span class="cfg-label">จำนวน (ชิ้น)</span>
-      <div class="qty-wrap">
-        <button class="qty-btn" onclick="updateQty('${id}', -1)">-</button>
-        <span class="qty-val">${state.quantities[id]}</span>
-        <button class="qty-btn" onclick="updateQty('${id}', 1)">+</button>
-      </div>`;
-    card.appendChild(configRow);
-    
-    let mthdGrid = document.createElement('div'); mthdGrid.className = 'method-grid';
-    let currMthd = state.methods[id];
-    
-    p.methods.forEach(m => {
-       mthdGrid.innerHTML += `<button class="mth-btn ${currMthd===m?'active':''}" onclick="updateMethod('${id}', '${m}')">${METHOD_LABELS[m]}</button>`;
-    });
-    card.appendChild(mthdGrid);
-    
-    if (p.canvaUrl && currMthd === 'canva') {
-      let tplWrap = document.createElement('div'); tplWrap.className = 'tpl-wrap';
-      tplWrap.innerHTML = `
-        <button class="tpl-btn copy" onclick="copyText('${p.canvaUrl}', '✅ คัดลอก Template แล้ว')">🔗 Copy Template</button>
-        <button class="tpl-btn open" onclick="window.open('${p.canvaUrl}')">↗ Open</button>
-      `;
-      card.appendChild(tplWrap);
-    }
-    container.appendChild(card);
-  });
+if (btnScroll) {
+btnScroll.disabled = picked.length === 0;
+btnScroll.textContent = `Review & Export (${picked.length})`;
+}
 
-  renderOrderSummary(picked);
+if (picked.length === 0) {
+container.innerHTML = '<div class="empty-state">ยังไม่ได้เลือกสินค้า<br>กดเลือกสินค้าจากรายการด้านซ้ายได้เลยค่ะ</div>';
+document.getElementById('summary-box').style.display = 'none';
+return;
+}
+
+picked.forEach(item => {
+let p = item.p, id = p.id;
+let card = document.createElement('div'); card.className = 'cart-card';
+let header = document.createElement('div'); header.className = 'cart-card-header';
+header.innerHTML = `<div class="cart-card-title">${p.emoji} ${p.name}</div><button class="remove-btn" onclick="removeProduct('${id}')">Remove</button>`;
+card.appendChild(header);
+
+let configRow = document.createElement('div'); configRow.className = 'cfg-row';
+configRow.innerHTML = `
+<span class="cfg-label">จำนวน (ชิ้น)</span>
+<div class="qty-wrap">
+<button class="qty-btn" onclick="updateQty('${id}', -1)">-</button>
+<span class="qty-val">${state.quantities[id]}</span>
+<button class="qty-btn" onclick="updateQty('${id}', 1)">+</button>
+</div>`;
+card.appendChild(configRow);
+
+if (p.methods) {
+let mthdGrid = document.createElement('div'); mthdGrid.className = 'method-grid';
+p.methods.forEach(m => {
+mthdGrid.innerHTML += `<button class="mth-btn ${item.method===m?'active':''}" onclick="updateMethod('${id}', '${m}')">${METHOD_LABELS[m]}</button>`;
+});
+card.appendChild(mthdGrid);
+}
+
+if (p.canvaUrl && item.method === 'canva') {
+let tplWrap = document.createElement('div'); tplWrap.className = 'tpl-wrap';
+tplWrap.innerHTML = `<button class="tpl-btn copy" onclick="copyText('${p.canvaUrl}', '✅ คัดลอก Template แล้ว')" style="margin-top:8px; padding:8px; background:var(--primary-light); border:1px solid var(--primary); border-radius:8px; color:var(--primary-text); cursor:pointer;">🔗 Copy Template</button>`;
+card.appendChild(tplWrap);
+}
+
+container.appendChild(card);
+});
+
+renderOrderSummary(picked);
 }
 
 function renderOrderSummary(picked) {
-  const sumBox = document.getElementById('summary-box');
-  const content = document.getElementById('order-summary-content');
-  sumBox.style.display = 'block';
-  
-  let html = '';
-  picked.forEach(i => {
-    html += `<div style="font-weight: 600;">• ${i.p.name} × ${i.qty}</div>`;
-    if (i.p.id === 'film-slide-nfc' && state.filmSlideFrames) {
-      Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-        if (fQty > 0) {
-          let fDef = frameDefinitions.find(d => d.key === fName);
-          let dispName = fDef ? fDef.displayName : fName;
-          html += `<div style="padding-left: 16px; color: var(--text-muted); font-size: 12px;">└ ${dispName} × ${fQty}</div>`;
-        }
-      });
-    }
-  });
-  content.innerHTML = html;
+const sumBox = document.getElementById('summary-box');
+const content = document.getElementById('order-summary-content');
+sumBox.style.display = 'block';
+let html = '';
+
+picked.forEach(i => {
+html += `<div style="font-weight: 600;">• ${i.p.name} × ${i.qty}</div>`;
+if (i.p.id === 'film-slide-nfc' && state.filmSlideFrames) {
+Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
+if (fQty > 0) {
+let fDef = frameDefinitions.find(d => d.key === fName);
+let dispName = fDef ? fDef.displayName : fName;
+html += `<div style="padding-left: 16px; color: var(--text-muted); font-size: 12px;">└ ${dispName} × ${fQty}</div>`;
+}
+});
+}
+});
+content.innerHTML = html;
 }
 
 function updatePreview() {
-  if(state.manualEditPreview) return; // Prevent overwriting user edits unless state changed radically
-  state.manualEditPreview = false; 
-  document.getElementById('preview-box').value = buildCustomerMessage();
-  if(document.getElementById('checklist-modal').classList.contains('active')) {
-    document.getElementById('checklist-box').value = buildProductionChecklist();
-  }
+if(state.manualEditPreview) return;
+state.manualEditPreview = false;
+document.getElementById('preview-box').value = buildCustomerMessage();
+if(document.getElementById('checklist-modal').classList.contains('active')) {
+document.getElementById('checklist-box').value = buildProductionChecklist();
+}
 }
 
-function copyActiveMessage() {
-  let text = document.getElementById('preview-box').value;
-  if(!text || text === "ยังไม่ได้เลือกสินค้า...") return showToast('กรุณาเลือกสินค้าก่อนคัดลอกค่ะ');
-  copyText(text, '✅ Copied Customer Message');
-}
-
-function shareToLine() {
-  let text = document.getElementById('preview-box').value;
-  if(!text || text === "ยังไม่ได้เลือกสินค้า...") return showToast('กรุณาเลือกสินค้าก่อนส่งเข้า LINE ค่ะ');
-  let url = 'https://line.me/R/msg/text/?' + encodeURIComponent(text);
-  window.open(url, '_blank');
-}
-
-function copyText(text, msg) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(() => fallbackCopy(text, msg));
-  } else { fallbackCopy(text, msg); }
-}
-
-function fallbackCopy(text, msg) {
-  var ta = document.createElement('textarea');
-  ta.value = text; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
-  document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,99999);
-  try { document.execCommand('copy'); showToast(msg); } catch(e){}
-  document.body.removeChild(ta);
-}
-
-function showToast(msg) {
-  var t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
-
+// ============================================================================
+// 6. GENERATORS
+// ============================================================================
 function buildCustomerMessage() {
-  let picked = getPicked();
-  
-  let safetyWarning = '';
-  if (state.unconfiguredProducts && state.unconfiguredProducts.length > 0) {
-    safetyWarning = `⚠️ WARNING: Missing Product Configuration!\nระบบพบออเดอร์สินค้าที่ยังไม่มีการตั้งค่าจับคู่ฐานข้อมูล:\n` +
-      state.unconfiguredProducts.map(p => `• ${p}`).join('\n') + 
-      `\nโปรดเพิ่มสินค้าเหล่านี้ลงใน Product Database ก่อนผลิตค่ะ!\n──────────────────────────────────\n\n`;
-  }
+let picked = getPicked();
+let safetyWarning = '';
+if (state.unconfiguredProducts && state.unconfiguredProducts.length > 0) {
+safetyWarning = `⚠️ WARNING: Missing Product Configuration!\nระบบพบออเดอร์สินค้าที่ยังไม่มีการตั้งค่าจับคู่ฐานข้อมูล:\n` +
+state.unconfiguredProducts.map(p => `• ${p}`).join('\n') +
+`\nโปรดเพิ่มสินค้าเหล่านี้ลงใน Product Database ก่อนผลิตค่ะ!\n──────────────────────────────────\n`;
+}
 
-  let hasFilmSlideNfc = picked.some(i => i.p.id === 'film-slide-nfc');
-  let hasFrames = state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0);
-  if (hasFilmSlideNfc && !hasFrames) {
-    safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC จำเป็นต้องระบุสีกรอบ กรุณาตรวจสอบออเดอร์อีกครั้ง\n──────────────────────────────────\n\n`;
-  }
+let hasFilmSlideNfc = picked.some(i => i.p.id === 'film-slide-nfc');
+let hasFrames = state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0);
+if (hasFilmSlideNfc && !hasFrames) {
+safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC จำเป็นต้องระบุสีกรอบ กรุณาตรวจสอบออเดอร์อีกครั้ง\n──────────────────────────────────\n`;
+}
 
-  if (picked.length === 0) {
-    return safetyWarning ? safetyWarning + "ยังไม่ได้เลือกสินค้า..." : "ยังไม่ได้เลือกสินค้า...";
-  }
+if (picked.length === 0) {
+return safetyWarning ? safetyWarning + "ยังไม่ได้เลือกสินค้า..." : "ยังไม่ได้เลือกสินค้า...";
+}
 
-  let canvaItems = picked.filter(i => i.method === 'canva');
-  let driveItems = picked.filter(i => i.method === 'drive');
-  let quickItems = picked.filter(i => i.method === 'quick');
+let canvaItems = picked.filter(i => i.method === 'canva');
+let driveItems = picked.filter(i => i.method === 'drive');
+let quickItems = picked.filter(i => i.method === 'quick');
 
-  let parts = [];
-  if (safetyWarning) parts.push(safetyWarning);
-  
-  parts.push('สวัสดีค่ะ ขอบคุณที่สั่งสินค้ากับ Tinkle Goodies นะคะ 🎀\nรบกวนส่งไฟล์ตามรายละเอียดด้านล่างได้เลยค่ะ\n──────────────────────────────────');
+let parts = [];
+if (safetyWarning) parts.push(safetyWarning);
+parts.push('สวัสดีค่ะ ขอบคุณที่สั่งสินค้ากับ Tinkle Goodies นะคะ 🎀\nรบกวนส่งไฟล์ตามรายละเอียดด้านล่างได้เลยค่ะ\n──────────────────────────────────');
 
-  if (canvaItems.length) {
-    parts.push('🎨 สินค้า Canva');
-    if (state.opts.canva) parts.push('⚠️ อย่าลืมตั้งค่า Share → "Anyone with the link can edit"');
-    canvaItems.forEach(i => {
-      parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
-      if (i.p.canvaUrl) {
-         parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
-      }
-      
-      if (i.p.id === 'cassette') {
-         parts.push(`🖼️ Canva (ลิงก์เทมเพลต): xxxxx\n🎵 Playlist หน้า A: xxxxx\n🎵 Playlist หน้า B: xxxxx\n⏱️ ความยาว (45/90 นาที): xxxxx`);
-      } else if (i.p.canva_mode === 'multi_page') {
-        let subText = `🖼️ Canva (ลิงก์เทมเพลต): xxxxx`;
-        if (i.qty > 1) {
-          subText += `\n📌 หากมีหลายแบบ\nกรุณาเพิ่มหน้าใน Canva\nและตั้งชื่อหน้าเป็น\nจำนวน_ชื่อเพลง\nตัวอย่าง\n3_เพลงA\n5_เพลงB\n2_เพลงC\n🎵 ลิงก์เพลง\nเพลงA : xxxxx\nเพลงB : xxxxx\nเพลงC : xxxxx\n📌 หากใช้เพลงเดียวกันหลายชิ้น\nส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ`;
-        } else {
-          subText += `\n🎵 ลิงก์เพลง: xxxxx`;
-        }
-        parts.push(subText);
-      } else {
-        for(let k=1; k<=i.qty; k++){
-          if(i.p.type==='canva-simple' && i.qty===1) { parts.push(`🖼️ Canva (ลิงก์เทมเพลต): xxxxx`); continue; }
-          let prefix = i.p.type==='canva-cd' ? `📀 CD_BOX_${k}` : i.p.type==='canva-tape' ? `📼 PocketTape_${k}` : `📸 Camera_${k}`;
-          let details = [`${prefix}`, `🖼️ Canva (ลิงก์เทมเพลต): xxxxx`];
-          
-          if(i.p.type!=='canva-simple') details.push(`🎵 ลิงก์เพลง: xxxxx`);
-          
-          if(i.p.type==='canva-cd') {
-            details.push(`📦 เลือกกล่อง หรือ เลือกจี้: xxxxx`);
-          }
-          if(i.p.type==='canva-tape') {
-            details.push(`📼 สีตลับ (ใส / แดง): xxxxx`);
-          }
-          parts.push(details.join('\n'));
-        }
-      }
-    });
-    parts.push('\n──────────────────────────────────');
-  }
+if (canvaItems.length) {
+parts.push('🎨 สินค้า Canva');
+if (state.opts.canva) parts.push('⚠️ อย่าลืมตั้งค่า Share → "Anyone with the link can edit"');
+canvaItems.forEach(i => {
+parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
+if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
 
-  if (driveItems.length) {
-    if (state.collectionMode === 'chat') {
-        parts.push('💬 ส่งไฟล์ทางแชท');
-    } else {
-        parts.push('📂 ส่งไฟล์ผ่าน Google Drive');
-        if (state.opts.drive) {
-          parts.push('อัปโหลดรูปลง Folder เดียวกัน → ตั้งค่าเป็น Public → ส่ง 1 ลิงก์');
-        }
-    }
-    
-    driveItems.forEach(i => {
-      parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
-      
-      if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
-        parts.push(`📌 หากมีหลายแบบ กรุณาตั้งชื่อไฟล์ตามชื่อเพลง\nตัวอย่าง: เพลงA.jpg, เพลงB.jpg หรือ เพลงA_3อัน.jpg`);
-      } else {
-        if(i.p.id==='pocket-polaroid') {
-            parts.push(`📸 รูป 1 รูป\n🎵 ลิงก์เพลง: xxxxx\nสามารถส่งผ่านแชท หรือ Google Drive ได้ค่ะ\n⚠️ สินค้า NFC ต้องแนบลิงก์เพลงทุกครั้ง`);
-        }
-        else if(i.p.id==='film-slide') {
-          if (state.collectionMode === 'drive') {
-            parts.push(`📌 วิธีส่งไฟล์รูปภาพสำหรับฟิล์มสไลด์ 📌\n📸 ใส่รูปลงใน Google Drive แล้วแชร์ลิงก์มาได้เลยค่ะ\n✅ ใช้ 1 รูป / 1 อัน (สามารถใส่รวมกันได้)\n📌 หากมีรูปที่ซ้ำกัน → ตั้งชื่อไฟล์เรียงลำดับ 1.jpg - ${i.qty}.jpg\n⚠️ สำคัญ! ก่อนแชร์ลิงก์ไฟล์ อย่าลืมตั้งค่าเป็น Public ให้คนที่มีลิงก์สามารถดูได้ด้วยนะคะ 💡`);
-          } else {
-            parts.push(`📌 วิธีส่งไฟล์รูปภาพสำหรับฟิล์มสไลด์ 📌\n💬 ส่งรูปภาพเข้ามาในแชทได้เลยค่ะ\n✅ ใช้ 1 รูป / 1 อัน (ส่งรวมกันในแชทได้เลยค่ะ)\n📌 หากมีรูปที่ซ้ำกัน → พิมพ์แจ้งจำนวนหลังส่งรูป เช่น รูปนี้ 2 อัน, รูปนี้ 5 อัน`);
-          }
-        }
-        else if(i.p.id==='postcard-film') {
-          parts.push(`📬 Postcard Film\nส่งรูปผ่าน Google Drive\nใช้รูปจำนวน ${i.qty} รูป\nตั้งชื่อไฟล์เรียงลำดับ 1.jpg - ${i.qty}.jpg เป็นต้นค่ะ\nเปิดสิทธิ์แชร์โฟลเดอร์เป็น Public ให้เรียบร้อยด้วยนะคะ 💡`);
-        }
-        else if(i.p.id==='film-strip') {
-          parts.push(`🎞️ Film Strip\nส่งรูปผ่าน Google Drive\nใช้รูปทั้งหมด 3 รูป\nกรุณาตั้งชื่อไฟล์เรียงลำดับ 1.jpg - 3.jpg\nโดย 1 = รูปบนสุด | 2 = รูปกลาง | 3 = รูปล่างสุด\nเปิด Public แล้วส่งลิงก์ Drive มา 1 ลิงก์`);
-        }
-        else if(i.p.id==='photo-strip') parts.push(`📸 ส่งรูป 3 รูป (ตั้งชื่อไฟล์เรียงลำดับ 1.jpg - 3.jpg โดย 1 = บนสุด)`);
-        else if(i.p.id==='memory-film') {
-            let memRollsText = '';
-            if (i.qty > 1) {
-              memRollsText = `\n📌 หากสั่งหลายม้วน\nสร้างโฟลเดอร์แยก\n`;
-              for (let k=1; k<=i.qty; k++) {
-                memRollsText += `📁 MemoryFilm_${k}\n`;
-              }
-              memRollsText += `และเรียงรูป 1-7 ภายในแต่ละโฟลเดอร์`;
-            }
-            parts.push(`🎬 Memory Film\nใช้รูป 7 รูป ต่อ 1 ม้วน\nกรุณาตั้งชื่อไฟล์เรียงลำดับ 1.jpg - 7.jpg\nโดย 1 = ภาพแรกที่เห็นเมื่อดึงฟิล์มออกมา${memRollsText}`);
-        }
-        else if(i.p.id==='film-lamp') parts.push(`📸 ส่งรูป 21 รูป (แนะนำ Crop 3:2)\n📌 กรุณาระบุ:\n🖼️ กรอบแบบที่ 1: xxxxx\n🖼️ กรอบแบบที่ 2: xxxxx\n🖼️ กรอบแบบที่ 3: xxxxx`);
-        else if(i.p.type==='film-slide-nfc') {
-          let frameText = "";
-          if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0)) {
-            Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-              if (fQty > 0) {
-                let fDef = frameDefinitions.find(d => d.key === fName);
-                let dispName = fDef ? fDef.displayName : fName;
-                frameText += `\n📂 ${dispName} (จำนวน ${fQty} ชิ้น)`;
-              }
-            });
-          } else {
-            frameText = `\n⚠️ กรุณาระบุสีกรอบฟิล์มสไลด์ NFC เพิ่มเติม`;
-          }
+if (i.p.id === 'cassette') {
+parts.push(`🖼️ Canva (ลิงก์เทมเพลต): xxxxx\n🎵 Playlist หน้า A: xxxxx\n🎵 Playlist หน้า B: xxxxx\n⏱️ ความยาว (45/90 นาที): xxxxx`);
+} else if (i.p.id === 'vinyl-set') {
+parts.push(`📀 1 Set = 3 แผ่น\n\n📌 กรุณาเพิ่มหน้าใน Canva ให้ครบ 3 หน้า\n(1 หน้า = 1 แผ่น)\n\nตัวอย่าง:\n📀 แผ่นที่ 1\n🖼️ Canva (ลิงก์เทมเพลต): xxxxx\n\n📀 แผ่นที่ 2\n🖼️ Canva (ลิงก์เทมเพลต): xxxxx\n\n📀 แผ่นที่ 3\n🖼️ Canva (ลิงก์เทมเพลต): xxxxx\n\n🎵 ลิงก์เพลง: xxxxx`);
+} else if (i.p.canva_mode === 'multi_page') {
+let subText = `🖼️ Canva (ลิงก์เทมเพลต): xxxxx`;
+if (i.qty > 1) {
+subText += `\n📌 หากมีหลายแบบ\nกรุณาเพิ่มหน้าใน Canva\nและตั้งชื่อหน้าเป็น\nจำนวน_ชื่อเพลง\nตัวอย่าง\n3_เพลงA\n5_เพลงB\n2_เพลงC\n🎵 ลิงก์เพลง\nเพลงA : xxxxx\nเพลงB : xxxxx\nเพลงC : xxxxx\n📌 หากใช้เพลงเดียวกันหลายชิ้น\nส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ`;
+} else {
+subText += `\n🎵 ลิงก์เพลง: xxxxx`;
+}
+parts.push(subText);
+} else {
+for(let k=1; k<=i.qty; k++){
+if(i.p.type==='canva-simple' && i.qty===1) { parts.push(`🖼️ Canva (ลิงก์เทมเพลต): xxxxx`); continue; }
+let prefix = i.p.type==='canva-cd' ? `📀 CD_BOX_${k}` : i.p.type==='canva-tape' ? `📼 PocketTape_${k}` : `📸 Camera_${k}`;
+let details = [`${prefix}`, `🖼️ Canva (ลิงก์เทมเพลต): xxxxx`];
+if(i.p.type!=='canva-simple') details.push(`🎵 ลิงก์เพลง: xxxxx`);
+if(i.p.type==='canva-cd') details.push(`📦 เลือกกล่อง หรือ เลือกจี้: xxxxx`);
+if(i.p.type==='canva-tape') details.push(`📼 เลือกตลับ: xxxxx`);
+parts.push(details.join('\n'));
+}
+}
+});
+parts.push('\n──────────────────────────────────');
+}
 
-          if (state.collectionMode === 'drive') {
-            parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC\n1️⃣ สร้างโฟลเดอร์แยกตามสีกรอบดังนี้${frameText}\n2️⃣ 🎵 การส่งเพลง\nตั้งชื่อไฟล์เป็นชื่อเพลง หรือ ชื่อเพลง_จำนวน\nตัวอย่าง\nเพลงA.jpg\nเพลงB_3อัน.jpg\nแนบลิงก์เพลงตามชื่อไฟล์\n🎵 เพลงA : xxxxx\n🎵 เพลงB : xxxxx\n📌 หากใช้เพลงเดียวกันหลายชิ้น\nส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ\n3️⃣ เปิด Google Drive เป็น Public\nGoogle Drive : xxxxx\n\n📐 ภาพที่พอดีกรอบคือ Crop 3:2\n*กรอบพลาสติก: แนวตั้ง/แนวนอนได้ | กรอบกระดาษ: แนะนำแนวนอน`);
-          } else {
-            parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC (ส่งในแชท)\n1️⃣ ส่งรูปภาพเข้ามาในแชท และพิมพ์ระบุชื่อกรอบตามต้องการค่ะ:${frameText}\n2️⃣ 🎵 การส่งเพลง\nระบุชื่อเพลงตามรูปภาพ (ตัวอย่าง: รูปนี้_เพลงA)\nแนบลิงก์เพลงตามชื่อไฟล์\n🎵 เพลงA : xxxxx\n🎵 เพลงB : xxxxx\n📌 หากใช้เพลงเดียวกันหลายชิ้น\nส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ\n\n📐 ภาพที่พอดีกรอบคือ Crop 3:2\n*กรอบพลาสติก: แนวตั้ง/แนวนอนได้ | กรอบกระดาษ: แนะนำแนวนอน`);
-          }
-        }
-        else if(i.p.type==='snowglobe') parts.push(`📸 ส่งรูป 2 รูป\n📌 กรุณาระบุ:\n🔤 ตัวอักษร 2-3 ตัว (ภาษาอังกฤษ): xxxxx\n✨ กลิตเตอร์ (Butterfly / Rabbit / Star / Flower / Heart / Mixed Pastel / Glow Star / Glow Heart): xxxxx\n🎵 ลิงก์เพลง: xxxxx`);
-        else if(i.p.type==='polaroid') parts.push(`📸 ส่งรูป 3 รูป\n📌 กรุณาระบุเพลง (รองรับ YouTube เท่านั้น):\n🎵 ลิงก์เพลง 1: [ลิงก์ YouTube] (นาทีที่ __:__ - __:__)\n🎵 ลิงก์เพลง 2: [ลิงก์ YouTube] (นาทีที่ __:__ - __:__)\n🎵 ลิงก์เพลง 3: [ลิงก์ YouTube] (นาทีที่ __:__ - __:__)`);
-        else if(i.p.type==='melody-filmbook') parts.push(`📸 ส่งรูป 8 รูป (แนะนำแนวตั้ง)\n📌 กรุณาระบุเพลง:\n🎵 ลิงก์เพลง 1: xxxxx\n🎵 ลิงก์เพลง 2: xxxxx\n🎵 ลิงก์เพลง 3: xxxxx\n🎵 ลิงก์เพลง 4-8 (ถ้ามี): xxxxx`);
-        else if(i.p.id==='story-spin') {
-          parts.push(`📥 วิธีส่งภาพสำหรับผลิตสินค้า:\nเพื่อให้การจัดเรียงภาพสื่ออารมณ์ได้ต่อเนื่อง\n1️⃣ ใช้รูปภาพจำนวน 16 รูป\n2️⃣ อัปโหลดลง Google Drive\n3️⃣ ตั้งค่าการแชร์เป็น "สาธารณะ" หรือ "ใครมีลิงก์สามารถดูได้"\nส่งลิงก์ Drive มาทางแชทหลังสั่งซื้อได้เลยค่ะ\n🎵 ลิงก์เพลง: xxxxx`);
-        }
-      }
-    });
-    parts.push('\n──────────────────────────────────');
-  }
+if (driveItems.length) {
+if (state.collectionMode === 'chat') {
+parts.push('💬 ส่งไฟล์ทางแชท');
+} else {
+parts.push('📂 ส่งไฟล์ผ่าน Google Drive');
+if (state.opts.drive) parts.push('อัปโหลดรูปลง Folder เดียวกัน → ตั้งค่าเป็น Public → ส่ง 1 ลิงก์');
+}
+driveItems.forEach(i => {
+parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
 
-  if (quickItems.length) {
-    parts.push('💬 ส่งแบบง่าย (ร้านจัดให้)');
-    quickItems.forEach(i => {
-      parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
-      
-      if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
-        parts.push(`ส่งรูปและลิงก์เพลงมาในแชทได้เลยค่ะ ✨\nไม่ต้องตั้งชื่อไฟล์\nไม่ต้องสร้าง Google Drive`);
-        if (i.p.type === 'pin-nfc') parts.push(`⚠️ ขั้นต่ำ 9 ชิ้นต่อ 1 แบบ`);
-      } else if (i.p.id === 'mini-cd') {
-        let cdQty = 6 * i.qty;
-        let songQty = i.qty;
-        parts.push(`การส่งไฟล์ปกติจะมี Template Canva ให้ค่ะ ปกติลูกค้าทุกคนจะต้องส่งผ่าน Canva ถ้าต้องการสามารถแจ้งได้เลย แต่ถ้าไม่ถนัดจริงๆ อยากได้แบบส่งง่ายและรวดเร็วที่สุด\nรบกวนส่งมาแบบ ไม่ต้องระบุว่าอันไหนคือปก หรือส่วนไหนของลาย และไม่ระบุว่ารูปไหนใช้กับสินค้าไหน เช่น ไม่ระบุว่ารูปนี้เป็นลายของแผ่นหมุนๆเท่านั้น เพื่อให้เรานำไปจัดการได้ไวที่สุดนะคะ ✨\n\nสำหรับออเดอร์นี้\nCD ใช้ ${cdQty} ภาพ จิ้มส่งมารวดเดียว ${cdQty} ภาพนะคะ ไม่ต้องส่งทีละรูป\nกดมารวดเดียวทั้งหมดนะคะ โดยเลือกภาพจากอัลบั้มผ่านทางไลน์ เลือกจนครบ ${cdQty} รูปแล้วค่อยกดส่งมา\n\nพร้อมส่งลิงก์เพลง ${songQty} เพลง ในแชทได้เลยค่ะ\n🎵 ลิงก์เพลง: xxxxx\n\n📌 แต่ถ้าต้องการระบุตำแหน่งชัดเจน เช่น ต้องการให้รูปนี้เป็นปกเท่านั้น แนะนำให้ทำผ่านเทมเพลตเท่านั้นนะคะ 💿\n***หากต้องการเทมเพลต Canva หลังชำระเงินแล้วแจ้งได้เลยค่ะ`);
-      } else if (i.p.id === 'pocket-tape') {
-        parts.push(`📸 ส่งรูป ${5*i.qty} รูปมาพร้อมกัน (ร้านสุ่มจัดเรียงให้)\n🎵 ลิงก์เพลง: xxxxx\n🎨 แจ้งสีเทป (ใส/แดง): xxxxx`);
-      } else if (i.p.id === 'vinyl-set') {
-        parts.push(`📸 ส่งรูป ${3*i.qty} รูป\n🎵 ลิงก์เพลง: xxxxx\n(ทางร้านจะจับคู่รูปและเพลงให้ตามลำดับที่ส่งมาค่ะ)`);
-      }
-    });
-    parts.push('\n──────────────────────────────────');
-  }
+if (i.p.id === 'pocket-polaroid') {
+const accessory = state.productOptions['pocket-polaroid'] && state.productOptions['pocket-polaroid'].hanging_accessory;
+let accessoryLine;
+if (accessory === 'rope_keychain') {
+accessoryLine = `📎 เลือกอุปกรณ์ห้อย:\n• ✅ พวงกุญแจเชือกสีขาวดำ`;
+} else if (accessory === 'ball_chain_acrylic') {
+accessoryLine = `📎 เลือกอุปกรณ์ห้อย:\n• ✅ โซ่ไข่ปลา + จี้อะคริลิก`;
+} else {
+accessoryLine = `📎 เลือกอุปกรณ์ห้อย:\n• พวงกุญแจเชือก\nหรือ\n• โซ่ไข่ปลา + จี้อะคริลิก\n\nกรุณาระบุ: xxxxx`;
+}
+parts.push(`📸 รูป 1 รูป\n🎵 ลิงก์เพลง: xxxxx\nสามารถส่งผ่านแชท หรือ Google Drive ได้ค่ะ\n⚠️ สินค้า NFC ต้องแนบลิงก์เพลงทุกครั้ง\n\n${accessoryLine}\n\nGoogle Drive : xxxxx`);
+}
+else if (i.p.id === 'film-slide') {
+if (state.collectionMode === 'drive') {
+parts.push(`📌 วิธีส่งไฟล์รูปภาพสำหรับฟิล์มสไลด์ 📌\n📸 ใส่รูปลงใน Google Drive แล้วแชร์ลิงก์มาได้เลยค่ะ\n✅ ใช้ 1 รูป / 1 อัน (สามารถใส่รวมกันได้)\n📌 หากใช้รูปไม่ซ้ำ\nตั้งชื่อไฟล์เรียงลำดับ\n1.jpg - ${i.qty}.jpg\n\n📌 หากใช้รูปเดียวหลายชิ้น\nสามารถตั้งชื่อเป็นจำนวนได้เลย\n\nตัวอย่าง:\n5 อัน.jpg\n10 อัน.jpg\n20 อัน.jpg\n\nเพื่อให้ทีมงานผลิตตามจำนวนที่ต้องการ\n\nGoogle Drive : xxxxx\n⚠️ สำคัญ! ก่อนแชร์ลิงก์ไฟล์ อย่าลืมตั้งค่าเป็น Public`);
+} else {
+parts.push(`📌 วิธีส่งไฟล์รูปภาพสำหรับฟิล์มสไลด์ 📌\n💬 ส่งรูปภาพเข้ามาในแชทได้เลยค่ะ\n✅ ใช้ 1 รูป / 1 อัน\n📌 หากใช้รูปเดียวหลายชิ้น สามารถพิมพ์แจ้งจำนวนหลังส่งรูปได้เลยค่ะ (เช่น 5 อัน, 10 อัน) เพื่อให้ทีมงานผลิตตามจำนวนที่ต้องการ`);
+}
+}
+else if (i.p.id === 'postcard-film') {
+parts.push(`📬 Postcard Film\nส่งรูปผ่าน Google Drive\nใช้รูปจำนวน ${i.qty} รูป\nตั้งชื่อไฟล์เรียงลำดับ 1.jpg - ${i.qty}.jpg เป็นต้นค่ะ\nเปิดสิทธิ์แชร์โฟลเดอร์เป็น Public\nGoogle Drive : xxxxx`);
+}
+else if (i.p.id === 'film-strip') {
+parts.push(`🎞️ Film Strip\nส่งรูปผ่าน Google Drive\nใช้รูปทั้งหมด 3 รูป\nกรุณาตั้งชื่อไฟล์เรียงลำดับ 1.jpg - 3.jpg\nโดย 1 = รูปบนสุด | 2 = รูปกลาง | 3 = รูปล่างสุด\nเปิด Public แล้วส่งลิงก์ Drive มา 1 ลิงก์\nGoogle Drive : xxxxx`);
+}
+else if (i.p.id === 'memory-film') {
+let memText = '';
+if (i.qty > 1) {
+memText = `\n📌 หากสั่งหลายม้วน สร้างโฟลเดอร์แยก:\n`;
+for (let k=1; k<=i.qty; k++) memText += `📁 MemoryFilm_${k}\n`;
+memText += `และเรียงรูป 1-7 ภายในแต่ละโฟลเดอร์`;
+}
+parts.push(`🎬 Memory Film\nใช้รูป 7 รูป ต่อ 1 ม้วน\nกรุณาตั้งชื่อไฟล์เรียงลำดับ 1.jpg - 7.jpg\nโดย 1 = ภาพแรกที่เห็นเมื่อดึงฟิล์มออกมา\nGoogle Drive : xxxxx${memText}`);
+}
+else if (i.p.id === 'film-lamp') {
+parts.push(`📸 ส่งรูป 21 รูป (แนะนำ Crop 3:2)\n\n📌 สามารถเลือกกรอบได้ 3 แบบ\n\n🖼️ กรอบแบบที่ 1: xxxxx\n\n🖼️ กรอบแบบที่ 2: xxxxx\n\n🖼️ กรอบแบบที่ 3: xxxxx\n\nGoogle Drive : xxxxx`);
+}
+else if (i.p.type === 'film-slide-nfc') {
+let frameText = "";
+if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0)) {
+Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
+if (fQty > 0) {
+let fDef = frameDefinitions.find(d => d.key === fName);
+let dispName = fDef ? fDef.displayName : fName;
+frameText += `\n📂 ${dispName} (จำนวน ${fQty} ชิ้น)`;
+}
+});
+} else {
+frameText = `\n⚠️ กรุณาระบุสีกรอบฟิล์มสไลด์ NFC เพิ่มเติม`;
+}
+if (state.collectionMode === 'drive') {
+parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC\n1️⃣ สร้างโฟลเดอร์แยกตามสีกรอบดังนี้${frameText}\n2️⃣ 🎵 การส่งเพลง: ตั้งชื่อไฟล์เป็นชื่อเพลง หรือ ชื่อเพลง_จำนวน (ตัวอย่าง: เพลงA.jpg, เพลงB_3อัน.jpg)\n🎵 เพลงA : xxxxx\n🎵 เพลงB : xxxxx\n3️⃣ เปิด Google Drive เป็น Public\nGoogle Drive : xxxxx\n📐 ภาพที่พอดีกรอบคือ Crop 3:2`);
+} else {
+parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC (ส่งในแชท)\n1️⃣ ส่งรูปภาพเข้ามาในแชท และพิมพ์ระบุชื่อกรอบตามต้องการค่ะ:${frameText}\n2️⃣ 🎵 การส่งเพลง: ระบุชื่อเพลงตามรูปภาพ\n🎵 เพลงA : xxxxx\n🎵 เพลงB : xxxxx\n📐 ภาพที่พอดีกรอบคือ Crop 3:2`);
+}
+}
+else if (i.p.type === 'snowglobe') {
+parts.push(`📸 ส่งรูป 2 รูป\nGoogle Drive : xxxxx\n🔤 ตัวอักษร 2-3 ตัว (ภาษาอังกฤษ): xxxxx\n✨ กลิตเตอร์ (Butterfly / Rabbit / Star / Flower / Heart / Mixed Pastel / Glow Star / Glow Heart): xxxxx\n🎵 ลิงก์เพลง : xxxxx`);
+}
+else if (i.p.type === 'polaroid') {
+parts.push(`📸 ส่งรูป 3 รูป\n📌 กรุณาระบุเพลง (รองรับ YouTube เท่านั้น):\n🎵 ลิงก์เพลง 1: [ลิงก์ YouTube] (นาทีที่ __:__ - __:__)\n🎵 ลิงก์เพลง 2: [ลิงก์ YouTube] (นาทีที่ __:__ - __:__)\n🎵 ลิงก์เพลง 3: [ลิงก์ YouTube] (นาทีที่ __:__ - __:__)`);
+}
+else if (i.p.type === 'melody-filmbook') {
+parts.push(`📸 ส่งรูป 8 รูป (แนะนำแนวตั้ง)\n📌 กรุณาระบุเพลง:\n🎵 ลิงก์เพลง 1-8: xxxxx\nGoogle Drive : xxxxx`);
+}
+else if (i.p.id === 'story-spin') {
+parts.push(`📥 วิธีส่งภาพสำหรับผลิตสินค้า:\n1️⃣ ใช้รูปภาพจำนวน 16 รูป\n2️⃣ อัปโหลดลง Google Drive\n3️⃣ ตั้งค่าการแชร์เป็น "สาธารณะ"\nGoogle Drive : xxxxx\n🎵 ลิงก์เพลง: xxxxx`);
+}
+else if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
+parts.push(`📌 หากมีหลายแบบ กรุณาตั้งชื่อไฟล์ตามชื่อเพลง\nตัวอย่าง: เพลงA.jpg, เพลงB.jpg หรือ เพลงA_${i.qty}อัน.jpg\n🎵 ลิงก์เพลง: xxxxx\nGoogle Drive : xxxxx`);
+if (i.p.type === 'pin-nfc' && i.qty >= 9) parts.push(`⚠️ ขั้นต่ำ 9 ชิ้นต่อ 1 แบบ`);
+}
+});
+parts.push('\n──────────────────────────────────');
+}
 
-  if (state.opts.drive) {
-    parts.push('📂 วิธีส่งไฟล์ผ่าน Google Drive\n1️⃣ สร้างโฟลเดอร์และอัปโหลดไฟล์ทั้งหมดลงไป\n2️⃣ กด Share (แชร์) ที่โฟลเดอร์\n3️⃣ เปลี่ยนสิทธิ์เป็น "Anyone with the link" (ทุกคนที่มีลิงก์)\n4️⃣ กด Copy link แล้วส่งมาได้เลยค่ะ\n──────────────────────────────────');
-  }
+if (quickItems.length) {
+parts.push('💬 ส่งแบบง่าย (ร้านจัดให้)');
+quickItems.forEach(i => {
+parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
+if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
+parts.push(`ส่งรูปและลิงก์เพลงมาในแชทได้เลยค่ะ ✨\nไม่ต้องตั้งชื่อไฟล์\nไม่ต้องสร้าง Google Drive`);
+if (i.p.type === 'pin-nfc') parts.push(`⚠️ ขั้นต่ำ 9 ชิ้นต่อ 1 แบบ`);
+} else if (i.p.id === 'mini-cd') {
+let cdQty = 6 * i.qty;
+parts.push(`การส่งไฟล์ปกติจะมี Template Canva ให้ค่ะ\nสำหรับออเดอร์นี้: CD ใช้ ${cdQty} ภาพ จิ้มส่งมารวดเดียว ${cdQty} ภาพนะคะ\nพร้อมส่งลิงก์เพลง ${i.qty} เพลง ในแชทได้เลยค่ะ\n🎵 ลิงก์เพลง: xxxxx`);
+} else if (i.p.id === 'pocket-tape') {
+parts.push(`📸 ส่งรูป ${5*i.qty} รูปมาพร้อมกัน (ร้านสุ่มจัดเรียงให้)\n🎵 ลิงก์เพลง: xxxxx\n📼 เลือกตลับ: xxxxx`);
+} else if (i.p.id === 'vinyl-set') {
+parts.push(`📸 ส่งรูป ${3*i.qty} รูป\n🎵 ลิงก์เพลง: xxxxx\n(ทางร้านจะจับคู่รูปและเพลงให้ตามลำดับที่ส่งมาค่ะ)`);
+}
+});
+parts.push('\n──────────────────────────────────');
+}
 
-  if (state.opts.music && picked.some(i => MUSIC_TYPES.includes(i.p.type))) {
-    parts.push('📌 การเลือกเพลง ส่งลิงก์เพลงที่ต้องการ\n🎵 รองรับทุกแพลตฟอร์ม เช่น YouTube, Spotify, Joox ฯลฯ\n🔹 1 เพลง → แก้ไขภายหลังไม่ได้\n🔹 หลายเพลง แนะนำสร้างเพลย์ลิสต์ → สามารถเพิ่ม/ลบเพลงทีหลังได้\n\n⚠️ ตั้งค่าเป็นสาธารณะเท่านั้น เพื่อให้สามารถสแกนได้\n❌ ไม่แนะนำ Apple Music → ถ้าไม่ได้สมัครสมาชิก สแกนแล้วฟังไม่ได้ค่ะ\n──────────────────────────────────');
-  }
+if (state.opts.drive) {
+parts.push('📂 วิธีส่งไฟล์ผ่าน Google Drive\n1️⃣ สร้างโฟลเดอร์และอัปโหลดไฟล์ทั้งหมดลงไป\n2️⃣ กด Share (แชร์) ที่โฟลเดอร์\n3️⃣ เปลี่ยนสิทธิ์เป็น "Anyone with the link" (ทุกคนที่มีลิงก์)\n4️⃣ กด Copy link แล้วส่งมาได้เลยค่ะ\n──────────────────────────────────');
+}
 
-  if (state.opts.checklist) {
-    parts.push('📝 Checklist ก่อนส่ง\n✅ ตั้งค่าแชร์เป็น Public ทั้ง Drive/Canva/Spotify\n✅ แนบไฟล์และข้อมูลครบถ้วน\n──────────────────────────────────');
-  }
+if (state.opts.music) {
+parts.push('📌 การเลือกเพลง ส่งลิงก์เพลงที่ต้องการ\n🎵 รองรับทุกแพลตฟอร์ม เช่น YouTube, Spotify, Joox ฯลฯ\n🔹 1 เพลง → แก้ไขภายหลังไม่ได้\n🔹 หลายเพลง แนะนำสร้างเพลย์ลิสต์ → สามารถเพิ่ม/ลบเพลงทีหลังได้\n⚠️ ตั้งค่าเป็นสาธารณะเท่านั้น เพื่อให้สามารถสแกนได้\n❌ ไม่แนะนำ Apple Music → ถ้าไม่ได้สมัครสมาชิก สแกนแล้วฟังไม่ได้ค่ะ\n──────────────────────────────────');
+}
 
-  let note = document.getElementById('order-note-input').value.trim();
-  if (note) {
-    parts.push('📌 หมายเหตุเพิ่มเติม\n' + note + '\n──────────────────────────────────');
-  }
+if (state.opts.checklist) {
+parts.push('📝 Checklist ก่อนส่ง\n✅ ตั้งค่าแชร์เป็น Public ทั้ง Drive/Canva/Spotify\n✅ แนบไฟล์และข้อมูลครบถ้วน\n──────────────────────────────────');
+}
 
-  parts.push('💖 แทนที่ xxxxx = แปะลิงก์\nหากส่งข้อมูลครบแล้วแจ้งแอดมินได้เลยนะคะ');
-  return parts.join('\n');
+let note = document.getElementById('order-note-input').value.trim();
+if (note) {
+parts.push('📌 หมายเหตุเพิ่มเติม\n' + note + '\n──────────────────────────────────');
+}
+
+parts.push('💖 แทนที่ xxxxx = แปะลิงก์\nหากส่งข้อมูลครบแล้วแจ้งแอดมินได้เลยนะคะ');
+return parts.join('\n');
 }
 
 function buildProductionChecklist() {
-  let picked = getPicked();
-  let safetyWarning = '';
-  if (state.unconfiguredProducts && state.unconfiguredProducts.length > 0) {
-    safetyWarning = `⚠️ WARNING: Missing Product Configuration!\nโปรดตั้งค่าสินค้าในฐานข้อมูลด่วน:\n` +
-      state.unconfiguredProducts.map(p => `• ${p}`).join('\n') + `\n──────────────────────────────────\n\n`;
-  }
-  let hasFilmSlideNfc = picked.some(i => i.p.id === 'film-slide-nfc');
-  let hasFrames = state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0);
-  if (hasFilmSlideNfc && !hasFrames) safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC ขาดข้อมูลสีกรอบ\n──────────────────────────────────\n\n`;
-  
-  if (picked.length === 0) return safetyWarning ? safetyWarning + "ยังไม่ได้เลือกสินค้า..." : "ยังไม่ได้เลือกสินค้า...";
-
-  let note = document.getElementById('order-note-input').value.trim();
-  let lines = [];
-  if (safetyWarning) lines.push(safetyWarning);
-
-  lines.push('✅ TINKLE GOODIES — PRODUCTION CHECKLIST');
-  lines.push('Date: ' + new Date().toLocaleDateString('th-TH', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}));
-  lines.push('Mode: ' + (state.collectionMode === 'drive' ? 'Google Drive' : 'Chat Only'));
-  if (note) lines.push('Note: ' + note);
-  lines.push('─'.repeat(34));
-
-  picked.forEach(i => {
-    lines.push(`[ ] ${i.p.name} x${i.qty} (${i.method})`);
-    if (i.p.id === 'film-slide-nfc') {
-      if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0)) {
-        Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-          if (fQty > 0) {
-            let fDef = frameDefinitions.find(d => d.key === fName);
-            let dispName = fDef ? fDef.displayName : fName;
-            lines.push(`    - [ ] ${dispName} x${fQty}`);
-          }
-        });
-      } else {
-        lines.push(`    - [ ] ⚠️ ขาดข้อมูลสีกรอบ`);
-      }
-    }
-    if(i.method === 'canva') lines.push(`    - Canva / Music / Config check`);
-    else if(i.method === 'quick') lines.push(`    - Shop arranged design / Photos / Music check`);
-    else lines.push(`    - Files / Naming / Music check`);
-  });
-
-  lines.push('─'.repeat(34));
-  lines.push('[ ] All files downloaded & checked');
-  lines.push('[ ] Production Complete');
-  lines.push('[ ] Packed & Shipped');
-  return lines.join('\n');
+let picked = getPicked();
+let safetyWarning = '';
+if (state.unconfiguredProducts && state.unconfiguredProducts.length > 0) {
+safetyWarning = `⚠️ WARNING: Missing Product Configuration!\nโปรดตั้งค่าสินค้าในฐานข้อมูลด่วน:\n` +
+state.unconfiguredProducts.map(p => `• ${p}`).join('\n') + `\n──────────────────────────────────\n`;
 }
 
-// ============================================================================
-// IMAGE TOOLS LOGIC (PROCESSORS & FILE DETECTION)
-// ============================================================================
+let hasFilmSlideNfc = picked.some(i => i.p.id === 'film-slide-nfc');
+let hasFrames = state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0);
+if (hasFilmSlideNfc && !hasFrames) safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC ขาดข้อมูลสีกรอบ\n──────────────────────────────────\n`;
 
-const ToolConfig = {
-  'spin': { maxFiles: 16, maxSize: 1500, exportName: 'StorySpinBox_Processed.zip' },
-  'convert': { maxFiles: 100, exportName: 'ConvertToJPG.zip' }
-};
+if (picked.length === 0) return safetyWarning ? safetyWarning + "ยังไม่ได้เลือกสินค้า..." : "ยังไม่ได้เลือกสินค้า...";
 
-let rawFiles = []; 
-let processedImages = []; 
-let activeTool = 'spin';
-let spinCachedImages = []; 
-let convertNamingMode = 'orig';
+let note = document.getElementById('order-note-input').value.trim();
+let lines = [];
+if (safetyWarning) lines.push(safetyWarning);
 
-async function getActualFileType(file) {
-  const buffer = await file.slice(0, 12).arrayBuffer();
-  const arr = new Uint8Array(buffer);
-  
-  if (arr.length < 4) return file.type || 'unknown';
-  if (arr[0] === 0xFF && arr[1] === 0xD8 && arr[2] === 0xFF) return 'image/jpeg';
-  if (arr[0] === 0x89 && arr[1] === 0x50 && arr[2] === 0x4E && arr[3] === 0x47) return 'image/png';
-  if (arr[0] === 0x42 && arr[1] === 0x4D) return 'image/bmp';
-  if ((arr[0] === 0x49 && arr[1] === 0x49 && arr[2] === 0x2A && arr[3] === 0x00) ||
-      (arr[0] === 0x4D && arr[1] === 0x4D && arr[2] === 0x00 && arr[3] === 0x2A)) return 'image/tiff';
-  if (arr.length >= 12) {
-      if (arr[0] === 0x52 && arr[1] === 0x49 && arr[2] === 0x46 && arr[3] === 0x46 &&
-          arr[8] === 0x57 && arr[9] === 0x45 && arr[10] === 0x42 && arr[11] === 0x50) return 'image/webp';
-      if (arr[4] === 0x66 && arr[5] === 0x74 && arr[6] === 0x79 && arr[7] === 0x70) {
-          const brand = String.fromCharCode(arr[8], arr[9], arr[10], arr[11]);
-          if (['heic', 'heix', 'hevc', 'hevx', 'mif1', 'msf1'].includes(brand)) return 'image/heic';
-      }
-  }
+lines.push('✅ TINKLE GOODIES — PRODUCTION CHECKLIST');
+lines.push('Date: ' + new Date().toLocaleDateString('th-TH', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}));
+lines.push('Mode: ' + (state.collectionMode === 'drive' ? 'Google Drive' : 'Chat Only'));
+if (note) lines.push('Note: ' + note);
+lines.push('─'.repeat(34));
 
-  if (file.type && file.type.startsWith('image/')) return file.type;
-  if (file.name.toLowerCase().match(/\.(heic|heif)$/)) return 'image/heic';
-  return 'unknown';
+picked.forEach(i => {
+lines.push(`[ ] ${i.p.name} x${i.qty} (${i.method})`);
+if (i.p.id === 'film-slide-nfc') {
+if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0)) {
+Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
+if (fQty > 0) {
+let fDef = frameDefinitions.find(d => d.key === fName);
+let dispName = fDef ? fDef.displayName : fName;
+lines.push(` - [ ] ${dispName} x${fQty}`);
 }
-
-function switchTool(toolId) {
-  document.querySelectorAll('.tool-menu-item').forEach(el => el.classList.remove('active'));
-  document.getElementById(`menu-${toolId}`).classList.add('active');
-  document.querySelectorAll('.workspace-card').forEach(el => el.classList.remove('active'));
-  document.getElementById(`panel-${toolId}`).classList.add('active');
-  activeTool = toolId;
-  clearTool(toolId, true);
+});
+} else {
+lines.push(` - [ ] ⚠️ ขาดข้อมูลสีกรอบ`);
 }
-
-function clearTool(toolId, silent=false) {
-  if(!silent) { showConfirm('ต้องการล้างรูปภาพทั้งหมดใช่หรือไม่?', () => executeClearTool(toolId)); } 
-  else { executeClearTool(toolId); }
 }
-
-function executeClearTool(toolId) {
-  rawFiles = []; processedImages = []; spinCachedImages = [];
-  document.getElementById(`dz-${toolId}`).style.display = 'flex';
-  document.getElementById(`sb-${toolId}`).style.display = 'none';
-  document.getElementById(`pg-${toolId}`).innerHTML = '';
-  document.getElementById(`btn-export-${toolId}`).disabled = true;
-  document.getElementById(`fi-${toolId}`).value = '';
-}
-
-// Bind Dropzones
-['spin', 'convert'].forEach(tool => {
-  const dz = document.getElementById(`dz-${tool}`);
-  const fi = document.getElementById(`fi-${tool}`);
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
-  dz.addEventListener('dragleave', e => { e.preventDefault(); dz.classList.remove('dragover'); });
-  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); if(e.dataTransfer.files.length) handleFiles(e.dataTransfer.files, tool); });
-  dz.addEventListener('click', () => fi.click());
-  fi.addEventListener('change', e => { if(e.target.files.length) handleFiles(e.target.files, tool); });
+if(i.method === 'canva') lines.push(` - [ ] Canva / Music / Config check`);
+else if(i.method === 'quick') lines.push(` - [ ] Shop arranged design / Photos / Music check`);
+else lines.push(` - [ ] Files / Naming / Music check`);
 });
 
-async function handleFiles(files, tool) {
-  let fileArray = Array.from(files);
-  fileArray.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
-  
-  let validFiles = [];
-  let invalidCount = 0;
-
-  const overlayId = `processing-overlay-${tool}`;
-  const textId = `processing-text-${tool}`;
-  const overlay = document.getElementById(overlayId);
-  const procText = document.getElementById(textId);
-  
-  overlay.style.display = 'flex';
-  procText.innerText = 'กำลังตรวจสอบไฟล์...';
-
-  for (let f of fileArray) {
-     let actualType = await getActualFileType(f);
-     if (actualType.startsWith('image/')) {
-         f.detectedType = actualType;
-         validFiles.push(f);
-     } else { invalidCount++; }
-  }
-
-  overlay.style.display = 'none';
-
-  if (validFiles.length === 0) return showAlert('ไม่พบไฟล์รูปภาพที่รองรับ หรือไฟล์อาจเสียหาย');
-  if (invalidCount > 0) showToast(`ข้ามไฟล์ที่ไม่ใช่รูปภาพจำนวน ${invalidCount} ไฟล์`);
-  
-  let max = ToolConfig[tool].maxFiles;
-  if (validFiles.length > max) {
-    showAlert(`ระบบรองรับสูงสุด ${max} รูป ระบบจะเลือกเฉพาะ ${max} รูปแรก`);
-    validFiles = validFiles.slice(0, max);
-  }
-
-  rawFiles = validFiles;
-  
-  if(tool === 'spin') await processSpinBoxPipeline();
-  if(tool === 'convert') await processConvertPipeline();
+lines.push('─'.repeat(34));
+lines.push('[ ] All files downloaded & checked');
+lines.push('[ ] Production Complete');
+lines.push('[ ] Packed & Shipped');
+return lines.join('\n');
 }
 
-function loadImage(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = src;
-  });
+// ============================================================================
+// 7. UTILITIES & EVENT HANDLERS
+// ============================================================================
+function toggleFaqForm(show) {
+document.getElementById('faq-form').style.display = show ? 'flex' : 'none';
+document.getElementById('btn-show-faq-form').style.display = show ? 'none' : 'flex';
+if(!show) { document.getElementById('faq-title').value = ''; document.getElementById('faq-text').value = ''; }
 }
 
-// ---------------------------------------------------
-// STORY SPIN BOX PIPELINE
-// ---------------------------------------------------
-async function processSpinBoxPipeline() {
-  const overlay = document.getElementById('processing-overlay-spin');
-  const procText = document.getElementById('processing-text-spin');
-  overlay.style.display = 'flex';
-  processedImages = []; spinCachedImages = [];
-  
-  for (let i = 0; i < rawFiles.length; i++) {
-    procText.innerText = `กำลังประมวลผลไฟล์ ${i + 1}/${rawFiles.length}...`;
-    try {
-      let file = rawFiles[i];
-      let objectUrl = null;
-
-      if (file.detectedType === 'image/heic') {
-        if (typeof heic2any !== 'undefined') {
-          const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
-          objectUrl = URL.createObjectURL(Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob);
-        } else {
-          console.error("HEIC converter not loaded"); 
-          showAlert("ระบบแปลงไฟล์ HEIC ยังโหลดไม่สำเร็จ หรือถูกบล็อกโดยเบราว์เซอร์");
-          continue; 
-        }
-      } else { objectUrl = URL.createObjectURL(file); }
-
-      const img = await loadImage(objectUrl);
-      spinCachedImages.push(img); 
-      
-      const dataUrl = await generateSpinBoxCanvas(img);
-      processedImages.push({ filename: `${i + 1}.jpg`, dataUrl: dataUrl });
-      URL.revokeObjectURL(objectUrl);
-    } catch(err) { console.error(`Error processing file ${i}:`, err); }
-  }
-
-  overlay.style.display = 'none';
-  renderToolPreview('spin');
+function saveFaq() {
+let title = document.getElementById('faq-title').value.trim(), text = document.getElementById('faq-text').value.trim();
+if(!title || !text) return showAlert('กรุณากรอกชื่อหัวข้อและข้อความให้ครบถ้วน');
+state.faqSnippets.push({ id: Date.now(), title, text });
+localStorage.setItem('tinkle_faq_v1', JSON.stringify(state.faqSnippets));
+toggleFaqForm(false); renderFaq(); showToast('✅ บันทึกข้อความด่วนแล้ว');
 }
 
-async function reRenderSpinPreviews() {
-  if (spinCachedImages.length === 0) return;
-  processedImages = [];
-  for (let i = 0; i < spinCachedImages.length; i++) {
-    const dataUrl = await generateSpinBoxCanvas(spinCachedImages[i]);
-    processedImages.push({ filename: `${i + 1}.jpg`, dataUrl: dataUrl });
-  }
-  renderToolPreview('spin');
+function deleteFaq(id, event) {
+event.stopPropagation();
+showConfirm('ต้องการลบข้อความตอบกลับด่วนนี้ใช่หรือไม่?', () => {
+state.faqSnippets = state.faqSnippets.filter(f => f.id !== id);
+localStorage.setItem('tinkle_faq_v1', JSON.stringify(state.faqSnippets));
+renderFaq();
+});
 }
 
-function generateSpinBoxCanvas(img) {
-  return new Promise((resolve) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const rawSize = Math.min(img.width, img.height); 
-    const startX = (img.width - rawSize) / 2;
-    const startY = (img.height - rawSize) / 2;
-    const outputSize = Math.min(rawSize, ToolConfig['spin'].maxSize);
-
-    canvas.width = outputSize; canvas.height = outputSize;
-    ctx.drawImage(img, startX, startY, rawSize, rawSize, 0, 0, outputSize, outputSize);
-
-    const colorMode = document.getElementById('spin-color').value;
-    const thickness = parseInt(document.getElementById('spin-thick').value);
-    const opacity = parseFloat(document.getElementById('spin-opacity').value);
-    const midY = outputSize / 2;
-    
-    let guideColor = 'rgba(255,255,255,0.5)';
-    if (colorMode === 'white') guideColor = `rgba(255,255,255,${opacity})`;
-    else if (colorMode === 'black') guideColor = `rgba(0,0,0,${opacity})`;
-    else {
-      try {
-        let imgData = ctx.getImageData(0, Math.max(0, midY - 5), outputSize, 10).data;
-        let r=0, g=0, b=0;
-        for(let i=0; i<imgData.length; i+=4){ r+=imgData[i]; g+=imgData[i+1]; b+=imgData[i+2]; }
-        let pxCount = imgData.length / 4;
-        let brightness = ((r/pxCount)*299 + (g/pxCount)*587 + (b/pxCount)*114) / 1000;
-        guideColor = brightness > 128 ? `rgba(0,0,0,${opacity})` : `rgba(255,255,255,${opacity})`;
-      } catch(e) { guideColor = `rgba(255,255,255,${opacity})`; }
-    }
-
-    ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(outputSize, midY);
-    ctx.strokeStyle = guideColor; ctx.lineWidth = thickness; ctx.stroke();
-
-    resolve(canvas.toDataURL('image/jpeg', 0.95));
-  });
+function renderFaq() {
+const container = document.getElementById('faq-list');
+container.innerHTML = '';
+if(state.faqSnippets.length === 0) {
+container.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px 0;">ยังไม่มีข้อความด่วน กดเพิ่มได้เลยค่ะ</div>'; return;
+}
+state.faqSnippets.forEach(f => {
+let el = document.createElement('div'); el.className = 'faq-item';
+el.onclick = () => copyText(f.text, '✅ คัดลอก: ' + f.title);
+el.innerHTML = `<span class="faq-title">📄 ${f.title}</span><span class="faq-del" onclick="deleteFaq(${f.id}, event)">🗑️</span>`;
+container.appendChild(el);
+});
 }
 
-// ---------------------------------------------------
-// CONVERT TO JPG PIPELINE
-// ---------------------------------------------------
-function setConvertNaming(mode) {
-  convertNamingMode = mode;
-  document.getElementById('btn-name-orig').classList.toggle('active', mode === 'orig');
-  document.getElementById('btn-name-seq').classList.toggle('active', mode === 'seq');
-  if (processedImages.length > 0 && activeTool === 'convert') {
-    processedImages.forEach((img, i) => {
-      if (mode === 'seq') img.filename = `${i + 1}.jpg`;
-      else {
-        let oldName = rawFiles[i].name; let lastDotIndex = oldName.lastIndexOf('.');
-        img.filename = `${lastDotIndex <= 0 ? oldName : oldName.substring(0, lastDotIndex)}.jpg`;
-      }
-    });
-    renderToolPreview('convert');
-  }
+function runProductAudit() {
+let totalProducts = 0, configuredProducts = 0, missingProducts = 0;
+GROUPS.forEach(group => {
+group.products.forEach(p => {
+totalProducts++;
+if (!!PARSER_ALIASES[p.id]) configuredProducts++;
+else missingProducts++;
+});
+});
+document.getElementById('audit-total-count').textContent = totalProducts;
+document.getElementById('audit-active-count').textContent = configuredProducts;
+document.getElementById('audit-missing-count').textContent = missingProducts;
+document.getElementById('audit-coverage-pct').textContent = (totalProducts > 0 ? Math.round((configuredProducts / totalProducts) * 100) : 0) + '%';
 }
 
-async function processConvertPipeline() {
-  const overlay = document.getElementById('processing-overlay-convert');
-  const procText = document.getElementById('processing-text-convert');
-  overlay.style.display = 'flex';
-  processedImages = [];
-  
-  for (let i = 0; i < rawFiles.length; i++) {
-    procText.innerText = `กำลังแปลงไฟล์ ${i + 1}/${rawFiles.length}...`;
-    try {
-      let file = rawFiles[i]; let finalDataUrl = null; let fName = '';
-
-      if (convertNamingMode === 'seq') fName = `${i + 1}.jpg`;
-      else {
-        let oldName = file.name; let lastDotIndex = oldName.lastIndexOf('.');
-        fName = `${lastDotIndex <= 0 ? oldName : oldName.substring(0, lastDotIndex)}.jpg`;
-      }
-
-      if (file.detectedType === 'image/jpeg' || file.detectedType === 'image/jpg') {
-        finalDataUrl = await new Promise((res) => { let reader = new FileReader(); reader.onload = e => res(e.target.result); reader.readAsDataURL(file); });
-      } else if (file.detectedType === 'image/heic') {
-        if (typeof heic2any !== 'undefined') {
-          const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 1.0 });
-          let blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-          finalDataUrl = await new Promise((res) => { let reader = new FileReader(); reader.onload = e => res(e.target.result); reader.readAsDataURL(blob); });
-        } else { console.error("HEIC converter not loaded"); showAlert("ระบบแปลงไฟล์ HEIC ยังโหลดไม่สำเร็จ หรือถูกบล็อกโดยเบราว์เซอร์"); continue; }
-      } else {
-        let objUrl = URL.createObjectURL(file);
-        const img = await loadImage(objUrl);
-        const cvs = document.createElement('canvas'); cvs.width = img.naturalWidth; cvs.height = img.naturalHeight;
-        cvs.getContext('2d').drawImage(img, 0, 0);
-        finalDataUrl = cvs.toDataURL('image/jpeg', 1.0); URL.revokeObjectURL(objUrl);
-      }
-
-      if (finalDataUrl) processedImages.push({ filename: fName, dataUrl: finalDataUrl });
-    } catch(err) { console.error(`Error processing file ${i}:`, err); }
-  }
-
-  overlay.style.display = 'none';
-  renderToolPreview('convert');
-}
-
-// ---------------------------------------------------
-// SHARED UTILS (PREVIEW & ZIP)
-// ---------------------------------------------------
-function renderToolPreview(tool) {
-  const dz = document.getElementById(`dz-${tool}`); const sb = document.getElementById(`sb-${tool}`);
-  const count = document.getElementById(`count-${tool}`); const pg = document.getElementById(`pg-${tool}`);
-  const btn = document.getElementById(`btn-export-${tool}`);
-
-  dz.style.display = processedImages.length > 0 ? 'none' : 'flex';
-  sb.style.display = processedImages.length > 0 ? 'flex' : 'none';
-  btn.disabled = processedImages.length === 0;
-
-  count.innerText = `เตรียมไฟล์สำเร็จ ${processedImages.length} / ${ToolConfig[tool].maxFiles} รูป`;
-  
-  pg.innerHTML = '';
-  processedImages.forEach((imgObj) => {
-    let div = document.createElement('div'); div.className = 'img-preview-item';
-    let guideHtml = tool === 'spin' ? `<div class="guide-line"></div>` : '';
-    div.innerHTML = `<img src="${imgObj.dataUrl}" alt="${imgObj.filename}">${guideHtml}<div class="badge">${imgObj.filename}</div>`;
-    pg.appendChild(div);
-  });
-}
-
-async function downloadZip(tool) {
-  if (processedImages.length === 0) return;
-  const overlayId = `processing-overlay-${tool}`; const textId = `processing-text-${tool}`;
-  
-  document.getElementById(overlayId).style.display = 'flex';
-  document.getElementById(textId).innerText = 'กำลังสร้างไฟล์ ZIP...';
-
-  try {
-    const zip = new JSZip();
-    processedImages.forEach(img => { zip.file(img.filename, img.dataUrl.split(',')[1], {base64: true}); });
-    const content = await zip.generateAsync({type:"blob"});
-    const zipUrl = URL.createObjectURL(content);
-    const a = document.createElement('a'); a.href = zipUrl; a.download = ToolConfig[tool].exportName;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(zipUrl);
-    showToast('📦 ดาวน์โหลด ZIP เรียบร้อย!');
-  } catch(err) { console.error(err); showAlert('เกิดข้อผิดพลาดในการสร้างไฟล์ ZIP'); } 
-  finally { document.getElementById(overlayId).style.display = 'none'; }
+function init() {
+try {
+let saved = localStorage.getItem('tinkle_presets_v2');
+if (saved) state.customPresets = JSON.parse(saved);
+let savedFaq = localStorage.getItem('tinkle_faq_v1');
+if (savedFaq) state.faqSnippets = JSON.parse(savedFaq);
+else state.faqSnippets = [{ id: 1, title: '💳 แจ้งเลขบัญชี', text: 'ธนาคารกสิกรไทย\nเลขบัญชี: 123-4-56789-0\nชื่อบัญชี: บจก. ทิงเกิล กู๊ดดี้ส์' }];
+} catch(e) {}
+renderPresets(); renderFaq(); renderProducts(); renderCart(); updatePreview(); runProductAudit();
 }
 
 init();
+
+// ============================================================================
+// IMAGE TOOLS LOGIC (UNCHANGED)
+// ============================================================================
+const ToolConfig = { 'spin': { maxFiles: 16, maxSize: 1500, exportName: 'StorySpinBox_Processed.zip' }, 'convert': { maxFiles: 100, exportName: 'ConvertToJPG.zip' } };
+let rawFiles = []; let processedImages = []; let activeTool = 'spin'; let spinCachedImages = []; let convertNamingMode = 'orig';
+
+async function getActualFileType(file) {
+const buffer = await file.slice(0, 12).arrayBuffer();
+const arr = new Uint8Array(buffer);
+if (arr.length < 4) return file.type || 'unknown';
+if (arr[0] === 0xFF && arr[1] === 0xD8 && arr[2] === 0xFF) return 'image/jpeg';
+if (arr[0] === 0x89 && arr[1] === 0x50 && arr[2] === 0x4E && arr[3] === 0x47) return 'image/png';
+if (arr[0] === 0x42 && arr[1] === 0x4D) return 'image/bmp';
+if ((arr[0] === 0x49 && arr[1] === 0x49 && arr[2] === 0x2A && arr[3] === 0x00) || (arr[0] === 0x4D && arr[1] === 0x4D && arr[2] === 0x00 && arr[3] === 0x2A)) return 'image/tiff';
+if (arr.length >= 12) {
+if (arr[0] === 0x52 && arr[1] === 0x49 && arr[2] === 0x46 && arr[3] === 0x46 && arr[8] === 0x57 && arr[9] === 0x45 && arr[10] === 0x42 && arr[11] === 0x50) return 'image/webp';
+if (arr[4] === 0x66 && arr[5] === 0x74 && arr[6] === 0x79 && arr[7] === 0x70) {
+const brand = String.fromCharCode(arr[8], arr[9], arr[10], arr[11]);
+if (['heic', 'heix', 'hevc', 'hevx', 'mif1', 'msf1'].includes(brand)) return 'image/heic';
+}
+}
+if (file.type && file.type.startsWith('image/')) return file.type;
+if (file.name.toLowerCase().match(/\.(heic|heif)$/)) return 'image/heic';
+return 'unknown';
+}
+
+function switchTool(toolId) {
+document.querySelectorAll('.tool-menu-item').forEach(el => el.classList.remove('active'));
+document.getElementById(`menu-${toolId}`).classList.add('active');
+document.querySelectorAll('.workspace-card').forEach(el => el.classList.remove('active'));
+document.getElementById(`panel-${toolId}`).classList.add('active');
+activeTool = toolId; clearTool(toolId, true);
+}
+
+function clearTool(toolId, silent=false) {
+if(!silent) { showConfirm('ต้องการล้างรูปภาพทั้งหมดใช่หรือไม่?', () => executeClearTool(toolId)); }
+else { executeClearTool(toolId); }
+}
+
+function executeClearTool(toolId) {
+rawFiles = []; processedImages = []; spinCachedImages = [];
+document.getElementById(`dz-${toolId}`).style.display = 'flex';
+document.getElementById(`sb-${toolId}`).style.display = 'none';
+document.getElementById(`pg-${toolId}`).innerHTML = '';
+document.getElementById(`btn-export-${toolId}`).disabled = true;
+document.getElementById(`fi-${toolId}`).value = '';
+}
+
+['spin', 'convert'].forEach(tool => {
+const dz = document.getElementById(`dz-${tool}`);
+const fi = document.getElementById(`fi-${tool}`);
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', e => { e.preventDefault(); dz.classList.remove('dragover'); });
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); if(e.dataTransfer.files.length) handleFiles(e.dataTransfer.files, tool); });
+dz.addEventListener('click', () => fi.click());
+fi.addEventListener('change', e => { if(e.target.files.length) handleFiles(e.target.files, tool); });
+});
+
+async function handleFiles(files, tool) {
+let fileArray = Array.from(files);
+fileArray.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+let validFiles = []; let invalidCount = 0;
+const overlayId = `processing-overlay-${tool}`;
+const textId = `processing-text-${tool}`;
+const overlay = document.getElementById(overlayId);
+const procText = document.getElementById(textId);
+overlay.style.display = 'flex'; procText.innerText = 'กำลังตรวจสอบไฟล์...';
+
+for (let f of fileArray) {
+let actualType = await getActualFileType(f);
+if (actualType.startsWith('image/')) { f.detectedType = actualType; validFiles.push(f); }
+else { invalidCount++; }
+}
+overlay.style.display = 'none';
+if (validFiles.length === 0) return showAlert('ไม่พบไฟล์รูปภาพที่รองรับ หรือไฟล์อาจเสียหาย');
+if (invalidCount > 0) showToast(`ข้ามไฟล์ที่ไม่ใช่รูปภาพจำนวน ${invalidCount} ไฟล์`);
+
+let max = ToolConfig[tool].maxFiles;
+if (validFiles.length > max) {
+showAlert(`ระบบรองรับสูงสุด ${max} รูป ระบบจะเลือกเฉพาะ ${max} รูปแรก`);
+validFiles = validFiles.slice(0, max);
+}
+rawFiles = validFiles;
+if(tool === 'spin') await processSpinBoxPipeline();
+if(tool === 'convert') await processConvertPipeline();
+}
+
+function loadImage(src) {
+return new Promise((resolve, reject) => {
+const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = src;
+});
+}
+
+async function processSpinBoxPipeline() {
+const overlay = document.getElementById('processing-overlay-spin');
+const procText = document.getElementById('processing-text-spin');
+overlay.style.display = 'flex'; processedImages = []; spinCachedImages = [];
+for (let i = 0; i < rawFiles.length; i++) {
+procText.innerText = `กำลังประมวลผลไฟล์ ${i + 1}/${rawFiles.length}...`;
+try {
+let file = rawFiles[i]; let objectUrl = null;
+if (file.detectedType === 'image/heic') {
+if (typeof heic2any !== 'undefined') {
+const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
+objectUrl = URL.createObjectURL(Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob);
+} else { showAlert("ระบบแปลงไฟล์ HEIC ยังโหลดไม่สำเร็จ"); continue; }
+} else { objectUrl = URL.createObjectURL(file); }
+const img = await loadImage(objectUrl);
+spinCachedImages.push(img);
+const dataUrl = await generateSpinBoxCanvas(img);
+processedImages.push({ filename: `${i + 1}.jpg`, dataUrl: dataUrl });
+URL.revokeObjectURL(objectUrl);
+} catch(err) { console.error(`Error processing file ${i}:`, err); }
+}
+overlay.style.display = 'none'; renderToolPreview('spin');
+}
+
+async function reRenderSpinPreviews() {
+if (spinCachedImages.length === 0) return;
+processedImages = [];
+for (let i = 0; i < spinCachedImages.length; i++) {
+const dataUrl = await generateSpinBoxCanvas(spinCachedImages[i]);
+processedImages.push({ filename: `${i + 1}.jpg`, dataUrl: dataUrl });
+}
+renderToolPreview('spin');
+}
+
+function generateSpinBoxCanvas(img) {
+return new Promise((resolve) => {
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+const rawSize = Math.min(img.width, img.height);
+const startX = (img.width - rawSize) / 2;
+const startY = (img.height - rawSize) / 2;
+const outputSize = Math.min(rawSize, ToolConfig['spin'].maxSize);
+canvas.width = outputSize; canvas.height = outputSize;
+ctx.drawImage(img, startX, startY, rawSize, rawSize, 0, 0, outputSize, outputSize);
+
+const colorMode = document.getElementById('spin-color').value;
+const thickness = parseInt(document.getElementById('spin-thick').value);
+const opacity = parseFloat(document.getElementById('spin-opacity').value);
+const midY = outputSize / 2;
+let guideColor = 'rgba(255,255,255,0.5)';
+
+if (colorMode === 'white') guideColor = `rgba(255,255,255,${opacity})`;
+else if (colorMode === 'black') guideColor = `rgba(0,0,0,${opacity})`;
+else {
+try {
+let imgData = ctx.getImageData(0, Math.max(0, midY - 5), outputSize, 10).data;
+let r=0, g=0, b=0;
+for(let i=0; i<imgData.length; i+=4){ r+=imgData[i]; g+=imgData[i+1]; b+=imgData[i+2]; }
+let pxCount = imgData.length / 4;
+let brightness = ((r/pxCount)*299 + (g/pxCount)*587 + (b/pxCount)*114) / 1000;
+guideColor = brightness > 128 ? `rgba(0,0,0,${opacity})` : `rgba(255,255,255,${opacity})`;
+} catch(e) { guideColor = `rgba(255,255,255,${opacity})`; }
+}
+ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(outputSize, midY);
+ctx.strokeStyle = guideColor; ctx.lineWidth = thickness; ctx.stroke();
+resolve(canvas.toDataURL('image/jpeg', 0.95));
+});
+}
+
+function setConvertNaming(mode) {
+convertNamingMode = mode;
+document.getElementById('btn-name-orig').classList.toggle('active', mode === 'orig');
+document.getElementById('btn-name-seq').classList.toggle('active', mode === 'seq');
+if (processedImages.length > 0 && activeTool === 'convert') {
+processedImages.forEach((img, i) => {
+if (mode === 'seq') img.filename = `${i + 1}.jpg`;
+else {
+let oldName = rawFiles[i].name; let lastDotIndex = oldName.lastIndexOf('.');
+img.filename = `${lastDotIndex <= 0 ? oldName : oldName.substring(0, lastDotIndex)}.jpg`;
+}
+});
+renderToolPreview('convert');
+}
+}
+
+async function processConvertPipeline() {
+const overlay = document.getElementById('processing-overlay-convert');
+const procText = document.getElementById('processing-text-convert');
+overlay.style.display = 'flex'; processedImages = [];
+for (let i = 0; i < rawFiles.length; i++) {
+procText.innerText = `กำลังแปลงไฟล์ ${i + 1}/${rawFiles.length}...`;
+try {
+let file = rawFiles[i]; let finalDataUrl = null; let fName = '';
+if (convertNamingMode === 'seq') fName = `${i + 1}.jpg`;
+else {
+let oldName = file.name; let lastDotIndex = oldName.lastIndexOf('.');
+fName = `${lastDotIndex <= 0 ? oldName : oldName.substring(0, lastDotIndex)}.jpg`;
+}
+if (file.detectedType === 'image/jpeg' || file.detectedType === 'image/jpg') {
+finalDataUrl = await new Promise((res) => { let reader = new FileReader(); reader.onload = e => res(e.target.result); reader.readAsDataURL(file); });
+} else if (file.detectedType === 'image/heic') {
+if (typeof heic2any !== 'undefined') {
+const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 1.0 });
+let blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+finalDataUrl = await new Promise((res) => { let reader = new FileReader(); reader.onload = e => res(e.target.result); reader.readAsDataURL(blob); });
+} else { showAlert("ระบบแปลงไฟล์ HEIC ยังโหลดไม่สำเร็จ"); continue; }
+} else {
+let objUrl = URL.createObjectURL(file);
+const img = await loadImage(objUrl);
+const cvs = document.createElement('canvas'); cvs.width = img.naturalWidth; cvs.height = img.naturalHeight;
+cvs.getContext('2d').drawImage(img, 0, 0);
+finalDataUrl = cvs.toDataURL('image/jpeg', 1.0); URL.revokeObjectURL(objUrl);
+}
+if (finalDataUrl) processedImages.push({ filename: fName, dataUrl: finalDataUrl });
+} catch(err) { console.error(`Error processing file ${i}:`, err); }
+}
+overlay.style.display = 'none'; renderToolPreview('convert');
+}
+
+function renderToolPreview(tool) {
+const dz = document.getElementById(`dz-${tool}`); const sb = document.getElementById(`sb-${tool}`);
+const count = document.getElementById(`count-${tool}`); const pg = document.getElementById(`pg-${tool}`);
+const btn = document.getElementById(`btn-export-${tool}`);
+dz.style.display = processedImages.length > 0 ? 'none' : 'flex';
+sb.style.display = processedImages.length > 0 ? 'flex' : 'none';
+btn.disabled = processedImages.length === 0;
+count.innerText = `เตรียมไฟล์สำเร็จ ${processedImages.length} / ${ToolConfig[tool].maxFiles} รูป`;
+pg.innerHTML = '';
+processedImages.forEach((imgObj) => {
+let div = document.createElement('div'); div.className = 'img-preview-item';
+div.innerHTML = `<img src="${imgObj.dataUrl}" alt="${imgObj.filename}"><div class="badge">${imgObj.filename}</div>`;
+pg.appendChild(div);
+});
+}
+
+async function downloadZip(tool) {
+if (processedImages.length === 0) return;
+const overlayId = `processing-overlay-${tool}`; const textId = `processing-text-${tool}`;
+document.getElementById(overlayId).style.display = 'flex';
+document.getElementById(textId).innerText = 'กำลังสร้างไฟล์ ZIP...';
+try {
+const zip = new JSZip();
+processedImages.forEach(img => { zip.file(img.filename, img.dataUrl.split(',')[1], {base64: true}); });
+const content = await zip.generateAsync({type:"blob"});
+const zipUrl = URL.createObjectURL(content);
+const a = document.createElement('a'); a.href = zipUrl; a.download = ToolConfig[tool].exportName;
+document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(zipUrl);
+showToast('📦 ดาวน์โหลด ZIP เรียบร้อย!');
+} catch(err) { console.error(err); showAlert('เกิดข้อผิดพลาดในการสร้างไฟล์ ZIP'); }
+finally { document.getElementById(overlayId).style.display = 'none'; }
+}
+
+// ============================================================================
+// 8. MISSING UTILITY FUNCTIONS
+// ============================================================================
+function switchView(viewId) {
+document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+document.getElementById('view-' + viewId).classList.add('active');
+if (viewId === 'upload-center') document.getElementById('tab-upload').classList.add('active');
+else if (viewId === 'image-tools') document.getElementById('tab-tools').classList.add('active');
+}
+
+let _confirmCallback = null;
+function showAlert(msg) {
+document.getElementById('alert-msg').textContent = msg;
+document.getElementById('custom-alert').classList.add('active');
+}
+function showConfirm(msg, callback) {
+document.getElementById('confirm-msg').textContent = msg;
+_confirmCallback = callback;
+document.getElementById('custom-confirm').classList.add('active');
+document.getElementById('btn-confirm-yes').onclick = () => {
+closeModal('custom-confirm');
+if (_confirmCallback) _confirmCallback();
+};
+}
+function openModal(id) {
+document.getElementById(id).classList.add('active');
+if (id === 'tools-modal') runProductAudit();
+}
+function closeModal(id) {
+document.getElementById(id).classList.remove('active');
+}
+function showToast(msg) {
+const t = document.getElementById('toast');
+t.textContent = msg;
+t.classList.add('show');
+setTimeout(() => t.classList.remove('show'), 2500);
+}
+function copyText(text, successMsg) {
+navigator.clipboard.writeText(text).then(() => showToast(successMsg || '✅ คัดลอกแล้ว'));
+}
+function copyActiveMessage() {
+const text = document.getElementById('preview-box').value;
+navigator.clipboard.writeText(text).then(() => showToast('✅ คัดลอก Message แล้ว'));
+}
+function shareToLine() {
+const text = document.getElementById('preview-box').value;
+const encoded = encodeURIComponent(text);
+window.open('https://line.me/R/msg/text/?' + encoded, '_blank');
+}
+function openChecklist() {
+document.getElementById('checklist-box').value = buildProductionChecklist();
+document.getElementById('checklist-modal').classList.add('active');
+}
+function copyChecklist() {
+const text = document.getElementById('checklist-box').value;
+navigator.clipboard.writeText(text).then(() => showToast('✅ คัดลอก Checklist แล้ว'));
+}
 </script>
 </body>
 </html>
