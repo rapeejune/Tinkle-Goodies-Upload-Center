@@ -533,7 +533,7 @@ let state = {
 selected: {}, quantities: {}, methods: {}, collectionMode: 'drive',
 opts: { music: false, drive: false, canva: false, checklist: false },
 search: '', exportView: 'customer', customPresets: [], faqSnippets: [],
-manualEditPreview: false, filmSlideFrames: null, unconfiguredProducts: [], productOptions: {}
+manualEditPreview: false, filmSlideFrames: null, unconfiguredProducts: [], productOptions: {}, expandedFromGiftSets: []
 };
 
 // ============================================================================
@@ -549,6 +549,7 @@ currentSelection.forEach(item => {
 if (item.p && item.p.isGiftSet) {
 const giftSet = GIFT_SETS.find(gs => gs.giftSetId === item.p.id);
 if (giftSet) {
+if (!state.expandedFromGiftSets.includes(giftSet.giftSetId)) state.expandedFromGiftSets.push(giftSet.giftSetId);
 giftSet.contents.forEach(content => {
 const pId = content.productId;
 const qty = content.quantity * item.qty;
@@ -605,6 +606,7 @@ document.getElementById('order-note-input').value = '';
 state.filmSlideFrames = null;
 state.unconfiguredProducts = [];
 state.productOptions = {};
+state.expandedFromGiftSets = [];
 state.selected = {}; state.quantities = {}; state.methods = {};
 
 let provMatch = text.match(/(?:จังหวัด(?:ปลายทาง)?|จัดส่งไปที่)[:\s]*\n*\s*([^\n]+)/i);
@@ -630,7 +632,7 @@ const optionKeywords = [
   // Misc metadata
   'อัปเกรดแพ็กเกจ', 'อัปเกรดกรอบ', 'limited edition'
 ];
-const skipKeywords = ['จังหวัดปลายทาง', 'จังหวัด', 'จัดส่งไปที่', 'วันที่ต้องการใช้งาน', 'วันที่ใช้งาน', 'วันที่ใช้', 'ยอดรวมทั้งสิ้น', 'ยอดรวม', 'รวม', 'ค่าจัดส่ง', 'สรุปออเดอร์', 'สนใจสั่งสินค้า', 'ข้อมูลสำหรับจัดคิวงาน', 'คิวแทรก/งานด่วน', 'รอตามรอบได้', 'กำหนดจัดส่ง'];
+const skipKeywords = ['จังหวัดปลายทาง', 'จังหวัด', 'จัดส่งไปที่', 'วันที่ต้องการใช้งาน', 'วันที่ใช้งาน', 'วันที่ใช้', 'ยอดรวมทั้งสิ้น', 'ยอดรวม', 'รวม', 'ค่าจัดส่ง', 'สรุปออเดอร์', 'สนใจสั่งสินค้า', 'ข้อมูลสำหรับจัดคิวงาน', 'คิวแทรก/งานด่วน', 'รอตามรอบได้', 'กำหนดจัดส่ง', 'ประกอบด้วย', 'ค่าจัดส่ง'];
 const variantPatterns = ['ซองซิปขุ่น+จี้อะคริลิค', 'กล่องแพ็กเกจใส+พื้นหลัง', 'ซองซิปขุ่น', 'กล่องแพ็กเกจใส', 'จี้ดาว', 'จี้หัวใจ', 'จี้อะคริลิค', 'จี้อะคริลิก', 'ซองซิป', 'กล่องแพ็กเกจ', 'ตลับใส', 'ตลับแดง', 'แบบมาตรฐาน', 'รุ่นมาตรฐาน', 'standard', 'standard version', 'พวงกุญแจเชือก', 'โซ่ไข่ปลา'];
 
 let currentProduct = null;
@@ -641,6 +643,18 @@ if (!rawLine) continue;
 let normalizedLine = normalizeText(rawLine);
 
 if (skipKeywords.some(kw => normalizedLine.includes(kw.toLowerCase()))) continue;
+// Skip gift-set content lines like "• Film Slide (NFC) × 10 (55฿ × 10 = 550฿)"
+// when a gift set is already in foundProducts
+const lineHasPriceDetail = /\(\s*\d+\s*฿\s*[×x]\s*\d+/.test(rawLine);
+const activeGiftSetIds = foundProducts.filter(fp => fp.isGiftSet).map(fp => fp.id);
+if (lineHasPriceDetail && activeGiftSetIds.length > 0) {
+const allGsProductIds = activeGiftSetIds.flatMap(gsId => {
+const gs = GIFT_SETS.find(g => g.giftSetId === gsId);
+return gs ? gs.contents.map(c => c.productId) : [];
+});
+const lineMatchesContent = FLAT_ALIASES.some(item => normalizedLine.includes(item.alias) && allGsProductIds.includes(item.id));
+if (lineMatchesContent) continue;
+}
 
 let matchedFrameKey = null;
 for (let fDef of frameDefinitions) {
@@ -673,12 +687,21 @@ break;
 if (matchedId) {
 if ((matchedId === 'film-slide' || matchedId === 'film-slide-nfc') && Object.keys(detectedFrames).length > 0) continue;
 
+const targetEntity = PMAP[matchedId];
+
+// If this product is a CONTENT of a gift set already being parsed, skip it
+// (expandAndMergeCart will handle qty from gift set definition)
+const isContentOfActiveGiftSet = foundProducts.some(fp => fp.isGiftSet && (() => {
+const gs = GIFT_SETS.find(g => g.giftSetId === fp.id);
+return gs && gs.contents.some(c => c.productId === matchedId);
+})());
+if (isContentOfActiveGiftSet) continue;
+
 currentProduct = matchedId;
-let searchStr = normalizedLine + " " + (lines[i+1] ? normalizeText(lines[i+1]) : "");
-let qtyMatch = searchStr.match(/(?:x|\*|จำนวน|=)\s*(\d+)/i);
+// Only match qty on the CURRENT line — never bleed into next line (avoids picking up prices)
+let qtyMatch = normalizedLine.match(/(?:×|x|\*|จำนวน)\s*(\d+)/i);
 let qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
 
-const targetEntity = PMAP[matchedId];
 foundProducts.push({
 id: matchedId,
 qty: qty,
@@ -908,7 +931,7 @@ else { startOver(); }
 function startOver() {
 state.selected = {}; state.quantities = {}; state.methods = {};
 state.opts = {music:false, drive:false, canva:false, checklist:false};
-state.collectionMode = 'drive'; state.filmSlideFrames = null; state.unconfiguredProducts = []; state.productOptions = {};
+state.collectionMode = 'drive'; state.filmSlideFrames = null; state.unconfiguredProducts = []; state.productOptions = {}; state.expandedFromGiftSets = [];
 document.getElementById('order-note-input').value = '';
 document.getElementById('order-parser-input').value = '';
 document.getElementById('parser-result').style.display = 'none';
@@ -1095,7 +1118,12 @@ state.unconfiguredProducts.map(p => `• ${p}`).join('\n') +
 
 let hasFilmSlideNfc = picked.some(i => i.p.id === 'film-slide-nfc');
 let hasFrames = state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0);
-if (hasFilmSlideNfc && !hasFrames) {
+// Only warn about missing frames if film-slide-nfc was ordered DIRECTLY (not via gift set expansion)
+const nfcCameFromGiftSet = state.expandedFromGiftSets.some(gsId => {
+const gs = GIFT_SETS.find(g => g.giftSetId === gsId);
+return gs && gs.contents.some(c => c.productId === 'film-slide-nfc');
+});
+if (hasFilmSlideNfc && !hasFrames && !nfcCameFromGiftSet) {
 safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC จำเป็นต้องระบุสีกรอบ กรุณาตรวจสอบออเดอร์อีกครั้ง\n──────────────────────────────────\n`;
 }
 
@@ -1169,7 +1197,7 @@ parts.push(`📸 รูป 1 รูป\n🎵 ลิงก์เพลง: xxxxx\
 }
 else if (i.p.id === 'film-slide') {
 if (state.collectionMode === 'drive') {
-parts.push(`📌 วิธีส่งไฟล์รูปภาพสำหรับฟิล์มสไลด์ 📌\n📸 ใส่รูปลงใน Google Drive แล้วแชร์ลิงก์มาได้เลยค่ะ\n✅ ใช้ 1 รูป / 1 อัน (สามารถใส่รวมกันได้)\n📌 หากใช้รูปไม่ซ้ำ\nตั้งชื่อไฟล์เรียงลำดับ\n1.jpg - ${i.qty}.jpg\n\n📌 หากใช้รูปเดียวหลายชิ้น\nสามารถตั้งชื่อเป็นจำนวนได้เลย\n\nตัวอย่าง:\n5 อัน.jpg\n10 อัน.jpg\n20 อัน.jpg\n\nเพื่อให้ทีมงานผลิตตามจำนวนที่ต้องการ\n\nGoogle Drive : xxxxx\n⚠️ สำคัญ! ก่อนแชร์ลิงก์ไฟล์ อย่าลืมตั้งค่าเป็น Public`);
+parts.push(`📌 วิธีส่งไฟล์รูปภาพสำหรับฟิล์มสไลด์ 📌\n📸 ใส่รูปลงใน Google Drive แล้วแชร์ลิงก์มาได้เลยค่ะ\n✅ ใช้ 1 รูป / 1 อัน (สามารถใส่รวมกันได้)\n📌 หากใช้รูปไม่ซ้ำ → ตั้งชื่อไฟล์เรียงลำดับ 1.jpg - ${i.qty}.jpg\n📌 หากใช้รูปเดียวหลายชิ้น → ตั้งชื่อเป็นจำนวน เช่น 5 อัน.jpg, 10 อัน.jpg\n\nGoogle Drive : xxxxx\n⚠️ อย่าลืมตั้งค่าเป็น Public ก่อนแชร์ลิงก์` + '\n\n✨ เลือกภาพให้เหมาะกับกรอบ\n✅ กรอบพลาสติก → แนวตั้ง/นอนได้เลย\n✅ กรอบกระดาษ → แนะนำแนวนอน (ตัวอักษรบนกรอบไม่เบี้ยว)');
 } else {
 parts.push(`📌 วิธีส่งไฟล์รูปภาพสำหรับฟิล์มสไลด์ 📌\n💬 ส่งรูปภาพเข้ามาในแชทได้เลยค่ะ\n✅ ใช้ 1 รูป / 1 อัน\n📌 หากใช้รูปเดียวหลายชิ้น สามารถพิมพ์แจ้งจำนวนหลังส่งรูปได้เลยค่ะ (เช่น 5 อัน, 10 อัน) เพื่อให้ทีมงานผลิตตามจำนวนที่ต้องการ`);
 }
@@ -1203,12 +1231,13 @@ frameText += `\n📂 ${dispName} (จำนวน ${fQty} ชิ้น)`;
 }
 });
 } else {
-frameText = `\n⚠️ กรุณาระบุสีกรอบฟิล์มสไลด์ NFC เพิ่มเติม`;
+// Gift set หรือออเดอร์ที่ไม่ได้ระบุสีกรอบ → แสดงตัวเลือกให้ลูกค้าเลือกเอง
+frameText = `\n📌 คละกรอบ หรือ ระบุสีกรอบได้เลยค่ะ\n👉 หากเลือกเอง: ตั้งชื่อโฟลเดอร์เป็นชื่อกรอบตามด้วยจำนวน\n   เช่น กรอบพลาสติก (20 อัน), กรอบขอบแดง (10 อัน)`;
 }
 if (state.collectionMode === 'drive') {
-parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC\n1️⃣ สร้างโฟลเดอร์แยกตามสีกรอบดังนี้${frameText}\n2️⃣ 🎵 การส่งเพลง: ตั้งชื่อไฟล์เป็นชื่อเพลง หรือ ชื่อเพลง_จำนวน (ตัวอย่าง: เพลงA.jpg, เพลงB_3อัน.jpg)\n🎵 ลิงก์เพลง A : xxxxx\n🎵 ลิงก์เพลง B : xxxxx\n3️⃣ เปิด Google Drive เป็น Public\nGoogle Drive : xxxxx\n📐 ภาพที่พอดีกรอบคือ Crop 3:2`);
+parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC\n1️⃣ สร้างโฟลเดอร์แยกตามสีกรอบ${frameText}\n2️⃣ 🎵 ตั้งชื่อไฟล์เป็นชื่อเพลง หรือ ชื่อเพลง_จำนวน (เช่น เพลงA.jpg, เพลงB_3อัน.jpg)\n🎵 ลิงก์เพลง A : xxxxx\n🎵 ลิงก์เพลง B : xxxxx\n3️⃣ เปิด Google Drive เป็น Public\nGoogle Drive : xxxxx\n📐 Crop 3:2` + '\n\n✨ เลือกภาพให้เหมาะกับกรอบ\n✅ กรอบพลาสติก → แนวตั้ง/นอนได้เลย\n✅ กรอบกระดาษ → แนะนำแนวนอน (ตัวอักษรบนกรอบไม่เบี้ยว)');
 } else {
-parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC (ส่งในแชท)\n1️⃣ ส่งรูปภาพเข้ามาในแชท และพิมพ์ระบุชื่อกรอบตามต้องการค่ะ:${frameText}\n2️⃣ 🎵 การส่งเพลง: ส่งลิงก์เพลงตามรูปภาพ (รองรับ YouTube, Spotify, Joox ฯลฯ)\n🎵 ลิงก์เพลง A : xxxxx\n🎵 ลิงก์เพลง B : xxxxx\n📐 ภาพที่พอดีกรอบคือ Crop 3:2`);
+parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC (ส่งในแชท)\n1️⃣ ส่งรูปภาพเข้ามาในแชท และระบุชื่อกรอบ:${frameText}\n2️⃣ 🎵 ส่งลิงก์เพลงตามรูปภาพ (YouTube, Spotify, Joox ฯลฯ)\n🎵 ลิงก์เพลง A : xxxxx\n🎵 ลิงก์เพลง B : xxxxx\n📐 Crop 3:2` + '\n\n✨ เลือกภาพให้เหมาะกับกรอบ\n✅ กรอบพลาสติก → แนวตั้ง/นอนได้เลย\n✅ กรอบกระดาษ → แนะนำแนวนอน (ตัวอักษรบนกรอบไม่เบี้ยว)');
 }
 }
 else if (i.p.type === 'snowglobe') {
