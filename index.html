@@ -1885,15 +1885,25 @@ const PRODUCT_BUNDLES = [
 // PRINT QUEUE — groups by material, auto-nesting for stickers
 // ============================================================================
 function buildPrintQueue(orders) {
-  const photo = [];   // { order, product, artworkDataUrl, idx }
-  const sticker = []; // same
+  const photo = [];
+  const sticker = [];
 
   for (const order of orders) {
     for (const item of order.items) {
       const prod = PRODUCT_MAP[item.productId];
       if (!prod || !item.artworkDataUrl) continue;
       for (let qi = 0; qi < item.qty; qi++) {
-        const entry = { orderId: order.id, album: order.album, prod, dataUrl: item.artworkDataUrl, qtyIdx: qi + 1, qtyTotal: item.qty };
+        const entry = {
+          orderId: order.id,
+          album: order.album,
+          prod,
+          dataUrl: item.artworkDataUrl,
+          qtyIdx: qi + 1,
+          qtyTotal: item.qty,
+          instanceLabel: item.instanceLabel || '',
+          // Unique key for grouping: order + instance
+          groupKey: order.id + '/' + (item.instanceLabel || item.productId)
+        };
         if (prod.material === 'photo') photo.push(entry);
         else sticker.push(entry);
       }
@@ -1907,56 +1917,106 @@ async function generatePhotoPDFBlob(entries) {
   if (entries.length === 0) { showAlert('ไม่มีรายการ Photo Paper'); return; }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
-  const M = 6;
+  const M = 6, PAGE_H = 290;
   let curY = M;
 
-  // Group by order
-  const byOrder = {};
-  entries.forEach(e => { if (!byOrder[e.orderId]) byOrder[e.orderId] = []; byOrder[e.orderId].push(e); });
+  // Group by instance (each CD BOX #1, #2, etc. is independent)
+  const byInstance = {};
+  entries.forEach(e => {
+    const key = e.groupKey || e.orderId;
+    if (!byInstance[key]) byInstance[key] = [];
+    byInstance[key].push(e);
+  });
 
   let first = true;
-  for (const [orderId, items] of Object.entries(byOrder)) {
-    if (!first && curY > M) { doc.addPage('a4', 'portrait'); curY = M; }
+  for (const [groupKey, items] of Object.entries(byInstance)) {
+    const orderId = items[0].orderId;
+    const find = (id) => items.find(i => i.prod.id === id);
+    const front = find('front-cover'), inside = find('inside-cover');
+    const back = find('back-cover'), tray = find('disc-tray');
+    const pkg = find('package-background');
+
+    // ── Smart Grid: calculate block height ──
+    // Left column: covers (40mm) + back group (37mm) = 77mm
+    // Right column: package BG (98mm) placed beside left column
+    // Block height = max(left, right)
+    const leftH = (front || inside ? 40 : 0) + (back || tray ? 37 : 0);
+    const rightH = pkg ? 98 : 0;
+    const blockH = Math.max(leftH, rightH);
+    const headerH = 6;
+
+    if (!first && curY + blockH + headerH > PAGE_H) {
+      doc.addPage('a4', 'portrait'); curY = M;
+    }
     first = false;
 
-    // Header
+    // Header label (outside artwork)
     const sample = items[0];
-    doc.setFontSize(8); doc.setTextColor(60);
-    doc.text(orderId + (sample.album ? '  |  ' + sample.album : ''), M, curY + 4);
-    curY += 7;
+    doc.setFontSize(7); doc.setTextColor(80);
+    const instName = sample.instanceLabel ? '  |  ' + sample.instanceLabel : '';
+    doc.text(orderId + instName + (sample.album ? '  |  ' + sample.album : ''), M, curY + 3.5);
+    curY += headerH;
 
-    // Find pairs and singles
-    const placed = new Set();
-    // Pairs: front+inside, back+tray
-    const pairs = [['front-cover','inside-cover'],['back-cover','disc-tray']];
-    for (const [a, b] of pairs) {
-      const ia = items.find(i => i.prod.id === a);
-      const ib = items.find(i => i.prod.id === b);
-      if (ia && ib) {
-        const pA = ia.prod, pB = ib.prod;
-        if (curY + Math.max(pA.printH, pB.printH) + 8 > 290) { doc.addPage(); curY = M; }
-        doc.addImage(ia.dataUrl, imgFormat(ia.dataUrl), M, curY, pA.printW, pA.printH);
-        doc.addImage(ib.dataUrl, imgFormat(ib.dataUrl), M + pA.printW, curY, pB.printW, pB.printH);
-        doc.setDrawColor(200); doc.rect(M, curY, pA.printW, pA.printH); doc.rect(M + pA.printW, curY, pB.printW, pB.printH);
-        doc.setFontSize(5); doc.setTextColor(140);
-        doc.text(pA.name, M, curY + Math.max(pA.printH, pB.printH) + 3);
-        doc.text(pB.name, M + pA.printW, curY + Math.max(pA.printH, pB.printH) + 3);
-        curY += Math.max(pA.printH, pB.printH) + 6;
-        placed.add(ia); placed.add(ib);
+    const blockY = curY; // remember start Y for right column
+
+    // ══ Left Column ══
+
+    // Row 1: Front + Inside (edge-to-edge, zero gap)
+    if (front || inside) {
+      if (front) {
+        doc.addImage(front.dataUrl, imgFormat(front.dataUrl), M, curY, 40, 40);
+        doc.setDrawColor(210); doc.rect(M, curY, 40, 40);
       }
+      if (inside) {
+        doc.addImage(inside.dataUrl, imgFormat(inside.dataUrl), M + 40, curY, 40, 40);
+        doc.setDrawColor(210); doc.rect(M + 40, curY, 40, 40);
+      }
+      curY += 40; // zero gap to next row
     }
-    // Remaining singles
+
+    // Row 2: Back + Tray (edge-to-edge, zero gap, directly below covers)
+    if (back || tray) {
+      if (back) {
+        doc.addImage(back.dataUrl, imgFormat(back.dataUrl), M, curY, 54, 37);
+        doc.setDrawColor(210); doc.rect(M, curY, 54, 37);
+      }
+      if (tray) {
+        doc.addImage(tray.dataUrl, imgFormat(tray.dataUrl), M + 54, curY, 54, 37);
+        doc.setDrawColor(210); doc.rect(M + 54, curY, 54, 37);
+      }
+      curY += 37;
+    }
+
+    // ══ Right Column: Package BG beside the left groups ══
+    // Starts at same Y as covers, placed right of widest left group (108mm)
+    if (pkg) {
+      const pkgX = M + 108 + 1; // 1mm gap for cutting
+      doc.addImage(pkg.dataUrl, imgFormat(pkg.dataUrl), pkgX, blockY, 62, 98);
+      doc.setDrawColor(210); doc.rect(pkgX, blockY, 62, 98);
+      // Label below package
+      doc.setFontSize(4); doc.setTextColor(160);
+      doc.text('Pkg BG', pkgX, blockY + 98 + 2.5);
+    }
+
+    // Labels below left groups (tiny, outside artwork)
+    doc.setFontSize(4); doc.setTextColor(160);
+    if (front) doc.text('Front', M, blockY + 40 + 37 + 2.5);
+    if (inside) doc.text('Inside', M + 40, blockY + 40 + 37 + 2.5);
+    if (back) doc.text('Back', M + 80, blockY + 40 + 37 + 2.5);
+    if (tray) doc.text('Tray', M + 108, blockY + 40 + 37 + 2.5);
+
+    // Handle any remaining items not in the standard layout
+    const placed = new Set([front, inside, back, tray, pkg].filter(Boolean));
     for (const item of items) {
       if (placed.has(item)) continue;
       const p = item.prod;
-      if (curY + p.printH + 8 > 290) { doc.addPage(); curY = M; }
+      if (curY + p.printH + 6 > PAGE_H) { doc.addPage(); curY = M; }
       doc.addImage(item.dataUrl, imgFormat(item.dataUrl), M, curY, p.printW, p.printH);
-      doc.setDrawColor(200); doc.rect(M, curY, p.printW, p.printH);
-      doc.setFontSize(5); doc.setTextColor(140);
-      doc.text(p.name, M, curY + p.printH + 3);
-      curY += p.printH + 6;
+      doc.setDrawColor(210); doc.rect(M, curY, p.printW, p.printH);
+      curY += p.printH + 4;
     }
-    curY += 4;
+
+    curY = blockY + blockH + 5; // advance past the full block
   }
 
   return doc.output('blob');
@@ -2011,7 +2071,8 @@ async function generateStickerPDFBlob(entries) {
     doc.setFontSize(4.5); doc.setTextColor(100);
     const labelY = drawY + p.printH + 2;
     doc.text(item.orderId, drawX + p.printW / 2, labelY, { align: 'center' });
-    doc.text(p.name + ' #' + item.qtyIdx, drawX + p.printW / 2, labelY + 2.5, { align: 'center' });
+    const instTag = item.instanceLabel ? item.instanceLabel : p.name + ' #' + item.qtyIdx;
+    doc.text(instTag, drawX + p.printW / 2, labelY + 2.5, { align: 'center' });
 
     curX += itemW;
     shelfH = Math.max(shelfH, itemH);
@@ -2583,7 +2644,8 @@ async function cdboxSmartPrint(type) {
         const folder = zip.folder(order.id);
         for (const item of order.items) {
           if (!item.artworkDataUrl) continue;
-          folder.file(order.id + '_' + item.productId + '.png', item.artworkDataUrl.split(',')[1], { base64: true });
+          const safeName = (item.instanceLabel || '').replace(/[^a-zA-Z0-9ก-๙#]/g, '_');
+          folder.file(order.id + '_' + safeName + '_' + item.productId + '.png', item.artworkDataUrl.split(',')[1], { base64: true });
         }
       }
       const zipBlob = await zip.generateAsync({ type: 'blob' });
