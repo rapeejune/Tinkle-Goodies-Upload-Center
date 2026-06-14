@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/heic2any"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
 --bg-main: #F7F5F0; --surface: #FFFFFF; --surface-alt: #FDFBF7;
@@ -256,7 +257,7 @@ body { overflow: hidden; padding-bottom: 0; }
 <div class="tool-menu-item active" id="menu-spin" onclick="switchTool('spin')">🎡 Story Spin Box</div>
 <div class="tool-menu-item" id="menu-convert" onclick="switchTool('convert')">🖼️ Convert to JPG</div>
 <div class="tool-menu-item" id="menu-cd" onclick="switchTool('cd')">💿 CD Artwork</div>
-<div class="tool-menu-item" id="menu-cdbox" onclick="switchTool('cdbox')">📦 CD BOX FULL</div>
+<div class="tool-menu-item" id="menu-cdbox" onclick="switchTool('cdbox')">🏭 Production Studio</div>
 </div>
 <div class="tool-workspace">
 <div class="workspace-card active" id="panel-spin">
@@ -354,45 +355,119 @@ body { overflow: hidden; padding-bottom: 0; }
 </div>
 
 <!-- ================================================================ -->
-<!-- CD BOX FULL PANEL                                               -->
+<!-- ================================================================ -->
+<!-- Tinkle Production Studio PRODUCTION SYSTEM                                    -->
 <!-- ================================================================ -->
 <div class="workspace-card" id="panel-cdbox">
-<div class="ws-header">
-<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-<button onclick="switchTool('spin')" style="background:none; border:1px solid var(--border-light); border-radius:8px; padding:6px 14px; cursor:pointer; font-size:12px; color:var(--text-muted); font-weight:600;">← Back</button>
-<div class="ws-title" style="flex:1;">📦 CD BOX FULL Generator</div>
-</div>
-<div class="ws-desc">สร้าง artwork ทุกชิ้นของกล่อง CD — อัปโหลดรูป 1–6 ใบ แล้ว Export ทั้งหมดในคลิกเดียว</div>
-</div>
-<div class="ws-body" id="cdbox-body" style="gap:20px;">
-
-<div class="tool-settings-row" style="align-items:center; gap:12px; justify-content:center;">
-<span class="settings-box-label" style="margin:0; white-space:nowrap;">Mode:</span>
-<div class="seg-control" style="max-width:340px; flex:1;">
-<button class="seg-btn active" id="cdbox-btn-auto" onclick="cdboxSetMode('auto')">⚡ Auto Arrange</button>
-<button class="seg-btn" id="cdbox-btn-custom" onclick="cdboxSetMode('custom')">🎛️ Custom</button>
+<div class="ws-header" style="padding:12px 20px;">
+<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+<button onclick="switchTool('spin')" style="background:none; border:1px solid var(--border-light); border-radius:8px; padding:5px 12px; cursor:pointer; font-size:12px; color:var(--text-muted); font-weight:600;">← Back</button>
+<div class="ws-title" style="flex:1; font-size:16px;">🏭 Tinkle Production Studio</div>
 </div>
 </div>
 
-<div class="drop-zone" id="dz-cdbox" style="position:relative; border-color:var(--primary); background:var(--primary-light); max-width:600px; margin:0 auto; width:100%;">
-<div class="icon" style="pointer-events:none;">📦</div>
-<div class="main-text" style="pointer-events:none;">คลิกเลือกภาพ หรือ ลากมาวาง</div>
-<div class="sub-text" style="pointer-events:none;">สูงสุด 6 รูป · จะจัดลงช่องให้อัตโนมัติตามลำดับ</div>
-<input type="file" id="fi-cdbox" accept="image/*" multiple onchange="cdboxHandleFiles(this.files); this.value='';" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:50;">
+<!-- Tab bar -->
+<div id="cdbox-tabbar" style="display:flex; border-bottom:1px solid var(--border-light); background:var(--surface-alt); padding:0 16px;">
+<button class="cdbox-tab active" onclick="cdboxTab('new')">📦 New Order</button>
+<button class="cdbox-tab" onclick="cdboxTab('orders')">📋 Orders <span id="cdbox-order-count" style="background:var(--primary); color:#fff; border-radius:100px; padding:1px 7px; font-size:10px; margin-left:4px;">0</span></button>
+<button class="cdbox-tab" onclick="cdboxTab('print')">🖨️ Print</button>
 </div>
 
-<div id="cdbox-slots" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; width:100%;"></div>
-<input type="file" id="fi-cdbox-slot" accept="image/*" style="position:fixed; top:-9999px; left:-9999px;" onchange="cdboxSlotFileChosen(this); this.value='';">
+<!-- ═══ Tab 1: New Order ═══ -->
+<div id="cdbox-tab-new" class="cdbox-tab-panel active">
+<div style="display:flex; flex-direction:column; gap:16px; padding:16px; overflow-y:auto; flex:1;">
+
+<!-- Metadata -->
+<div class="tool-settings-row" style="gap:10px;">
+<div class="tool-set-col" style="min-width:100px;"><span class="settings-box-label">Order Code</span><input type="text" id="cdbox-order-id" placeholder="TG-1258" style="width:100%; height:36px; border-radius:8px; border:1px solid var(--border-light); padding:0 10px; font-size:13px; background:var(--bg-main); color:var(--text-main);"></div>
+<div class="tool-set-col" style="min-width:100px;"><span class="settings-box-label">Customer</span><input type="text" id="cdbox-customer" placeholder="ชื่อลูกค้า" style="width:100%; height:36px; border-radius:8px; border:1px solid var(--border-light); padding:0 10px; font-size:13px; background:var(--bg-main); color:var(--text-main);"></div>
+<div class="tool-set-col" style="min-width:100px;"><span class="settings-box-label">Album</span><input type="text" id="cdbox-album" placeholder="Album Name" style="width:100%; height:36px; border-radius:8px; border:1px solid var(--border-light); padding:0 10px; font-size:13px; background:var(--bg-main); color:var(--text-main);"></div>
+<div class="tool-set-col" style="min-width:80px; max-width:160px;"><span class="settings-box-label">Notes</span><input type="text" id="cdbox-notes" placeholder="หมายเหตุ" style="width:100%; height:36px; border-radius:8px; border:1px solid var(--border-light); padding:0 10px; font-size:13px; background:var(--bg-main); color:var(--text-main);"></div>
+</div>
+
+<!-- Product items -->
+<div style="display:flex; flex-direction:column; gap:8px;">
+<span class="settings-box-label">เพิ่มสินค้าเข้าออเดอร์</span>
+<div style="display:flex; gap:8px; flex-wrap:wrap;">
+<button class="btn-micro-action" onclick="cdboxAddBundle('cdbox-full')" style="padding:8px 14px; border-radius:8px; font-size:12px; font-weight:700;">📦 CD BOX <span style="font-weight:400; font-size:10px; color:var(--text-muted);">(🖨️Photo + 💿Sticker)</span></button>
+<button class="btn-micro-action" onclick="cdboxAddProduct('vinyl-record')" style="padding:8px 14px; border-radius:8px; font-size:12px;">🎵 Vinyl Record</button>
+<button class="btn-micro-action" onclick="cdboxAddProduct('floppy-disk')" style="padding:8px 14px; border-radius:8px; font-size:12px;">💾 Floppy Disk</button>
+<button class="btn-micro-action" onclick="cdboxAddProduct('pocket-polaroid')" style="padding:8px 14px; border-radius:8px; font-size:12px;">📷 Pocket Polaroid</button>
+</div>
+</div>
+
+<!-- Instance cards render here -->
+<div id="cdbox-instances" style="display:flex; flex-direction:column; gap:16px; width:100%;"></div>
+<div id="cdbox-empty-hint" style="text-align:center; padding:30px 16px; color:var(--text-muted); font-size:13px;">
+👆 กดปุ่มด้านบนเพื่อเพิ่มสินค้าเข้าออเดอร์
+</div>
 
 </div>
-<div class="ws-footer" style="gap:10px; flex-wrap:wrap; justify-content:center; position:sticky; bottom:0; z-index:30; box-shadow:0 -4px 12px rgba(0,0,0,0.06);">
-<button class="btn-micro-action" id="btn-cdbox-clear" onclick="cdboxClearAll()" style="padding:10px 18px; border-radius:8px; font-size:13px;" disabled>🗑️ ล้างทั้งหมด</button>
-<button class="btn-copy-main" id="btn-cdbox-export-all" disabled onclick="cdboxExportAll()" style="min-height:52px; flex:1; max-width:400px; font-size:16px;">📦 Export All PNG</button>
+<!-- Footer -->
+<div class="ws-footer" style="gap:8px; flex-wrap:wrap; justify-content:center; position:sticky; bottom:0; z-index:30; box-shadow:0 -4px 12px rgba(0,0,0,0.06);">
+<button class="btn-micro-action" onclick="cdboxClearNew()" style="padding:8px 16px; border-radius:8px; font-size:13px;">🗑️ ล้าง</button>
+<button class="btn-copy-main" id="btn-cdbox-save" disabled onclick="cdboxSaveOrder()" style="min-height:48px; flex:1; max-width:260px; font-size:15px; background:var(--mint);">💾 Save Order</button>
+<button class="btn-copy-main" id="btn-cdbox-export-all" disabled onclick="cdboxExportAllPNG()" style="min-height:48px; flex:1; max-width:260px; font-size:15px;">📦 Export All PNG</button>
+</div>
+</div>
+
+<!-- ═══ Tab 2: Orders ═══ -->
+<div id="cdbox-tab-orders" class="cdbox-tab-panel">
+<div style="padding:16px; overflow-y:auto; flex:1;">
+<div id="cdbox-order-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+<div id="cdbox-no-orders" class="empty-state" style="margin-top:20px;">ยังไม่มีออเดอร์ — ไปที่แท็บ "New Order" เพื่อสร้าง</div>
+</div>
+<div class="ws-footer" style="gap:8px; flex-wrap:wrap; justify-content:center; position:sticky; bottom:0; z-index:30; box-shadow:0 -4px 12px rgba(0,0,0,0.06);">
+<button class="btn-copy-main" id="btn-batch-zip" disabled onclick="cdboxBatchZip()" style="min-height:48px; flex:1; max-width:280px;">📦 Export Selected ZIP</button>
+</div>
+</div>
+
+<!-- ═══ Tab 3: Print ═══ -->
+<div id="cdbox-tab-print" class="cdbox-tab-panel">
+<div style="padding:16px; flex:1; display:flex; flex-direction:column; gap:14px; overflow-y:auto;">
+
+<div id="cdbox-print-status" style="padding:10px 14px; background:var(--surface); border-radius:10px; font-size:13px; color:var(--text-main);"></div>
+
+<div style="display:flex; flex-direction:column; gap:10px; max-width:500px;">
+
+<button type="button" class="btn-copy-main" style="min-height:52px; font-size:15px; width:100%; position:relative; z-index:5;"
+  onclick="try{cdboxSmartPrint('photo')}catch(e){alert(e)}">
+  🖨️ Photo Paper PDF
+  <span style="display:block; font-size:11px; font-weight:400; opacity:0.8;">CD BOX artwork — Front+Inside, Back+Tray คู่กัน</span>
+</button>
+
+<button type="button" class="btn-copy-main" style="min-height:52px; font-size:15px; width:100%; position:relative; z-index:5;"
+  onclick="try{cdboxSmartPrint('sticker')}catch(e){alert(e)}">
+  💿 Sticker Paper PDF
+  <span style="display:block; font-size:11px; font-weight:400; opacity:0.8;">CD Disc + Vinyl + Floppy + Polaroid — auto-nesting</span>
+</button>
+
+<button type="button" class="btn-copy-main" style="min-height:52px; font-size:15px; width:100%; background:var(--primary); position:relative; z-index:5;"
+  onclick="try{cdboxSmartPrint('both')}catch(e){alert(e)}">
+  📦 Export Both PDFs + ZIP
+  <span style="display:block; font-size:11px; font-weight:400; opacity:0.8;">รวมทุกอย่างในคลิกเดียว</span>
+</button>
+
+</div>
 </div>
 </div>
 
 </div>
+
 </div>
+</div>
+</div>
+</div>
+
+
+<div class="modal-overlay" id="download-panel" onclick="if(event.target===this)closeModal('download-panel')">
+<div class="modal-content" style="max-width:500px; padding:20px;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+<div style="font-size:16px; font-weight:700; color:var(--text-main);">📥 ไฟล์พร้อมดาวน์โหลด</div>
+<button onclick="closeModal('download-panel')" style="border:none; background:none; font-size:20px; cursor:pointer; color:var(--text-muted);">✕</button>
+</div>
+<div id="download-list" style="display:flex; flex-direction:column; gap:8px; max-height:400px; overflow-y:auto;"></div>
+<div style="margin-top:14px; font-size:11px; color:var(--text-muted); text-align:center;">คลิกแต่ละไฟล์เพื่อดาวน์โหลด หรือ กดค้าง → Save As</div>
 </div>
 </div>
 
@@ -1538,7 +1613,7 @@ document.getElementById(`menu-${toolId}`).classList.add('active');
 document.querySelectorAll('.workspace-card').forEach(el => el.classList.remove('active'));
 document.getElementById(`panel-${toolId}`).classList.add('active');
 activeTool = toolId; clearTool(toolId, true);
-// CD BOX FULL uses full width — hide sidebar
+// Tinkle Production Studio uses full width — hide sidebar
 const sidebar = document.querySelector('.tool-sidebar');
 const container = document.querySelector('.tools-container');
 if (toolId === 'cdbox' || toolId === 'cd') {
@@ -1776,42 +1851,226 @@ pg.appendChild(div);
 
 
 // ============================================================================
-// CD BOX FULL GENERATOR
+// PRODUCT LIBRARY & SMART PRINT QUEUE
+// ============================================================================
+const PRODUCT_LIBRARY = [
+  // ── CD BOX (Photo Paper) ──
+  { id: 'front-cover',  name: 'CD Front Cover',   category: 'CD BOX', artW: 1500, artH: 1500, printW: 40,  printH: 40,  shape: 'rect',   material: 'photo',   spacing: 0, pair: 'inside-cover' },
+  { id: 'inside-cover', name: 'CD Inside Cover',   category: 'CD BOX', artW: 1500, artH: 1500, printW: 40,  printH: 40,  shape: 'rect',   material: 'photo',   spacing: 0, pair: 'front-cover' },
+  { id: 'back-cover',   name: 'CD Back Cover',     category: 'CD BOX', artW: 1276, artH: 874,  printW: 54,  printH: 37,  shape: 'rect',   material: 'photo',   spacing: 0, pair: 'disc-tray' },
+  { id: 'disc-tray',   name: 'CD Disc Tray',      category: 'CD BOX', artW: 1276, artH: 874,  printW: 54,  printH: 37,  shape: 'rect',   material: 'photo',   spacing: 0, pair: 'back-cover' },
+  { id: 'package-background',    name: 'CD Package BG',     category: 'CD BOX', artW: 732,  artH: 1157, printW: 62,  printH: 98,  shape: 'rect',   material: 'photo',   spacing: 0 },
+  // ── Sticker Products ──
+  { id: 'cd-disc',          name: 'CD Disc',          category: 'CD BOX',          artW: 1362, artH: 1362, printW: 39, printH: 39, shape: 'circle', material: 'sticker', spacing: 1, isDisc: true },
+  { id: 'vinyl-record',     name: 'Vinyl Record',     category: 'VINYL RECORD',    artW: 1000, artH: 1000, printW: 27.3, printH: 27.3, shape: 'circle', material: 'sticker', spacing: 2 },
+  { id: 'floppy-disk',      name: 'Floppy Disk',      category: 'FLOPPY DISK',     artW: 1000, artH: 762,  printW: 71, printH: 54, shape: 'rect',   material: 'sticker', spacing: 2 },
+  { id: 'pocket-polaroid',  name: 'Pocket Polaroid',  category: 'POCKET POLAROID', artW: 800,  artH: 960,  printW: 25, printH: 30, shape: 'rect',   material: 'sticker', spacing: 2 },
+];
+
+const PRODUCT_MAP = {};
+PRODUCT_LIBRARY.forEach(p => PRODUCT_MAP[p.id] = p);
+
+// Quick-add bundles: one click adds all items for a product type
+const PRODUCT_BUNDLES = [
+  { id: 'cdbox-full', name: '📦 Tinkle Production Studio', items: ['front-cover','inside-cover','back-cover','disc-tray','package-background','cd-disc'] },
+  { id: 'vinyl-single', name: '🎵 Vinyl Record', items: ['vinyl-record'] },
+  { id: 'floppy-single', name: '💾 Floppy Disk', items: ['floppy-disk'] },
+  { id: 'polaroid-single', name: '📷 Pocket Polaroid', items: ['pocket-polaroid'] },
+];
+
+// ── Order item: { productId, qty, artworkDataUrl } ──
+// ── Order: { id, customer, album, notes, items: [...] } ──
+
+// ============================================================================
+// PRINT QUEUE — groups by material, auto-nesting for stickers
+// ============================================================================
+function buildPrintQueue(orders) {
+  const photo = [];   // { order, product, artworkDataUrl, idx }
+  const sticker = []; // same
+
+  for (const order of orders) {
+    for (const item of order.items) {
+      const prod = PRODUCT_MAP[item.productId];
+      if (!prod || !item.artworkDataUrl) continue;
+      for (let qi = 0; qi < item.qty; qi++) {
+        const entry = { orderId: order.id, album: order.album, prod, dataUrl: item.artworkDataUrl, qtyIdx: qi + 1, qtyTotal: item.qty };
+        if (prod.material === 'photo') photo.push(entry);
+        else sticker.push(entry);
+      }
+    }
+  }
+  return { photo, sticker };
+}
+
+// ── Photo Paper PDF ──
+async function generatePhotoPDFBlob(entries) {
+  if (entries.length === 0) { showAlert('ไม่มีรายการ Photo Paper'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+  const M = 6;
+  let curY = M;
+
+  // Group by order
+  const byOrder = {};
+  entries.forEach(e => { if (!byOrder[e.orderId]) byOrder[e.orderId] = []; byOrder[e.orderId].push(e); });
+
+  let first = true;
+  for (const [orderId, items] of Object.entries(byOrder)) {
+    if (!first && curY > M) { doc.addPage('a4', 'portrait'); curY = M; }
+    first = false;
+
+    // Header
+    const sample = items[0];
+    doc.setFontSize(8); doc.setTextColor(60);
+    doc.text(orderId + (sample.album ? '  |  ' + sample.album : ''), M, curY + 4);
+    curY += 7;
+
+    // Find pairs and singles
+    const placed = new Set();
+    // Pairs: front+inside, back+tray
+    const pairs = [['front-cover','inside-cover'],['back-cover','disc-tray']];
+    for (const [a, b] of pairs) {
+      const ia = items.find(i => i.prod.id === a);
+      const ib = items.find(i => i.prod.id === b);
+      if (ia && ib) {
+        const pA = ia.prod, pB = ib.prod;
+        if (curY + Math.max(pA.printH, pB.printH) + 8 > 290) { doc.addPage(); curY = M; }
+        doc.addImage(ia.dataUrl, imgFormat(ia.dataUrl), M, curY, pA.printW, pA.printH);
+        doc.addImage(ib.dataUrl, imgFormat(ib.dataUrl), M + pA.printW, curY, pB.printW, pB.printH);
+        doc.setDrawColor(200); doc.rect(M, curY, pA.printW, pA.printH); doc.rect(M + pA.printW, curY, pB.printW, pB.printH);
+        doc.setFontSize(5); doc.setTextColor(140);
+        doc.text(pA.name, M, curY + Math.max(pA.printH, pB.printH) + 3);
+        doc.text(pB.name, M + pA.printW, curY + Math.max(pA.printH, pB.printH) + 3);
+        curY += Math.max(pA.printH, pB.printH) + 6;
+        placed.add(ia); placed.add(ib);
+      }
+    }
+    // Remaining singles
+    for (const item of items) {
+      if (placed.has(item)) continue;
+      const p = item.prod;
+      if (curY + p.printH + 8 > 290) { doc.addPage(); curY = M; }
+      doc.addImage(item.dataUrl, imgFormat(item.dataUrl), M, curY, p.printW, p.printH);
+      doc.setDrawColor(200); doc.rect(M, curY, p.printW, p.printH);
+      doc.setFontSize(5); doc.setTextColor(140);
+      doc.text(p.name, M, curY + p.printH + 3);
+      curY += p.printH + 6;
+    }
+    curY += 4;
+  }
+
+  return doc.output('blob');
+}
+
+// ── Sticker Paper PDF with auto-nesting (shelf algorithm) ──
+async function generateStickerPDFBlob(entries) {
+  if (entries.length === 0) { showAlert('ไม่มีรายการ Sticker Paper'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+  const PAGE_W = 210, PAGE_H = 297, M = 5;
+  const LABEL_H = 7;
+
+  // Sort by height descending for better packing
+  const sorted = [...entries].sort((a, b) => (b.prod.printH + b.prod.spacing * 2) - (a.prod.printH + a.prod.spacing * 2));
+
+  let curX = M, curY = M, shelfH = 0, pageNum = 0;
+
+  for (const item of sorted) {
+    const p = item.prod;
+    const itemW = p.printW + p.spacing * 2;
+    const itemH = p.printH + p.spacing * 2 + LABEL_H;
+
+    // Check if fits in current row
+    if (curX + itemW > PAGE_W - M) {
+      // New shelf
+      curX = M;
+      curY += shelfH;
+      shelfH = 0;
+    }
+
+    // Check if fits on page
+    if (curY + itemH > PAGE_H - M) {
+      doc.addPage('a4', 'portrait');
+      curX = M; curY = M; shelfH = 0;
+    }
+
+    const drawX = curX + p.spacing;
+    const drawY = curY + p.spacing;
+
+    doc.addImage(item.dataUrl, imgFormat(item.dataUrl), drawX, drawY, p.printW, p.printH);
+
+    // Cut guide
+    doc.setDrawColor(220);
+    if (p.shape === 'circle') {
+      doc.circle(drawX + p.printW / 2, drawY + p.printH / 2, p.printW / 2);
+    } else {
+      doc.rect(drawX, drawY, p.printW, p.printH);
+    }
+
+    // Label below (outside artwork)
+    doc.setFontSize(4.5); doc.setTextColor(100);
+    const labelY = drawY + p.printH + 2;
+    doc.text(item.orderId, drawX + p.printW / 2, labelY, { align: 'center' });
+    doc.text(p.name + ' #' + item.qtyIdx, drawX + p.printW / 2, labelY + 2.5, { align: 'center' });
+
+    curX += itemW;
+    shelfH = Math.max(shelfH, itemH);
+  }
+
+  return doc.output('blob');
+}
+
+
+// ============================================================================
+// Tinkle Production Studio PRODUCTION SYSTEM
 // ============================================================================
 const CDBOX_SLOTS = [
-  { id: 'front-cover',        label: 'Front Cover',         emoji: '🎨', w: 1500, h: 1500 },
-  { id: 'inside-cover',       label: 'Inside Cover',        emoji: '🖼️', w: 1500, h: 1500 },
-  { id: 'back-cover',         label: 'Back Cover',          emoji: '🔙', w: 1276, h: 874  },
-  { id: 'disc-tray',          label: 'Disc Tray Artwork',   emoji: '💽', w: 1276, h: 874  },
-  { id: 'package-background', label: 'Package Background',  emoji: '📦', w: 732,  h: 1157 },
-  { id: 'cd-disc',            label: 'CD Disc',             emoji: '💿', w: 1362, h: 1362, isDisc: true },
+  { id: 'front-cover', label: 'Front Cover', emoji: '🎨', w: 1500, h: 1500 },
+  { id: 'inside-cover', label: 'Inside Cover', emoji: '🖼️', w: 1500, h: 1500 },
+  { id: 'back-cover', label: 'Back Cover', emoji: '🔙', w: 1276, h: 874 },
+  { id: 'disc-tray', label: 'Disc Tray', emoji: '💽', w: 1276, h: 874 },
+  { id: 'package-background', label: 'Package BG', emoji: '📦', w: 732, h: 1157 },
+  { id: 'cd-disc', label: 'CD Disc', emoji: '💿', w: 1362, h: 1362, isDisc: true },
 ];
 const CDBOX_HOLE_RATIO = 0.152;
-let cdboxMode = 'auto';
-let cdboxImages = {};  // slotId → { url, natW, natH, x, y, scale }
-let cdboxEnabled = {};
+let cdboxImages = {};
+let cdboxOrders = [];
+let cdboxSelectedOrders = {};
 
-function cdboxInit() {
-  CDBOX_SLOTS.forEach(s => { cdboxEnabled[s.id] = true; });
-  cdboxRenderSlots();
+// ── CSS for tabs (inject once) ──
+(function(){
+  const s = document.createElement('style');
+  s.textContent = `.cdbox-tab{background:none;border:none;padding:10px 16px;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:0.2s;font-family:inherit;}.cdbox-tab.active{color:var(--primary-text);border-bottom-color:var(--primary);}.cdbox-tab:hover{color:var(--text-main);}.cdbox-tab-panel{display:none;flex-direction:column;flex:1;overflow:hidden;}.cdbox-tab-panel.active{display:flex;}`;
+  document.head.appendChild(s);
+})();
+
+// ── Tab switching ──
+function cdboxTab(tab) {
+  document.querySelectorAll('.cdbox-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.cdbox-tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.cdbox-tab[onclick*="${tab}"]`).classList.add('active');
+  document.getElementById('cdbox-tab-' + tab).classList.add('active');
+  if (tab === 'orders') cdboxRenderOrders();
+  if (tab === 'print') cdboxRenderPrintTab();
 }
 
-function cdboxSetMode(mode) {
-  cdboxMode = mode;
-  document.getElementById('cdbox-btn-auto').classList.toggle('active', mode === 'auto');
-  document.getElementById('cdbox-btn-custom').classList.toggle('active', mode === 'custom');
-  cdboxRenderSlots();
-}
+// ── Init ──
+function cdboxInit() { cdboxRenderInstances(); }
 
+// ── Upload ──
 function cdboxHandleFiles(fileList) {
+  const fillAll = document.getElementById('cdbox-fill-all') && document.getElementById('cdbox-fill-all').checked;
   const files = Array.from(fileList).slice(0, 6);
-  const slots = cdboxMode === 'auto' ? CDBOX_SLOTS : CDBOX_SLOTS.filter(s => cdboxEnabled[s.id]);
-  files.forEach((file, i) => {
-    if (i >= slots.length) return;
-    cdboxLoadToSlot(file, slots[i].id);
-  });
-  // Reset file input so same files can be re-selected
-  document.getElementById('fi-cdbox').value = '';
+  if (fillAll && files.length === 1) {
+    // Use single image for all 6 slots
+    CDBOX_SLOTS.forEach(s => cdboxLoadToSlot(files[0], s.id));
+  } else {
+    const slots = CDBOX_SLOTS.filter(s => !cdboxImages[s.id]);
+    files.forEach((file, i) => {
+      if (i >= slots.length) return;
+      cdboxLoadToSlot(file, slots[i].id);
+    });
+  }
 }
 
 function cdboxLoadToSlot(file, slotId) {
@@ -1822,203 +2081,666 @@ function cdboxLoadToSlot(file, slotId) {
     const PW = 180, PH = slot.isDisc ? 180 : Math.round(180 / (slot.w / slot.h));
     const scale = Math.max(PW / tmp.naturalWidth, PH / tmp.naturalHeight);
     cdboxImages[slotId] = { url, natW: tmp.naturalWidth, natH: tmp.naturalHeight, x: 0, y: 0, scale };
-    cdboxRenderSlots();
+    cdboxRenderInstances(); cdboxSyncButtons();
+  };
+  tmp.src = url;
+}
+
+function cdboxSyncButtons() {
+  const hasImages = Object.keys(cdboxImages).length > 0;
+  const hasInstances = cdboxInstances.length > 0;
+  const saveBtn = document.getElementById('btn-cdbox-save');
+  const expBtn = document.getElementById('btn-cdbox-export-all');
+  if (saveBtn) { saveBtn.disabled = !hasImages; saveBtn.style.opacity = hasImages ? '1' : '0.5'; }
+  if (expBtn) { expBtn.disabled = !hasImages; expBtn.style.opacity = hasImages ? '1' : '0.5'; }
+  if (document.getElementById('cdbox-empty-hint')) document.getElementById('cdbox-empty-hint').style.display = hasInstances ? 'none' : 'block';
+}
+
+// ── Instance-based data model ──
+// cdboxInstances: [{ id, bundleId, productId, label, slots:[], idx, fillAll:false }]
+// cdboxImages: { 'inst-id/slot-id': { url, natW, natH, x, y, scale } }
+let cdboxInstances = [];
+let cdboxInstanceCounter = 0;
+
+function cdboxAddBundle(bundleId) {
+  const bundle = PRODUCT_BUNDLES.find(b => b.id === bundleId);
+  if (!bundle) return;
+  cdboxInstanceCounter++;
+  const count = cdboxInstances.filter(i => i.bundleId === bundleId).length + 1;
+  cdboxInstances.push({
+    id: 'inst-' + cdboxInstanceCounter,
+    bundleId,
+    label: bundle.name + ' #' + count,
+    slots: [...bundle.items],
+    idx: count,
+    fillAll: false,
+  });
+  cdboxRenderInstances(); cdboxSyncButtons();
+}
+
+function cdboxAddProduct(productId) {
+  const prod = PRODUCT_MAP[productId];
+  if (!prod) return;
+  cdboxInstanceCounter++;
+  const count = cdboxInstances.filter(i => i.productId === productId).length + 1;
+  cdboxInstances.push({
+    id: 'inst-' + cdboxInstanceCounter,
+    productId,
+    label: prod.name + ' #' + count,
+    slots: [productId],
+    idx: count,
+  });
+  cdboxRenderInstances(); cdboxSyncButtons();
+}
+
+function cdboxRemoveInstance(instId) {
+  // Clean up images
+  Object.keys(cdboxImages).forEach(k => { if (k.startsWith(instId + '/')) delete cdboxImages[k]; });
+  cdboxInstances = cdboxInstances.filter(i => i.id !== instId);
+  cdboxRenderInstances(); cdboxSyncButtons();
+}
+
+function cdboxImgKey(instId, slotId) { return instId + '/' + slotId; }
+
+function cdboxLoadToInstance(file, instId, slotId) {
+  const key = cdboxImgKey(instId, slotId);
+  const prod = PRODUCT_MAP[slotId];
+  const url = URL.createObjectURL(file);
+  const tmp = new Image();
+  tmp.onload = () => {
+    const PW = 140, PH = prod && prod.isDisc ? 140 : (prod ? Math.round(PW / (prod.artW / prod.artH)) : 140);
+    const scale = Math.max(PW / tmp.naturalWidth, PH / tmp.naturalHeight);
+    cdboxImages[key] = { url, natW: tmp.naturalWidth, natH: tmp.naturalHeight, x: 0, y: 0, scale };
+    cdboxRenderInstances();
     cdboxSyncButtons();
   };
   tmp.src = url;
 }
 
-let _cdboxPendingSlot = null;
-function cdboxPickFile(slotId) {
-  _cdboxPendingSlot = slotId;
-  document.getElementById('fi-cdbox-slot').click();
-}
-function cdboxSlotFileChosen(inp) {
-  if (inp.files[0] && _cdboxPendingSlot) {
-    cdboxLoadToSlot(inp.files[0], _cdboxPendingSlot);
-  }
-  _cdboxPendingSlot = null;
+function cdboxHandleFillAll(files, inst) {
+  if (!files[0]) return;
+  inst.slots.forEach(slotId => cdboxLoadToInstance(files[0], inst.id, slotId));
 }
 
-function cdboxRenderSlots() {
-  const container = document.getElementById('cdbox-slots');
+function cdboxHandleAutoAssign(files, inst) {
+  const emptySlots = inst.slots.filter(s => !cdboxImages[cdboxImgKey(inst.id, s)]);
+  Array.from(files).slice(0, emptySlots.length).forEach((file, i) => {
+    cdboxLoadToInstance(file, inst.id, emptySlots[i]);
+  });
+}
+
+// ── Render all instance cards ──
+function cdboxRenderInstances() {
+  const container = document.getElementById('cdbox-instances');
+  const hint = document.getElementById('cdbox-empty-hint');
   if (!container) return;
   container.innerHTML = '';
+  if (hint) hint.style.display = cdboxInstances.length ? 'none' : 'block';
 
-  CDBOX_SLOTS.forEach(slot => {
-    const img = cdboxImages[slot.id];
-    const active = cdboxMode === 'auto' ? true : cdboxEnabled[slot.id];
-    const AR = slot.w / slot.h;
-    const PW = 180, PH = slot.isDisc ? 180 : Math.round(PW / AR);
-
+  cdboxInstances.forEach(inst => {
     const card = document.createElement('div');
-    card.style.cssText = 'background:var(--surface); border:1px solid var(--border-light); border-radius:12px; overflow:hidden; opacity:' + (active ? 1 : 0.4) + '; transition:0.2s;';
+    card.style.cssText = 'background:var(--surface); border:1px solid var(--border-light); border-radius:14px; overflow:hidden;';
 
-    // Header
+    // ── Header ──
     const hdr = document.createElement('div');
-    hdr.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:var(--surface-alt); border-bottom:1px solid var(--border-light);';
-    const title = document.createElement('span');
-    title.style.cssText = 'font-size:11px; font-weight:700; color:var(--text-main);';
-    title.textContent = slot.emoji + ' ' + slot.label + ' (' + slot.w + '×' + slot.h + ')';
-    hdr.appendChild(title);
-
-    if (cdboxMode === 'custom') {
-      const cb = document.createElement('input');
-      cb.type = 'checkbox'; cb.checked = active;
-      cb.style.cssText = 'accent-color:var(--primary); cursor:pointer;';
-      cb.onchange = () => { cdboxEnabled[slot.id] = cb.checked; cdboxRenderSlots(); };
-      hdr.appendChild(cb);
-    }
+    hdr.style.cssText = 'display:flex; align-items:center; gap:8px; padding:10px 14px; background:var(--surface-alt); border-bottom:1px solid var(--border-light);';
+    const emoji = inst.bundleId ? '📦' : (PRODUCT_MAP[inst.productId] || {}).shape === 'circle' ? '💿' : '🏷️';
+    hdr.innerHTML = '<span style="font-size:14px;font-weight:700;flex:1;color:var(--text-main);">' + emoji + ' ' + inst.label + '</span>';
+    const del = document.createElement('button');
+    del.textContent = '✕'; del.style.cssText = 'border:none;background:none;font-size:16px;cursor:pointer;color:var(--text-muted);padding:2px 6px;';
+    del.onclick = () => cdboxRemoveInstance(inst.id);
+    hdr.appendChild(del);
     card.appendChild(hdr);
 
-    // Preview area
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'position:relative; width:' + PW + 'px; height:' + PH + 'px; background:#1a1a1a; overflow:hidden; margin:8px auto;'
-      + (slot.isDisc ? ' border-radius:50%;' : ' border-radius:6px;');
+    // ── Body ──
+    const body = document.createElement('div');
+    body.style.cssText = 'padding:12px;';
 
-    if (img) {
-      const el = document.createElement('img');
-      el.src = img.url;
-      el.id = 'cdbox-img-' + slot.id;
-      el.style.cssText = 'position:absolute; top:50%; left:50%; max-width:none; pointer-events:none;'
-        + 'transform:translate(calc(-50% + ' + img.x + 'px), calc(-50% + ' + img.y + 'px)) scale(' + img.scale + ');';
-      wrap.appendChild(el);
+    const isBundle = inst.slots.length > 1;
 
-      if (slot.isDisc) {
-        const hole = document.createElement('div');
-        hole.style.cssText = 'position:absolute;top:50%;left:50%;width:' + (CDBOX_HOLE_RATIO*100) + '%;height:' + (CDBOX_HOLE_RATIO*100) + '%;transform:translate(-50%,-50%);border-radius:50%;background:var(--bg-main);z-index:10;pointer-events:none;';
-        wrap.appendChild(hole);
-      }
+    // Upload zone
+    const dzWrap = document.createElement('div');
+    dzWrap.style.cssText = 'position:relative; border:2px dashed var(--primary); border-radius:10px; padding:16px; text-align:center; background:var(--primary-light); margin-bottom:12px; cursor:pointer;';
 
-      // Drag support
-      wrap.style.cursor = 'grab';
-      wrap.onmousedown = (function(sid) { return function(e) { cdboxDragStart(e, sid, wrap); }; })(slot.id);
-      wrap.onwheel = (function(sid) { return function(e) { e.preventDefault(); var im = cdboxImages[sid]; if(!im) return; im.scale = Math.max(0.05, im.scale * (e.deltaY > 0 ? 0.92 : 1.08)); var el2 = document.getElementById('cdbox-img-'+sid); if(el2) el2.style.transform = 'translate(calc(-50% + '+im.x+'px), calc(-50% + '+im.y+'px)) scale('+im.scale+')'; }; })(slot.id);
-    } else {
-      const ph = document.createElement('div');
-      ph.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#555;cursor:pointer;';
-      ph.innerHTML = '<div style="font-size:20px;">' + slot.emoji + '</div><div style="font-size:10px;">คลิกเพื่ออัปโหลด</div>';
-      if (active) {
-        // Add transparent file input over the placeholder
-        const phInp = document.createElement('input');
-        phInp.type = 'file'; phInp.accept = 'image/*';
-        phInp.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:50;';
-        phInp.onchange = (function(sid) { return function() { if(phInp.files[0]) cdboxLoadToSlot(phInp.files[0], sid); phInp.value=''; }; })(slot.id);
-        wrap.appendChild(phInp);
-      }
-      wrap.appendChild(ph);
+    if (isBundle) {
+      // Fill-all checkbox
+      const fillRow = document.createElement('label');
+      fillRow.style.cssText = 'display:flex; align-items:center; gap:6px; justify-content:center; margin-bottom:8px; font-size:12px; cursor:pointer; color:var(--text-main);';
+      const fillCb = document.createElement('input');
+      fillCb.type = 'checkbox'; fillCb.checked = inst.fillAll;
+      fillCb.style.cssText = 'accent-color:var(--primary); cursor:pointer;';
+      fillCb.onchange = () => { inst.fillAll = fillCb.checked; };
+      fillRow.appendChild(fillCb);
+      fillRow.appendChild(document.createTextNode('ใช้ภาพเดียวทุกตำแหน่ง'));
+      body.appendChild(fillRow);
     }
-    card.appendChild(wrap);
 
-    // Controls
-    const ctrl = document.createElement('div');
-    ctrl.style.cssText = 'display:flex; gap:6px; padding:6px 8px; justify-content:center;';
-    if (img) {
-      const expBtn = document.createElement('button');
-      expBtn.textContent = '⬇ Export';
-      expBtn.style.cssText = 'font-size:11px; padding:4px 10px; border-radius:6px; border:none; background:var(--primary); color:#fff; cursor:pointer; font-weight:600;';
-      expBtn.onclick = (function(sid) { return function() { cdboxExportSlot(sid); }; })(slot.id);
-      const clrBtn = document.createElement('button');
-      clrBtn.textContent = '🗑️';
-      clrBtn.style.cssText = 'font-size:11px; padding:4px 8px; border-radius:6px; border:1px solid var(--border-light); background:var(--bg-main); color:var(--text-muted); cursor:pointer;';
-      clrBtn.onclick = (function(sid) { return function() { delete cdboxImages[sid]; cdboxRenderSlots(); cdboxSyncButtons(); }; })(slot.id);
-      ctrl.appendChild(expBtn); ctrl.appendChild(clrBtn);
-    } else if (active) {
-      const upWrap = document.createElement('div');
-      upWrap.style.cssText = 'position:relative; display:inline-block;';
-      const upBtn = document.createElement('button');
-      upBtn.textContent = '📤 Upload';
-      upBtn.style.cssText = 'font-size:11px; padding:4px 12px; border-radius:6px; border:1px solid var(--border-light); background:var(--bg-main); color:var(--text-main); font-weight:600; pointer-events:none;';
-      const upInp = document.createElement('input');
-      upInp.type = 'file'; upInp.accept = 'image/*';
-      upInp.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:50;';
-      upInp.onchange = (function(sid) { return function() { if(upInp.files[0]) cdboxLoadToSlot(upInp.files[0], sid); upInp.value=''; }; })(slot.id);
-      upWrap.appendChild(upBtn);
-      upWrap.appendChild(upInp);
-      ctrl.appendChild(upWrap);
-    }
-    card.appendChild(ctrl);
+    const dzText = document.createElement('div');
+    dzText.style.cssText = 'pointer-events:none; font-size:12px; color:var(--text-muted);';
+    dzText.textContent = isBundle ? '📥 Drop ' + inst.slots.length + ' images (or 1 if fill-all)' : '📥 Drop or click to upload image';
+    dzWrap.appendChild(dzText);
+
+    const dzInput = document.createElement('input');
+    dzInput.type = 'file'; dzInput.accept = 'image/*';
+    if (isBundle) dzInput.multiple = true;
+    dzInput.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:50;';
+    dzInput.onchange = (function(instance) { return function() {
+      if (instance.fillAll || instance.slots.length === 1) cdboxHandleFillAll(dzInput.files, instance);
+      else cdboxHandleAutoAssign(dzInput.files, instance);
+      dzInput.value = '';
+    }; })(inst);
+    dzWrap.appendChild(dzInput);
+    body.appendChild(dzWrap);
+
+    // ── Slot previews ──
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:grid; grid-template-columns:repeat(auto-fill,minmax(' + (isBundle ? '100' : '140') + 'px,1fr)); gap:8px;';
+
+    inst.slots.forEach(slotId => {
+      const prod = PRODUCT_MAP[slotId];
+      if (!prod) return;
+      const key = cdboxImgKey(inst.id, slotId);
+      const img = cdboxImages[key];
+      const AR = prod.artW / prod.artH;
+      const PW = isBundle ? 100 : 140;
+      const PH = prod.isDisc ? PW : Math.round(PW / AR);
+
+      const slotCard = document.createElement('div');
+      slotCard.style.cssText = 'text-align:center;';
+
+      // Label
+      const lbl = document.createElement('div');
+      lbl.style.cssText = 'font-size:9px; font-weight:600; color:var(--text-muted); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+      lbl.textContent = (prod.material==='photo'?'🖨️':'💿') + ' ' + prod.name + ' (' + prod.printW + '×' + prod.printH + 'mm)';
+      slotCard.appendChild(lbl);
+
+      // Preview
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative; width:' + PW + 'px; height:' + PH + 'px; background:#1a1a1a; overflow:hidden; margin:0 auto;'
+        + (prod.isDisc ? 'border-radius:50%;' : 'border-radius:6px;');
+
+      if (img) {
+        const el = document.createElement('img');
+        el.src = img.url;
+        el.style.cssText = 'position:absolute;top:50%;left:50%;max-width:none;pointer-events:none;transform:translate(calc(-50% + ' + img.x + 'px),calc(-50% + ' + img.y + 'px)) scale(' + img.scale + ');';
+        wrap.appendChild(el);
+        if (prod.isDisc) {
+          const hole = document.createElement('div');
+          hole.style.cssText = 'position:absolute;top:50%;left:50%;width:' + (CDBOX_HOLE_RATIO*100) + '%;height:' + (CDBOX_HOLE_RATIO*100) + '%;transform:translate(-50%,-50%);border-radius:50%;background:var(--bg-main);z-index:10;pointer-events:none;';
+          wrap.appendChild(hole);
+        }
+        wrap.style.cursor = 'grab';
+        // Drag
+        wrap.onmousedown = (function(k) { return function(e) {
+          e.preventDefault(); var im = cdboxImages[k]; if (!im) return;
+          var sx=e.clientX,sy=e.clientY,ox=im.x,oy=im.y; wrap.style.cursor='grabbing';
+          var mv=function(ev){im.x=ox+(ev.clientX-sx);im.y=oy+(ev.clientY-sy);el.style.transform='translate(calc(-50% + '+im.x+'px),calc(-50% + '+im.y+'px)) scale('+im.scale+')';};
+          var up=function(){wrap.style.cursor='grab';document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
+          document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+        };})(key);
+        wrap.onwheel = (function(k) { return function(e) {
+          e.preventDefault(); var im=cdboxImages[k]; if(!im) return;
+          im.scale=Math.max(0.05,im.scale*(e.deltaY>0?0.92:1.08));
+          el.style.transform='translate(calc(-50% + '+im.x+'px),calc(-50% + '+im.y+'px)) scale('+im.scale+')';
+        };})(key);
+      } else {
+        // Per-slot upload
+        const ph = document.createElement('div');
+        ph.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#555;';
+        ph.textContent = '📤';
+        wrap.appendChild(ph);
+        const slotInp = document.createElement('input');
+        slotInp.type='file'; slotInp.accept='image/*';
+        slotInp.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:50;';
+        slotInp.onchange = (function(iid, sid) { return function() { if(slotInp.files[0]) cdboxLoadToInstance(slotInp.files[0],iid,sid); slotInp.value=''; }; })(inst.id, slotId);
+        wrap.appendChild(slotInp);
+      }
+      slotCard.appendChild(wrap);
+      grid.appendChild(slotCard);
+    });
+
+    body.appendChild(grid);
+    card.appendChild(body);
     container.appendChild(card);
   });
 }
 
-function cdboxDragStart(e, slotId, wrap) {
-  e.preventDefault();
-  const img = cdboxImages[slotId];
-  if (!img) return;
-  const sx = e.clientX, sy = e.clientY, ox = img.x, oy = img.y;
-  wrap.style.cursor = 'grabbing';
-  const onMove = (ev) => { img.x = ox + (ev.clientX - sx); img.y = oy + (ev.clientY - sy); const el = document.getElementById('cdbox-img-'+slotId); if(el) el.style.transform = 'translate(calc(-50% + '+img.x+'px), calc(-50% + '+img.y+'px)) scale('+img.scale+')'; };
-  const onUp = () => { wrap.style.cursor = 'grab'; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
-}
 
-function cdboxSyncButtons() {
-  const hasAny = Object.keys(cdboxImages).length > 0;
-  document.getElementById('btn-cdbox-export-all').disabled = !hasAny;
-  document.getElementById('btn-cdbox-clear').disabled = !hasAny;
-  if (hasAny) document.getElementById('btn-cdbox-clear').style.opacity = '1';
-  else document.getElementById('btn-cdbox-clear').style.opacity = '0.6';
-}
-
-async function cdboxExportSlot(slotId) {
-  const slot = CDBOX_SLOTS.find(s => s.id === slotId);
-  const img = cdboxImages[slotId];
-  if (!slot || !img) return;
-
+// ── Render artwork to canvas ──
+function cdboxRenderToCanvas(slotId, imgData, loadedImgEl) {
+  const slot = CDBOX_SLOTS.find(s => s.id === slotId) || PRODUCT_MAP[slotId];
+  if (!slot || !imgData) return null;
+  const artW = slot.w || slot.artW;
+  const artH = slot.h || slot.artH;
   const canvas = document.createElement('canvas');
-  canvas.width = slot.w; canvas.height = slot.h;
+  canvas.width = artW; canvas.height = artH;
   const ctx = canvas.getContext('2d');
 
-  const tmpImg = new Image(); tmpImg.src = img.url;
-  await new Promise(r => { tmpImg.onload = r; if (tmpImg.complete) r(); });
-
-  const PW = 180, PH = slot.isDisc ? 180 : Math.round(PW / (slot.w / slot.h));
-  const ratio = slot.w / PW;
+  // Preview PW must match what was used during scale calculation
+  const PW = 140, PH = slot.isDisc ? 140 : Math.round(PW / (artW / artH));
+  const ratio = artW / PW;
 
   if (slot.isDisc) {
-    const cx = slot.w/2, cy = slot.h/2, outerR = slot.w/2, holeR = Math.round(outerR * CDBOX_HOLE_RATIO);
+    const cx = artW / 2, outerR = artW / 2, holeR = Math.round(outerR * CDBOX_HOLE_RATIO);
     ctx.save(); ctx.beginPath();
-    ctx.arc(cx, cy, outerR, 0, Math.PI*2, false);
-    ctx.arc(cx, cy, holeR, 0, Math.PI*2, true);
+    ctx.arc(cx, cx, outerR, 0, Math.PI * 2, false);
+    ctx.arc(cx, cx, holeR, 0, Math.PI * 2, true);
     ctx.clip('evenodd');
   }
 
-  const dW = img.natW * img.scale * ratio, dH = img.natH * img.scale * ratio;
-  const dX = slot.w/2 + img.x * ratio - dW/2, dY = slot.h/2 + img.y * (slot.isDisc ? ratio : slot.h/PH) - dH/2;
-  ctx.drawImage(tmpImg, dX, dY, dW, dH);
+  // Use preloaded image element (must be already loaded!)
+  const drawEl = loadedImgEl;
+  const dW = imgData.natW * imgData.scale * ratio;
+  const dH = imgData.natH * imgData.scale * ratio;
+  const dX = artW / 2 + imgData.x * ratio - dW / 2;
+  const dY = artH / 2 + imgData.y * ratio - dH / 2;
+  ctx.drawImage(drawEl, dX, dY, dW, dH);
   if (slot.isDisc) ctx.restore();
+  return canvas;
+}
 
+// ── Export PNG ──
+async function cdboxExportSlotPNG(slotId) {
+  const img = cdboxImages[slotId]; if (!img) return;
+  const tmpImg = new Image(); tmpImg.src = img.url;
+  await new Promise(r => { tmpImg.onload = r; if (tmpImg.complete) r(); });
+  const canvas = cdboxRenderToCanvas(slotId, img);
+  if (!canvas) return;
   canvas.toBlob(blob => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = slotId + '.png'; a.click();
-    URL.revokeObjectURL(a.href);
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = slotId + '.png'; a.click(); URL.revokeObjectURL(a.href);
   }, 'image/png');
 }
 
-async function cdboxExportAll() {
-  const filled = CDBOX_SLOTS.filter(s => cdboxImages[s.id]);
-  if (filled.length === 0) return;
-  for (const slot of filled) {
-    await cdboxExportSlot(slot.id);
-    await new Promise(r => setTimeout(r, 150));
+async function cdboxExportAllPNG() {
+  const files = [];
+  for (const inst of cdboxInstances) {
+    for (const slotId of inst.slots) {
+      const key = cdboxImgKey(inst.id, slotId);
+      const img = cdboxImages[key];
+      if (!img) continue;
+      const tmpImg = new Image(); tmpImg.src = img.url;
+      await new Promise(r => { tmpImg.onload = r; if (tmpImg.complete) r(); });
+      const canvas = cdboxRenderToCanvas(slotId, img, tmpImg);
+      if (!canvas) continue;
+      const blob = await canvasToBlob(canvas);
+      const name = inst.label.replace(/[^a-zA-Z0-9ก-๙]/g, '_') + '_' + slotId + '.png';
+      files.push({ name, blob });
+    }
   }
-  showToast('✅ Export ' + filled.length + ' ไฟล์เรียบร้อย!');
+  if (files.length === 0) { showAlert('ไม่มีภาพให้ export'); return; }
+  showDownloadPanel(files);
+}
+
+// ── Save Order ──
+async function cdboxSaveOrder() {
+  const orderId = document.getElementById('cdbox-order-id').value.trim() || ('TG-' + Date.now().toString(36).toUpperCase());
+  const customer = document.getElementById('cdbox-customer').value.trim();
+  const album = document.getElementById('cdbox-album').value.trim();
+  const notes = document.getElementById('cdbox-notes').value.trim();
+
+  const items = [];
+  const slotData = {};
+
+  for (const inst of cdboxInstances) {
+    for (const slotId of inst.slots) {
+      const key = cdboxImgKey(inst.id, slotId);
+      const img = cdboxImages[key];
+      if (!img) continue;
+      const tmpImg = new Image(); tmpImg.src = img.url;
+      await new Promise(r => { tmpImg.onload = r; if (tmpImg.complete) r(); });
+      const canvas = cdboxRenderToCanvas(slotId, img, tmpImg);
+      if (!canvas) continue;
+      const dataUrl = (slotId === 'cd-disc') ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.85);
+      items.push({ productId: slotId, qty: 1, artworkDataUrl: dataUrl, instanceLabel: inst.label });
+      slotData[inst.id + '/' + slotId] = dataUrl;
+    }
+  }
+
+  if (items.length === 0) { showAlert('ยังไม่ได้อัปโหลดภาพ'); return; }
+
+  const order = { id: orderId, customer, album, notes, createdAt: new Date().toISOString(), items, slotData };
+  const idx = cdboxOrders.findIndex(o => o.id === orderId);
+  if (idx >= 0) cdboxOrders[idx] = order; else cdboxOrders.push(order);
+
+  document.getElementById('cdbox-order-count').textContent = cdboxOrders.length;
+  showToast('💾 Saved: ' + orderId + ' (' + items.length + ' items, ' + cdboxInstances.length + ' instances)');
+  cdboxClearNew();
+  cdboxTab('orders');
+}
+
+function cdboxClearNew() {
+  cdboxImages = {};
+  cdboxInstances = [];
+  cdboxInstanceCounter = 0;
+  document.getElementById('cdbox-order-id').value = '';
+  document.getElementById('cdbox-customer').value = '';
+  document.getElementById('cdbox-album').value = '';
+  document.getElementById('cdbox-notes').value = '';
+  cdboxRenderInstances(); cdboxSyncButtons();
 }
 
 function cdboxClearAll() {
-  showConfirm('ล้างภาพทั้งหมดใน CD BOX?', () => {
-    cdboxImages = {};
-    cdboxRenderSlots();
-    cdboxSyncButtons();
+  showConfirm('ล้างภาพทั้งหมด?', () => { cdboxClearNew(); });
+}
+
+function cdboxReset() { cdboxClearNew(); }
+
+// ── Orders Tab ──
+function cdboxRenderOrders() {
+  const list = document.getElementById('cdbox-order-list');
+  const empty = document.getElementById('cdbox-no-orders');
+  list.innerHTML = '';
+  empty.style.display = cdboxOrders.length ? 'none' : 'block';
+  document.getElementById('btn-batch-zip').disabled = true;
+
+  cdboxOrders.forEach(order => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border-light);border-radius:12px;';
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.checked = !!cdboxSelectedOrders[order.id];
+    cb.style.cssText = 'width:18px;height:18px;accent-color:var(--primary);cursor:pointer;flex-shrink:0;';
+    cb.onchange = () => { cdboxSelectedOrders[order.id] = cb.checked; cdboxSyncBatch(); };
+    row.appendChild(cb);
+
+    const info = document.createElement('div');
+    info.style.cssText = 'flex:1;';
+    info.innerHTML = '<div style="font-weight:700;font-size:14px;color:var(--text-main);">' + order.id + '</div>'
+      + '<div style="font-size:12px;color:var(--text-muted);">' + [order.album, order.customer, order.notes].filter(Boolean).join(' · ') + '</div>'
+      + '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Slots: ' + Object.keys(order.slotData).length + '/6</div>';
+    row.appendChild(info);
+
+    // Thumbnails
+    const thumbs = document.createElement('div');
+    thumbs.style.cssText = 'display:flex;gap:4px;';
+    Object.keys(order.slotData).slice(0, 3).forEach(sid => {
+      const th = document.createElement('img');
+      th.src = order.slotData[sid]; th.style.cssText = 'width:36px;height:36px;border-radius:4px;object-fit:cover;border:1px solid var(--border-light);';
+      thumbs.appendChild(th);
+    });
+    if (Object.keys(order.slotData).length > 3) { const more = document.createElement('span'); more.textContent = '+' + (Object.keys(order.slotData).length - 3); more.style.cssText = 'font-size:10px;color:var(--text-muted);align-self:center;'; thumbs.appendChild(more); }
+    row.appendChild(thumbs);
+
+    const del = document.createElement('button');
+    del.textContent = '🗑️'; del.style.cssText = 'border:none;background:none;font-size:16px;cursor:pointer;padding:4px;';
+    del.onclick = () => { cdboxOrders = cdboxOrders.filter(o => o.id !== order.id); delete cdboxSelectedOrders[order.id]; document.getElementById('cdbox-order-count').textContent = cdboxOrders.length; cdboxRenderOrders(); };
+    row.appendChild(del);
+    list.appendChild(row);
   });
 }
 
-function cdboxReset() {
-  cdboxImages = {};
-  cdboxRenderSlots();
-  cdboxSyncButtons();
+function cdboxSyncBatch() {
+  const sel = Object.values(cdboxSelectedOrders).filter(Boolean).length;
+  document.getElementById('btn-batch-zip').disabled = sel === 0;
+}
+
+function cdboxGetSelectedOrders() {
+  return cdboxOrders.filter(o => cdboxSelectedOrders[o.id]);
+}
+
+// ── Print Tab ──
+function cdboxRenderPrintTab() {
+  const sel = cdboxGetSelectedOrders();
+  const status = document.getElementById('cdbox-print-status');
+  if (!status) return;
+  if (sel.length === 0) {
+    status.innerHTML = '⚠️ <strong>ยังไม่ได้เลือกออเดอร์</strong> — ไปที่แท็บ <em>Orders</em> แล้วติ๊กเลือกออเดอร์ก่อนกด Print<br><span style="font-size:11px;color:var(--text-muted);">ถ้ายังไม่มีออเดอร์ ให้ Save Order จากแท็บ New Order ก่อน</span>';
+    status.style.borderLeft = '3px solid var(--primary)';
+  } else {
+    const photoCount = sel.reduce((n, o) => n + o.items.filter(i => (PRODUCT_MAP[i.productId]||{}).material === 'photo').length, 0);
+    const stickerCount = sel.reduce((n, o) => n + o.items.filter(i => (PRODUCT_MAP[i.productId]||{}).material === 'sticker').length, 0);
+    const ids = sel.map(o => '<strong>' + o.id + '</strong>').join(', ');
+    status.innerHTML = '✅ เลือกแล้ว ' + sel.length + ' ออเดอร์: ' + ids + '<br>'
+      + '<span style="font-size:12px;">🖨️ Photo Paper: ' + photoCount + ' ชิ้น &nbsp;|&nbsp; 💿 Sticker: ' + stickerCount + ' ชิ้น</span>';
+    status.style.borderLeft = '3px solid var(--mint)';
+  }
+}
+
+// ── Print Sheet PDF — exact production dimensions ──
+// Front: 40×40mm | Inside: 40×40mm | Back: 54×37mm | Tray: 54×37mm | PkgBG: 62×98mm
+const PRINT_DIMS = {
+  'front-cover':  { w: 40, h: 40 },
+  'inside-cover': { w: 40, h: 40 },
+  'back-cover':   { w: 54, h: 37 },
+  'disc-tray':    { w: 54, h: 37 },
+  'package-background': { w: 62, h: 98 },
+  'cd-disc':      { w: 39, h: 39 },
+};
+
+
+// ── Download Panel — reliable export in sandboxed environments ──
+let pendingDownloads = [];
+
+function blobToDataURL(blob) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function showDownloadPanel(files) {
+  const list = document.getElementById('download-list');
+  list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">⏳ กำลังเตรียมไฟล์...</div>';
+  openModal('download-panel');
+
+  list.innerHTML = '';
+  for (const f of files) {
+    const dataUrl = await blobToDataURL(f.blob);
+    const row = document.createElement('a');
+    row.href = dataUrl;
+    row.download = f.name;
+    // No target=_blank → browser downloads directly, no new tab
+    row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--surface); border:1px solid var(--border-light); border-radius:10px; text-decoration:none; color:var(--text-main); cursor:pointer; transition:0.15s;';
+    row.onmouseover = () => row.style.background = 'var(--primary-light)';
+    row.onmouseout = () => row.style.background = 'var(--surface)';
+
+    const icon = f.name.endsWith('.pdf') ? '📄' : f.name.endsWith('.zip') ? '📦' : '🖼️';
+    const size = f.blob.size > 1048576 ? (f.blob.size / 1048576).toFixed(1) + ' MB' : (f.blob.size / 1024).toFixed(0) + ' KB';
+    row.innerHTML = '<span style="font-size:22px;">' + icon + '</span>'
+      + '<div style="flex:1;"><div style="font-weight:600; font-size:13px;">' + f.name + '</div>'
+      + '<div style="font-size:11px; color:var(--text-muted);">' + size + '</div></div>'
+      + '<span style="font-size:12px; color:var(--primary-text); font-weight:600;">⬇ Download</span>';
+    list.appendChild(row);
+  }
+}
+
+// Helper: canvas to blob (async)
+function canvasToBlob(canvas, type) {
+  return new Promise(r => canvas.toBlob(b => r(b), type || 'image/png'));
+}
+
+
+
+// Auto-detect image format from data URL for jsPDF
+function imgFormat(dataUrl) {
+  return dataUrl && dataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+}
+// ── Smart Print (material grouped) ──
+async function cdboxSmartPrint(type) {
+  const orders = cdboxGetSelectedOrders();
+  if (orders.length === 0) { showAlert('กรุณาเลือกออเดอร์ในแท็บ Orders ก่อน'); return; }
+  const queue = buildPrintQueue(orders);
+  const files = [];
+
+  try {
+    if (type === 'photo' || type === 'both') {
+      if (queue.photo.length > 0) {
+        const blob = await generatePhotoPDFBlob(queue.photo);
+        if (blob) files.push({ name: 'PhotoPaper_batch.pdf', blob });
+      } else if (type === 'photo') { showAlert('ไม่มีรายการ Photo Paper ในออเดอร์ที่เลือก'); return; }
+    }
+    if (type === 'sticker' || type === 'both') {
+      if (queue.sticker.length > 0) {
+        const blob = await generateStickerPDFBlob(queue.sticker);
+        if (blob) files.push({ name: 'StickerPaper_batch.pdf', blob });
+      } else if (type === 'sticker') { showAlert('ไม่มีรายการ Sticker Paper ในออเดอร์ที่เลือก'); return; }
+    }
+    if (type === 'both') {
+      const zip = new JSZip();
+      for (const order of orders) {
+        const folder = zip.folder(order.id);
+        for (const item of order.items) {
+          if (!item.artworkDataUrl) continue;
+          folder.file(order.id + '_' + item.productId + '.png', item.artworkDataUrl.split(',')[1], { base64: true });
+        }
+      }
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      files.push({ name: 'Production_batch.zip', blob: zipBlob });
+    }
+  } catch(e) { showAlert('Error: ' + e.message); return; }
+
+  if (files.length === 0) { showAlert('ไม่มีไฟล์ให้ export'); return; }
+  showDownloadPanel(files);
+}
+
+async function cdboxGenPrintSheet() {
+  const orders = cdboxGetSelectedOrders();
+  if (orders.length === 0) { showAlert('กรุณาเลือกออเดอร์ในแท็บ Orders ก่อน'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }); // 210×297
+
+  const M = 8; // margin
+  const LABEL_H = 5; // label height below artwork
+  let curY = M;
+  let pageHasContent = false;
+
+  for (let oi = 0; oi < orders.length; oi++) {
+    const order = orders[oi];
+    // Each order block height:
+    // Row 1: Front+Inside pair = 40mm + label 5mm = 45mm
+    // Row 2: Back+Tray pair = 37mm + label 5mm = 42mm
+    // Row 3: Package BG = 98mm + label 5mm = 103mm
+    // Total ≈ 190mm + header
+    const blockH = 8 + 45 + 42 + 103; // ~198mm
+
+    if (curY + blockH > 290 || (oi > 0 && curY > M)) {
+      doc.addPage('a4', 'portrait');
+      curY = M;
+      pageHasContent = false;
+    }
+
+    // Header label (outside artwork)
+    doc.setFontSize(9); doc.setTextColor(60);
+    doc.text(order.id + (order.album ? '  |  ' + order.album : '') + (order.customer ? '  |  ' + order.customer : '') + (order.notes ? '  |  ' + order.notes : ''), M, curY + 4);
+    curY += 8;
+
+    // Row 1: Front Cover + Inside Cover (adjacent, no gap)
+    let rx = M;
+    if (order.slotData['front-cover']) {
+      doc.addImage(order.slotData['front-cover'], imgFormat(order.slotData['front-cover']), rx, curY, 40, 40);
+    }
+    doc.setDrawColor(200); doc.rect(rx, curY, 40, 40); // guide box
+    if (order.slotData['inside-cover']) {
+      doc.addImage(order.slotData['inside-cover'], imgFormat(order.slotData['inside-cover']), rx + 40, curY, 40, 40);
+    }
+    doc.rect(rx + 40, curY, 40, 40);
+    doc.setFontSize(6); doc.setTextColor(150);
+    doc.text('Front Cover', rx, curY + 40 + 3);
+    doc.text('Inside Cover', rx + 40, curY + 40 + 3);
+    curY += 40 + LABEL_H;
+
+    // Row 2: Back Cover + Disc Tray (adjacent, no gap)
+    if (order.slotData['back-cover']) {
+      doc.addImage(order.slotData['back-cover'], imgFormat(order.slotData['back-cover']), rx, curY, 54, 37);
+    }
+    doc.rect(rx, curY, 54, 37);
+    if (order.slotData['disc-tray']) {
+      doc.addImage(order.slotData['disc-tray'], imgFormat(order.slotData['disc-tray']), rx + 54, curY, 54, 37);
+    }
+    doc.rect(rx + 54, curY, 54, 37);
+    doc.setFontSize(6); doc.setTextColor(150);
+    doc.text('Back Cover', rx, curY + 37 + 3);
+    doc.text('Disc Tray', rx + 54, curY + 37 + 3);
+    curY += 37 + LABEL_H;
+
+    // Row 3: Package Background
+    if (order.slotData['package-background']) {
+      doc.addImage(order.slotData['package-background'], imgFormat(order.slotData['package-background']), rx, curY, 62, 98);
+    }
+    doc.rect(rx, curY, 62, 98);
+    doc.setFontSize(6); doc.setTextColor(150);
+    doc.text('Package BG', rx, curY + 98 + 3);
+    curY += 98 + LABEL_H + 5; // extra gap before next order
+    pageHasContent = true;
+  }
+
+  const blob = doc.output('blob');
+  showDownloadPanel([{ name: 'PrintSheet_' + (orders.length === 1 ? orders[0].id : 'batch') + '.pdf', blob }]);
+}
+
+// ── Disc Sticker PDF — 39mm discs, auto-fill A4 ──
+async function cdboxGenDiscSheet() {
+  const orders = cdboxGetSelectedOrders().filter(o => o.slotData['cd-disc']);
+  if (orders.length === 0) { showAlert('ไม่มีออเดอร์ที่มี CD Disc artwork'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+
+  const DISC_D = 39; // exact production size
+  const LABEL_H = 6; // label space below disc
+  const CELL_H = DISC_D + LABEL_H;
+  const CELL_W = DISC_D + 2; // tiny padding between columns
+  const PAGE_W = 210, PAGE_H = 297, MARGIN = 6;
+
+  const COLS = Math.floor((PAGE_W - MARGIN * 2) / CELL_W);
+  const ROWS = Math.floor((PAGE_H - MARGIN * 2) / CELL_H);
+  const offsetX = (PAGE_W - COLS * CELL_W) / 2;
+  const offsetY = (PAGE_H - ROWS * CELL_H) / 2;
+
+  let col = 0, row = 0, needNewPage = false;
+
+  for (const order of orders) {
+    if (needNewPage) { doc.addPage('a4', 'portrait'); col = 0; row = 0; needNewPage = false; }
+    const x = offsetX + col * CELL_W + (CELL_W - DISC_D) / 2;
+    const y = offsetY + row * CELL_H;
+
+    doc.addImage(order.slotData['cd-disc'], imgFormat(order.slotData['cd-disc']), x, y, DISC_D, DISC_D);
+    // Label outside disc area
+    doc.setFontSize(5); doc.setTextColor(100);
+    doc.text(order.id, x + DISC_D / 2, y + DISC_D + 3, { align: 'center' });
+    if (order.album) doc.text(order.album, x + DISC_D / 2, y + DISC_D + 5.5, { align: 'center' });
+
+    col++;
+    if (col >= COLS) { col = 0; row++; }
+    if (row >= ROWS) { needNewPage = true; }
+  }
+
+  const perPage = COLS * ROWS;
+  const blob = doc.output('blob');
+  showDownloadPanel([{ name: 'DiscSheet_' + orders.length + 'pcs.pdf', blob }]);
+}
+
+// ── Batch ZIP ──
+async function cdboxBatchZip() {
+  const orders = cdboxGetSelectedOrders();
+  if (orders.length === 0) { showAlert('กรุณาเลือกออเดอร์ก่อน'); return; }
+  try {
+    const zip = new JSZip();
+    for (const order of orders) {
+      const folder = zip.folder(order.id);
+      // Use items array (new format)
+      if (order.items) {
+        for (const item of order.items) {
+          if (!item.artworkDataUrl) continue;
+          const base64 = item.artworkDataUrl.split(',')[1];
+          folder.file(order.id + '_' + item.productId + '.png', base64, { base64: true });
+        }
+      }
+      // Fallback to slotData (legacy format)
+      if (order.slotData && (!order.items || order.items.length === 0)) {
+        for (const [sid, dataUrl] of Object.entries(order.slotData)) {
+          const base64 = dataUrl.split(',')[1];
+          folder.file(order.id + '_' + sid.replace(/\//g, '_') + '.png', base64, { base64: true });
+        }
+      }
+    }
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const name = 'Production_' + orders.map(o => o.id).join('_') + '.zip';
+    showDownloadPanel([{ name, blob }]);
+  } catch(e) { showAlert('ZIP error: ' + e.message); }
 }
 
 // ============================================================================
@@ -2080,7 +2802,8 @@ function cdReset() {
 }
 
 function cdExport() {
-  if (!cdState.src) return;
+  if (!cdState.src) { showAlert('ยังไม่ได้ใส่ภาพ'); return; }
+  try {
   const S = CD_EXPORT_SIZE;
   const canvas = document.createElement('canvas');
   canvas.width = S; canvas.height = S;
@@ -2102,10 +2825,10 @@ function cdExport() {
   ctx.restore();
 
   canvas.toBlob(blob => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = 'CD_Artwork.png'; a.click();
-    URL.revokeObjectURL(a.href);
+    if (!blob) { showAlert('Export failed'); return; }
+    showDownloadPanel([{ name: 'CD_Artwork.png', blob }]);
   }, 'image/png');
+  } catch(e) { showAlert('Export error: ' + e.message); }
 }
 
 // CD disc drag/scroll wiring moved to init block above
