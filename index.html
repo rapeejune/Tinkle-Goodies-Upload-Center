@@ -555,7 +555,7 @@ const GIFT_SETS = [
 { giftSetId: 'midnight_lullaby', giftSetName: 'Midnight Lullaby Set', contents: [{ productId: 'film-lamp', quantity: 1 }, { productId: 'melody-filmbook', quantity: 1 }] },
 { giftSetId: 'fanclub_fave', giftSetName: 'Fanclub Fave Set', contents: [{ productId: 'pin-badge', quantity: 10 }, { productId: 'card-nfc', quantity: 10 }] },
 { giftSetId: 'mixtape_archive', giftSetName: 'Mixtape Archive Set', contents: [{ productId: 'cassette', quantity: 1 }, { productId: 'floppy', quantity: 1 }] },
-{ giftSetId: 'chapters_of_us', giftSetName: 'Chapters of Us', contents: [{ productId: 'story-spin', quantity: 1 }, { productId: 'film-strip', quantity: 1 }] },
+{ giftSetId: 'chapters_of_us', giftSetName: 'Chapters of Us', contents: [{ productId: 'melody-filmbook', quantity: 1 }, { productId: 'film-strip', quantity: 1 }] },
 { giftSetId: 'magic_memory', giftSetName: 'Magic Memory Set', contents: [{ productId: 'snowglobe', quantity: 1 }, { productId: 'film-strip', quantity: 1 }] },
 { giftSetId: 'digital_nostalgia', giftSetName: 'Digital Nostalgia Set', contents: [{ productId: 'floppy', quantity: 1 }, { productId: 'card-nfc', quantity: 1 }] },
 { giftSetId: 'slide_party_pack', giftSetName: 'Slide Party Pack', contents: [{ productId: 'film-slide-nfc', quantity: 10 }, { productId: 'film-slide', quantity: 20 }] },
@@ -1214,8 +1214,8 @@ manualEditPreview: false, filmSlideFrames: null, unconfiguredProducts: [], produ
 // ============================================================================
 // ID Normalization: map aliases to canonical product IDs used in gift sets
 const PRODUCT_ID_CANONICAL = {
-  'vinyl-nfc': 'vinyl-record',  // gift sets use vinyl-record
-  // add more if needed
+  // vinyl-nfc is a SEPARATE product — NOT an alias of vinyl-record
+  // gift sets use 'vinyl-record' directly; parser matches each alias to its own ID
 };
 function canonicalId(id) { return PRODUCT_ID_CANONICAL[id] || id; }
 
@@ -1265,7 +1265,7 @@ tempMap[pId].qty += qty;
 });
 }
 } else if (item.p) {
-const pId = item.canonId || item.p.id;
+const pId = item.p.id; // item.canonId removed - each product keeps own ID
 // Use max(cart_qty, totalVariantQty) — variants add sub-quantities
 const pOpts = state.productOptions[pId] || state.productOptions[item.p.id] || {};
 const effectiveQty = Math.max(item.qty, pOpts.totalVariantQty || 0, pOpts.productionQty || 0);
@@ -1349,8 +1349,8 @@ const optionKeywords = [
   'กรอบกระดาษ','แผ่นสีขาวขุ่น',
   // Hanging accessory
   'พวงกุญแจ','เชือก','โซ่ไข่ปลา','จี้อะคริลิก','จี้อะคริลิค','จี้ดาว','จี้หัวใจ','จี้',
-  // Package/color
-  'สีสินค้า','สีกรอบ','สีตลับ','กล่อง','ตลับ','ซอง','แพ็กเกจ',
+  // Package/color — 'กล่อง' removed (too broad); use 'กล่องแพ็กเกจ' instead
+  'สีสินค้า','สีกรอบ','สีตลับ','กล่องแพ็กเกจ','ตลับ','ซอง','แพ็กเกจ',
   // Film slide frame types (variants, not products)
   'กรอบสำเร็จรูป','กรอบสำเร็จ','custom frame','custom design','ออกแบบเอง',
   // Metadata / notes
@@ -1367,6 +1367,7 @@ const skipKeywords = [
   'สรุปออเดอร์','สนใจสั่งสินค้า','ข้อมูลสำหรับจัดคิวงาน','คิวแทรก','งานด่วน','รอตามรอบได้','กำหนดจัดส่ง',
   // Gift set structure
   'ประกอบด้วย','ภายในเซ็ต','ภายในกล่อง','ภายในประกอบ','รวมภายใน',
+  // NOTE: 'กล่อง' removed — too broad, blocks 'กล่องแพ็กเกจใส' variant capture
   // Product attributes / metadata — NOT products
   'กรอบสำเร็จรูป','กรอบสำเร็จ','แบบกรอบสำเร็จ',
   'ตำแหน่ง','ตำแหน่งโลโก้','ตำแหน่งที่ต้องการ','top','bottom',
@@ -1380,7 +1381,7 @@ const skipKeywords = [
   'รุ่น','version','edition','limited','exclusive',
   'ลงชื่อ','เซ็น','signature','อนุมัติ','approve',
 ];
-const variantPatterns = ['ซองซิปขุ่น+จี้อะคริลิค', 'กล่องแพ็กเกจใส+พื้นหลัง', 'ซองซิปขุ่น', 'กล่องแพ็กเกจใส', 'จี้ดาว', 'จี้หัวใจ', 'จี้อะคริลิค', 'จี้อะคริลิก', 'ซองซิป', 'กล่องแพ็กเกจ', 'ตลับใส', 'ตลับแดง', 'แบบมาตรฐาน', 'รุ่นมาตรฐาน', 'standard', 'standard version', 'พวงกุญแจเชือก', 'โซ่ไข่ปลา'];
+const variantPatterns = ['ซองซิปขุ่น+จี้อะคริลิค', 'กล่องแพ็กเกจใส+พื้นหลัง', 'ซองซิปขุ่น', 'กล่องแพ็กเกจใส', 'จี้ดาว', 'จี้หัวใจ', 'จี้อะคริลิค', 'จี้อะคริลิก', 'ซองซิป', 'กล่องแพ็กเกจ', 'ตลับใส', 'ตลับแดง', 'แบบมาตรฐาน', 'รุ่นมาตรฐาน', 'standard', 'standard version', 'พวงกุญแจเชือก', 'โซ่ไข่ปลา', '45 นาที', '90 นาที', '45นาที', '90นาที', 'นาที (sony)', 'เทปตลับ'];
 
 let currentProduct = null;
 
@@ -1389,6 +1390,105 @@ let rawLine = lines[i].trim();
 if (!rawLine) continue;
 let normalizedLine = normalizeText(rawLine);
 
+// ── Guard 1: Variant/option lines — jump directly to option handler ─────────────
+// These lines MUST be processed as options even if they contain price/บาท keywords.
+// Checked FIRST to prevent skipKeywords from swallowing variant data.
+const VARIANT_DIRECT_KEYWORDS = [
+  'ซองซิปขุ่น','กล่องแพ็กเกจใส','พื้นหลัง','จี้อะคริลิ','ตลับใส','ตลับแดง',
+  'พวงกุญแจเชือก','เชือกสีขาวดำ','โซ่ไข่ปลา','จี้',
+  '45 นาที','90 นาที','45นาที','90นาที','เทปตลับ',
+  'กรอบพลาสติก','กรอบเหลือง','กรอบขอบแดง','font แดง','font น้ำเงิน','ขอบมน','กรอบดำ',
+  'อัปเกรด','กรอบกระดาษ','ซอง pvc',
+];
+const isVariantDirectLine = VARIANT_DIRECT_KEYWORDS.some(kw => normalizedLine.includes(kw));
+if (isVariantDirectLine) {
+  // Treat as option line immediately — skip product matching, skip skip-check
+  if (currentProduct) {
+    if (!state.productOptions[currentProduct]) state.productOptions[currentProduct] = {};
+    const opts = state.productOptions[currentProduct];
+    const optQtyMatch = normalizedLine.match(/(?:×|x|\*|จำนวน)\s*(\d+)/i);
+    const optQty = optQtyMatch ? parseInt(optQtyMatch[1], 10) : 1;
+    // Mini CD Box variants
+    if (normalizedLine.includes('ซองซิปขุ่น') || (normalizedLine.includes('จี้อะคริลิ') && currentProduct === 'mini-cd')) {
+      if (!opts.variants) opts.variants = [];
+      opts.variants.push({ key: 'zip_bag_acrylic', label: 'ซองซิปขุ่น + จี้อะคริลิค', qty: optQty });
+      opts.totalVariantQty = (opts.totalVariantQty || 0) + optQty;
+    }
+    if (normalizedLine.includes('กล่องแพ็กเกจใส') || (normalizedLine.includes('พื้นหลัง') && currentProduct === 'mini-cd')) {
+      if (!opts.variants) opts.variants = [];
+      opts.variants.push({ key: 'package_clear_background', label: 'กล่องแพ็กเกจใส + พื้นหลัง', qty: optQty });
+      opts.totalVariantQty = (opts.totalVariantQty || 0) + optQty;
+    }
+    // Pocket Tape
+    if (normalizedLine.includes('ตลับใส') && currentProduct === 'pocket-tape') {
+      if (!opts.variants) opts.variants = [];
+      opts.variants.push({ key: 'clear', label: 'ตลับใส', qty: optQty });
+      opts.totalVariantQty = (opts.totalVariantQty || 0) + optQty;
+    }
+    if (normalizedLine.includes('ตลับแดง') && currentProduct === 'pocket-tape') {
+      if (!opts.variants) opts.variants = [];
+      opts.variants.push({ key: 'red', label: 'ตลับแดง', qty: optQty });
+      opts.totalVariantQty = (opts.totalVariantQty || 0) + optQty;
+    }
+    if ((normalizedLine.includes('เทปตลับ') || normalizedLine.includes('ตลับ')) && currentProduct === 'pocket-tape' && !normalizedLine.includes('ตลับใส') && !normalizedLine.includes('ตลับแดง')) {
+      if (!opts.variants) opts.variants = [];
+      opts.variants.push({ key: 'unknown', label: normalizedLine.replace(/[×x\*]?\s*\d+.*$/,'').trim(), qty: optQty });
+      opts.totalVariantQty = (opts.totalVariantQty || 0) + optQty;
+    }
+    // Pocket Polaroid accessories
+    if (normalizedLine.includes('พวงกุญแจเชือก') || normalizedLine.includes('เชือกสีขาวดำ')) {
+      if (!opts.accessories) opts.accessories = [];
+      opts.accessories.push({ key: 'rope_keychain', label: 'พวงกุญแจเชือกสีขาวดำ', qty: optQty });
+      opts.totalVariantQty = (opts.totalVariantQty || 0) + optQty;
+    }
+    if (normalizedLine.includes('โซ่ไข่ปลา') && (currentProduct === 'pocket-polaroid' || currentProduct === 'film-slide-nfc')) {
+      if (currentProduct === 'pocket-polaroid') {
+        if (!opts.accessories) opts.accessories = [];
+        opts.accessories.push({ key: 'ball_chain_acrylic', label: 'โซ่ไข่ปลา + จี้อะคริลิก', qty: optQty });
+        opts.totalVariantQty = (opts.totalVariantQty || 0) + optQty;
+      }
+    }
+    // Custom Cassette Tape lengths
+    if (currentProduct === 'cassette') {
+      const is45 = normalizedLine.includes('45 นาที') || normalizedLine.includes('45นาที');
+      const is90 = normalizedLine.includes('90 นาที') || normalizedLine.includes('90นาที') || normalizedLine.includes('sony');
+      if (is45 || is90) {
+        if (!opts.variants) opts.variants = [];
+        const label = is90 ? '90 นาที (SONY)' : '45 นาที';
+        opts.variants.push({ key: is90 ? '90min' : '45min', label, qty: optQty });
+        opts.totalVariantQty = (opts.totalVariantQty || 0) + optQty;
+      }
+    }
+    // Film Slide frame colors
+    if (currentProduct === 'film-slide-nfc') {
+      const frameColorMap = [
+        {test: 'กรอบพลาสติก', key: 'กรอบพลาสติก'},
+        {test: 'กรอบเหลือง', key: 'กรอบเหลือง'},
+        {test: 'กรอบขอบแดง', key: 'กรอบขอบแดง'},
+        {test: 'font แดง', key: 'Font แดง'},
+        {test: 'font น้ำเงิน', key: 'Font น้ำเงินดำ'},
+        {test: 'ขอบมนแดงดำ', key: 'ขอบมนแดงดำ'},
+        {test: 'ขอบมน font ชมพู', key: 'ขอบมน Font ชมพูเข้ม'},
+        {test: 'กรอบดำ', key: 'กรอบดำ'},
+      ];
+      for (const fc of frameColorMap) {
+        if (normalizedLine.includes(fc.test)) {
+          if (!state.filmSlideFrames) state.filmSlideFrames = {};
+          state.filmSlideFrames[fc.key] = (state.filmSlideFrames[fc.key] || 0) + optQty;
+        }
+      }
+    }
+    // Film Slide upgrade
+    if ((normalizedLine.includes('อัปเกรด') || normalizedLine.includes('กรอบกระดาษ') || normalizedLine.includes('ซอง pvc')) && currentProduct === 'film-slide') {
+      if (!opts.upgradeQty) opts.upgradeQty = 0;
+      opts.upgradeQty += optQty;
+      opts.variant = 'upgraded';
+      if (state.quantities['film-slide']) state.quantities['film-slide'] += optQty;
+    }
+  }
+  continue; // ← Never falls through to skipKeywords or product matching
+}
+// ── Guard 2: Skip metadata/logistics lines ──────────────────────────────────
 if (skipKeywords.some(kw => normalizedLine.includes(kw.toLowerCase()))) continue;
 // Skip gift-set content lines like "• Film Slide (NFC) × 10 (55฿ × 10 = 550฿)"
 // when a gift set is already in foundProducts
@@ -1583,13 +1683,22 @@ if (isOptionLine) {
       }
     }
 
-    // Film Slide NFC custom frame — capture production qty from "จำนวน X ชิ้น"
+    // Film Slide NFC custom frame — capture all metadata fields
     if ((normalizedLine.includes('custom frame') || normalizedLine.includes('ออกแบบ') || normalizedLine.includes('custom design')) && currentProduct === 'film-slide-nfc') {
       opts.variant = 'custom_frame';
     }
     if (currentProduct === 'film-slide-nfc-custom' || (currentProduct === 'film-slide-nfc' && opts.variant === 'custom_frame')) {
       const qtyInLine = normalizedLine.match(/(\d+)\s*(?:ชิ้น|อัน|pcs)/i);
       if (qtyInLine) opts.productionQty = parseInt(qtyInLine[1], 10);
+      // Capture design_count: "จำนวนแบบ X แบบ" or "จำนวนแบบ: X"
+      const designMatch = normalizedLine.match(/จำนวนแบบ[:\s]*(\d+)/i);
+      if (designMatch) opts.design_count = parseInt(designMatch[1], 10);
+      // Capture position: "ตำแหน่ง: Top/Bottom/Top+Bottom"
+      const posMatch = rawLine.match(/ตำแหน่ง[:\s]*(\S+)/i);
+      if (posMatch) opts.logo_position = posMatch[1].trim();
+      // Capture note/หมายเหตุ
+      const noteMatch = rawLine.match(/หมายเหตุ[:\s]*(.+)/i);
+      if (noteMatch) opts.note = noteMatch[1].trim();
     }
 
     // Single-value fallbacks (when no multi-variant)
@@ -2168,7 +2277,7 @@ function buildProductionSummary() {
 // Options/variants are stored as metadata, never as separate SKUs
 const SKU_CANONICAL = {
   // Vinyl
-  'vinyl-nfc':    'vinyl-record',
+  // 'vinyl-nfc' is a separate product — NOT an alias of 'vinyl-record'
   // Film Slide NFC standard frame = same SKU, variant stored in metadata
   // film-slide-nfc-custom = SEPARATE SKU (different workflow)
 };
@@ -2220,6 +2329,9 @@ function flattenCart() {
           productionQty: opts.productionQty || null,
           upgradeQty: opts.upgradeQty || 0,
           filmSlideFrames: (id === 'film-slide-nfc') ? (state.filmSlideFrames || null) : null,
+          design_count: opts.design_count || null,
+          logo_position: opts.logo_position || opts.position || null,
+          frame_note: opts.note || opts.frame_note || null,
         },
       });
     }
@@ -2364,354 +2476,380 @@ function renderReconciliationTable(result) {
 }
 
 
+// ============================================================================
+// PRODUCT REQUIREMENT MATRIX
+// Source of Truth for what each product needs from the customer
+// ── Fields ──────────────────────────────────────────────────────────────────
+// canva:   requires Canva template link
+// song:    requires music/song link (NFC-linked audio)
+// drive:   requires Google Drive upload
+// photos:  how many photos required (0 = none)
+// special: special handling key for custom logic
+// ============================================================================
+const PRODUCT_REQUIREMENTS = {
+  // ── Canva + Song (NFC with music) ──
+  'vinyl-record':    { canva:true,  song:true,  drive:false, photos:0, special:null },
+  'vinyl-heart':     { canva:true,  song:true,  drive:false, photos:0, special:null },
+  'vinyl-nfc':       { canva:true,  song:true,  drive:false, photos:0, special:null },
+  'pocket-vinyl':    { canva:true,  song:true,  drive:false, photos:0, special:null },
+  'floppy':          { canva:true,  song:true,  drive:false, photos:0, special:null },
+  'pin-badge':       { canva:true,  song:true,  drive:false, photos:0, special:'min9' },
+  'card-nfc':        { canva:true,  song:true,  drive:false, photos:0, special:null },
+  'mini-cd':         { canva:true,  song:true,  drive:false, photos:0, special:'variant' },
+  'pocket-tape':     { canva:true,  song:true,  drive:false, photos:0, special:'variant' },
+  'vinyl-set':       { canva:true,  song:true,  drive:false, photos:0, special:'vinyl-set' },
+  // ── Canva only (no song) ──
+  'disposable-cam':  { canva:true,  song:false, drive:false, photos:0, special:null },
+  'cassette':        { canva:true,  song:false, drive:false, photos:0, special:'cassette' },
+  // ── Drive + Song (NFC with photo) ──
+  'pocket-polaroid': { canva:false, song:true,  drive:true,  photos:1, special:'variant' },
+  'melody-filmbook': { canva:false, song:true,  drive:true,  photos:8, special:null },
+  'film-slide-nfc':  { canva:false, song:true,  drive:true,  photos:0, special:'film-slide-nfc' },
+  'snowglobe':       { canva:false, song:true,  drive:true,  photos:2, special:'snowglobe' },
+  // ── Drive, photo, no song ──
+  'film-slide-nfc-custom': { canva:false, song:false, drive:true, photos:0, special:'film-slide-nfc-custom' },
+  'film-slide':      { canva:false, song:false, drive:true,  photos:0, special:'film-slide-standard' },
+  'memory-film':     { canva:false, song:false, drive:true,  photos:7, special:'memory-film' },
+  'film-strip':      { canva:false, song:false, drive:true,  photos:3, special:null },
+  'postcard-film':   { canva:false, song:false, drive:true,  photos:1, special:null },
+  'story-spin':      { canva:false, song:true,  drive:true,  photos:16, special:null },
+  // ── Drive, no song, special ──
+  'film-lamp':       { canva:false, song:false, drive:true,  photos:21, special:'film-lamp' },
+  'polaroid':        { canva:false, song:true,  drive:true,  photos:3, special:'polaroid' },
+};
+function getReq(productId) {
+  return PRODUCT_REQUIREMENTS[productId] || { canva:false, song:false, drive:true, photos:0, special:null };
+}
+
+
+// ============================================================================
+// REFACTORED buildCustomerMessage()
+// ── Source of Truth: PRODUCT_REQUIREMENTS (not product type/category)
+// ── UX: workflow-centric, one Canva header, no repeated instructions
+// ── Variants shown as ①②③, not "กรุณาระบุ" if already chosen
+// ============================================================================
+
 function buildCustomerMessage() {
-// ── RECONCILIATION GATE ──────────────────────────────────────────
-// Step 1-4 must pass before ANY output is generated
+// ── RECONCILIATION GATE ──────────────────────────────────────────────────────
 const recon = runReconciliation();
 if (!recon.ok) {
   return `❌ AGGREGATION_VALIDATION_FAILED\n\nการตรวจสอบจำนวนสินค้าไม่ผ่าน:\n` +
     recon.validation.errors.map(e => `• ${e.message}`).join('\n') +
     `\n\nกรุณาตรวจสอบออเดอร์และลองใหม่อีกครั้ง`;
 }
-// ── Build picked from reconciliation map (not from state directly) ──
 const reconMap = recon.recMap;
 let picked = Object.values(reconMap).map(rec => {
   const prod = PMAP[rec.sku];
   if (!prod) return null;
-  return {
-    p: prod,
-    qty: rec.finalQty,
-    method: state.methods[rec.sku] || state.methods[Object.keys(SKU_CANONICAL).find(k => SKU_CANONICAL[k] === rec.sku)] || 'drive',
-    meta: rec.meta,
-  };
+  return { p: prod, qty: rec.finalQty,
+    method: state.methods[rec.sku] || (PMAP[rec.sku] && PMAP[rec.sku].methods ? PMAP[rec.sku].methods[0] : 'drive'),
+    meta: rec.meta };
 }).filter(Boolean);
+
+// ── Safety warning for unrecognized products ──
 let safetyWarning = '';
 if (state.unconfiguredProducts && state.unconfiguredProducts.length > 0) {
-safetyWarning = `⚠️ WARNING: Missing Product Configuration!\nระบบพบออเดอร์สินค้าที่ยังไม่มีการตั้งค่าจับคู่ฐานข้อมูล:\n` +
-state.unconfiguredProducts.map(p => `• ${p}`).join('\n') +
-`\nโปรดเพิ่มสินค้าเหล่านี้ลงใน Product Database ก่อนผลิตค่ะ!\n──────────────────────────────────\n`;
+  safetyWarning = `⚠️ WARNING: Missing Product Configuration!\nระบบพบออเดอร์สินค้าที่ยังไม่มีการตั้งค่าจับคู่ฐานข้อมูล:\n` +
+    state.unconfiguredProducts.map(p => `• ${p}`).join('\n') + `\n──────────────────────────────────\n`;
 }
 
-let hasFilmSlideNfc = picked.some(i => i.p.id === 'film-slide-nfc');
-let hasFrames = state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0);
-const nfcOpts = state.productOptions['film-slide-nfc'] || {};
-const nfcVariantInWarning = nfcOpts.variant || nfcOpts.nfc_variant;
-// Custom Frame Design does not need frame color specification
-const isCustomFrameOnly = nfcVariantInWarning === 'custom_frame';
-// Gift set expansion also skips the frame warning
-const nfcCameFromGiftSet = state.expandedFromGiftSets.some(gsId => {
-const gs = GIFT_SETS.find(g => g.giftSetId === gsId);
-return gs && gs.contents.some(c => c.productId === 'film-slide-nfc');
+// ── Validate film-slide-nfc standard frame ──
+const nfcStandardItem = picked.find(i => i.p.id === 'film-slide-nfc');
+// Read frames from reconMap.meta (post-aggregate) not raw state
+const nfcReconMeta = reconMap['film-slide-nfc'] ? reconMap['film-slide-nfc'].meta : {};
+const nfcMetaFrames = nfcReconMeta.filmSlideFrames;
+const isCustomFrameOnly = (nfcReconMeta.nfc_variant === 'custom_frame');
+const nfcFromGiftSet = state.expandedFromGiftSets.some(gsId => {
+  const gs = GIFT_SETS.find(g => g.giftSetId === gsId);
+  return gs && gs.contents.some(c => c.productId === 'film-slide-nfc');
 });
-if (hasFilmSlideNfc && !hasFrames && !nfcCameFromGiftSet && !isCustomFrameOnly) {
-safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC จำเป็นต้องระบุสีกรอบ กรุณาตรวจสอบออเดอร์อีกครั้ง\n──────────────────────────────────\n`;
+const hasFrames = nfcMetaFrames && Object.keys(nfcMetaFrames).some(k => nfcMetaFrames[k] > 0);
+if (nfcStandardItem && !hasFrames && !nfcFromGiftSet && !isCustomFrameOnly) {
+  safetyWarning += `⚠️ WARNING: Missing Frame Variants!\nฟิล์มสไลด์ NFC จำเป็นต้องระบุสีกรอบ\n──────────────────────────────────\n`;
 }
 
-if (picked.length === 0) {
-return safetyWarning ? safetyWarning + "ยังไม่ได้เลือกสินค้า..." : "ยังไม่ได้เลือกสินค้า...";
-}
+if (picked.length === 0) return safetyWarning || 'ยังไม่ได้เลือกสินค้า...';
 
-let canvaItems = picked.filter(i => i.method === 'canva');
-let driveItems = picked.filter(i => i.method === 'drive');
-let quickItems = picked.filter(i => i.method === 'quick');
-
-let parts = [];
+const parts = [];
 if (safetyWarning) parts.push(safetyWarning);
-parts.push('สวัสดีค่ะ ขอบคุณที่สั่งสินค้ากับ Tinkle Goodies นะคะ 🎀\nรบกวนส่งไฟล์ตามรายละเอียดด้านล่างได้เลยค่ะ\n──────────────────────────────────');
 
+// ── TOP CHECKLIST ─────────────────────────────────────────────────────────────
+parts.push(`สวัสดีค่ะ ขอบคุณที่สั่งสินค้ากับ Tinkle Goodies นะคะ 🎀
+รบกวนส่งไฟล์ตามรายละเอียดด้านล่างได้เลยค่ะ`);
+
+const hasSongProduct = picked.some(i => getReq(i.p.id).song);
+const hasCanva = picked.some(i => i.method === 'canva');
+const hasDrive = picked.some(i => i.method === 'drive');
+
+parts.push(`📌 Checklist ก่อนส่งไฟล์
+${hasCanva ? '☐ Canva เปิดสิทธิ์ Anyone with the link can edit\n' : ''}${hasDrive ? '☐ Google Drive เปิด Public\n' : ''}${hasSongProduct ? '☐ แนบลิงก์เพลงครบทุกสินค้า NFC ที่รองรับเพลง\n' : ''}☐ ตั้งชื่อไฟล์ตามที่กำหนด
+☐ ส่งลิงก์ครบทุกสินค้า
+──────────────────────────────────`.trim());
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CANVA SECTION — one global header, then per-product details
+// ══════════════════════════════════════════════════════════════════════════════
+const canvaItems = picked.filter(i => i.method === 'canva');
 if (canvaItems.length) {
-parts.push('🎨 สินค้า Canva');
-if (state.opts.canva) parts.push('⚠️ อย่าลืมตั้งค่า Share → "Anyone with the link can edit"');
-canvaItems.forEach(i => {
-parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
-if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
+  parts.push(`\n🎨 สินค้า Canva`);
+  // ── Single workflow explanation (not repeated per product) ──
+  parts.push(`📌 วิธีส่งไฟล์ Canva
+1️⃣ กด Use Template ที่ลิงก์ด้านล่าง
+2️⃣ หากมีหลายแบบ: เพิ่มหน้าใน Canva แล้วตั้งชื่อหน้าเป็น จำนวน_ชื่อเพลง
+   ตัวอย่าง:  3_เพลงA  /  5_เพลงB
+3️⃣ ส่งลิงก์ Canva และลิงก์เพลงมาพร้อมกัน${hasSongProduct ? '\n⚠️ สินค้า NFC ต้องแนบลิงก์เพลงทุกครั้ง' : ''}`);
 
-if (i.p.id === 'cassette') {
-parts.push(`🖼️ Canva (ลิงก์เทมเพลต): xxxxx\n🎵 Playlist หน้า A: xxxxx\n🎵 Playlist หน้า B: xxxxx\n⏱️ ความยาว (45/90 นาที): xxxxx`);
-} else if (i.p.id === 'vinyl-set') {
-parts.push(`📀 1 Set = 3 แผ่น\n\n📌 กรุณาเพิ่มหน้าใน Canva ให้ครบ 3 หน้า\n(1 หน้า = 1 แผ่น)\n\nตัวอย่าง:\n📀 แผ่นที่ 1\n🖼️ Canva (ลิงก์เทมเพลต): xxxxx\n\n📀 แผ่นที่ 2\n🖼️ Canva (ลิงก์เทมเพลต): xxxxx\n\n📀 แผ่นที่ 3\n🖼️ Canva (ลิงก์เทมเพลต): xxxxx\n\n🎵 ลิงก์เพลง: xxxxx`);
-} else if (i.p.canva_mode === 'multi_page') {
-let subText = `🖼️ Canva (ลิงก์เทมเพลต): xxxxx`;
-if (i.qty > 1) {
-subText += `\n📌 หากมีหลายแบบ\nกรุณาเพิ่มหน้าใน Canva\nและตั้งชื่อหน้าเป็น\nจำนวน_ชื่อเพลง\nตัวอย่าง\n3_เพลงA\n5_เพลงB\n2_เพลงC\n🎵 ลิงก์เพลง\nเพลงA : xxxxx\nเพลงB : xxxxx\nเพลงC : xxxxx\n📌 หากใช้เพลงเดียวกันหลายชิ้น\nส่งลิงก์เพลงเพียงครั้งเดียวได้ค่ะ`;
-} else {
-subText += `\n🎵 ลิงก์เพลง: xxxxx`;
-}
-parts.push(subText);
-} else {
-for(let k=1; k<=i.qty; k++){
-if(i.p.type==='canva-simple' && i.qty===1) { parts.push(`🖼️ Canva (ลิงก์เทมเพลต): xxxxx`); continue; }
-const cdOpts = state.productOptions[i.p.id] || {};
-const pkgVariant = cdOpts.package_variant || cdOpts.variant;
-const tapeVariant = cdOpts.tape_variant || cdOpts.variant;
-const totalCanvaQty = cdOpts.totalVariantQty || i.qty;
-let prefix = i.p.type==='canva-cd' ? `${i.p.emoji} ${i.p.name} — ชิ้นที่ ${k} / ${totalCanvaQty}` : i.p.type==='canva-tape' ? `📼 ${i.p.name} — ชิ้นที่ ${k} / ${totalCanvaQty}` : `📸 ${i.p.name} — ชิ้นที่ ${k}`;
-let details = [prefix, `🖼️ Canva (ลิงก์เทมเพลต): xxxxx`];
-if(i.p.type!=='canva-simple') details.push(`🎵 ลิงก์เพลง: xxxxx`);
-if(i.p.type==='canva-cd') {
-  const cdVariants = cdOpts.variants || [];
-  if (cdVariants.length > 1) {
-    details.push(`📦 แพ็กเกจ (ลูกค้าเลือกแล้ว):\n` + cdVariants.map(v => `• ${v.label} ×${v.qty}`).join('\n'));
-  } else if (pkgVariant === 'zip_bag_acrylic') {
-    details.push(`📦 แพ็กเกจ: ✅ ซองซิปขุ่น + จี้อะคริลิค`);
-  } else if (pkgVariant === 'package_clear_background') {
-    details.push(`📦 แพ็กเกจ: ✅ กล่องแพ็กเกจใส + พื้นหลัง`);
-  } else {
-    details.push(`📦 เลือกแพ็กเกจ:\n• ซองซิปขุ่น + จี้อะคริลิค\nหรือ\n• กล่องแพ็กเกจใส + พื้นหลัง\nกรุณาระบุ: xxxxx`);
-  }
-}
-if(i.p.type==='canva-tape') {
-  const tapeVariants = cdOpts.variants || [];
-  if (tapeVariants.length > 1) {
-    details.push(`📼 ตลับ (ลูกค้าเลือกแล้ว):\n` + tapeVariants.map(v => `• ${v.label} ×${v.qty}`).join('\n'));
-  } else if (tapeVariant === 'clear') {
-    details.push(`📼 ตลับ: ✅ ตลับใส`);
-  } else if (tapeVariant === 'red') {
-    details.push(`📼 ตลับ: ✅ ตลับแดง`);
-  } else {
-    details.push(`📼 เลือกตลับ:\n• ตลับใส\nหรือ\n• ตลับแดง\nกรุณาระบุ: xxxxx`);
-  }
-}
-parts.push(details.join('\n'));
-}
-}
-});
-parts.push('\n──────────────────────────────────');
+  canvaItems.forEach(i => {
+    const req = getReq(i.p.id);
+
+    // ── Vinyl Record Set ──
+    if (i.p.type === 'canva-vinylset') {
+      parts.push(`\n🎵 ${i.p.name} × ${i.qty}`);
+      if (i.p.canvaUrl) parts.push(`🔗 ${i.p.canvaUrl}`);
+      parts.push(`📀 1 Set = 3 แผ่น (เพิ่มหน้าใน Canva ให้ครบ 3 หน้า)`);
+      for (let s = 1; s <= i.qty; s++) {
+        parts.push(`📀 Set ${s}\n  • หน้า 1: 🖼️ Canva: xxxxx\n  • หน้า 2: 🖼️ Canva: xxxxx\n  • หน้า 3: 🖼️ Canva: xxxxx${req.song ? '\n  🎵 ลิงก์เพลง: xxxxx' : ''}`);
+      }
+      return;
+    }
+
+    // ── Cassette (no song, has length) ──
+    if (i.p.id === 'cassette') {
+      parts.push(`\n📼 ${i.p.name} × ${i.qty}`);
+      if (i.p.canvaUrl) parts.push(`🔗 ${i.p.canvaUrl}`);
+      const cassOpts = i.meta || state.productOptions['cassette'] || {};
+      const cassVariants = cassOpts.variants || [];
+      // Loop finalQty — each unit may have different length/type
+      for (let k = 0; k < i.qty; k++) {
+        const sym = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][k] || `${k+1}.`;
+        const v = cassVariants[k];
+        const lenLabel = v ? v.label : (cassVariants.length > 0 ? cassVariants[cassVariants.length-1].label : '45/90 นาที');
+        parts.push(`${sym} ⏱️ ${lenLabel}: 🖼️ Canva: xxxxx | 🎵 Playlist A: xxxxx | 🎵 Playlist B: xxxxx`);
+      }
+      return;
+    }
+
+    // ── ONE SHOT Camera (canva, no song) ──
+    if (i.p.id === 'disposable-cam') {
+      parts.push(`\n📷 ${i.p.name} × ${i.qty}`);
+      if (i.p.canvaUrl) parts.push(`🔗 ${i.p.canvaUrl}`);
+      parts.push(`🖼️ Canva: xxxxx`);
+      // NO song link — req.song = false
+      return;
+    }
+
+    // ── Mini CD Box (canva + song + variant ①②③) ──
+    if (i.p.type === 'canva-cd') {
+      parts.push(`\n${i.p.emoji} ${i.p.name} × ${i.qty}`);
+      if (i.p.canvaUrl) parts.push(`🔗 ${i.p.canvaUrl}`);
+      const cdOpts = i.meta || state.productOptions['mini-cd'] || {};
+      const cdVariants = cdOpts.variants || [];
+      const totalCanvaQty = cdOpts.totalVariantQty || i.qty;
+      for (let k = 1; k <= i.qty; k++) {
+        const sym = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][k-1] || `${k}.`;
+        // variant from known selection; extras (e.g. from gift set) → ask
+        const variantLabel = cdVariants[k-1] ? `📦 ✅ ${cdVariants[k-1].label}` : `📦 กรุณาระบุแพ็กเกจ: ซองซิปขุ่น+จี้อะคริลิค หรือ กล่องแพ็กเกจใส+พื้นหลัง`;
+        parts.push(`${sym} 🖼️ Canva: xxxxx | 🎵 ลิงก์เพลง: xxxxx${variantLabel ? '\n   ' + variantLabel : ''}`);
+      }
+      return;
+    }
+
+    // ── Pocket Tape (canva, no song, variant ①②) ──
+    if (i.p.type === 'canva-tape') {
+      parts.push(`\n${i.p.emoji} ${i.p.name} × ${i.qty}`);
+      if (i.p.canvaUrl) parts.push(`🔗 ${i.p.canvaUrl}`);
+      const tapeOpts = i.meta || state.productOptions['pocket-tape'] || {};
+      const tapeVariants = tapeOpts.variants || [];
+      // Loop finalQty times — preserves all units including gift-set extras
+      for (let k = 0; k < i.qty; k++) {
+        const sym = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][k] || `${k+1}.`;
+        const v = tapeVariants[k];
+        const varLabel = v ? v.label : (tapeVariants.length > 0 ? tapeVariants[tapeVariants.length-1].label : 'กรุณาระบุสีตลับ');
+        parts.push(`${sym} ${varLabel}: 🖼️ Canva: xxxxx | 🎵 ลิงก์เพลง: xxxxx`);
+      }
+      return;
+    }
+
+    // ── Default canva product (multi-page with optional song) ──
+    parts.push(`\n${i.p.emoji} ${i.p.name} × ${i.qty}`);
+    if (i.p.canvaUrl) parts.push(`🔗 ${i.p.canvaUrl}`);
+    parts.push(`🖼️ Canva: xxxxx`);
+    if (req.song) parts.push(`🎵 ลิงก์เพลง: xxxxx`);
+    // No song line if req.song = false (e.g. disposable-cam already handled above)
+  });
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// DRIVE SECTION
+// ══════════════════════════════════════════════════════════════════════════════
+const driveItems = picked.filter(i => i.method === 'drive');
 if (driveItems.length) {
-if (state.collectionMode === 'chat') {
-parts.push('💬 ส่งไฟล์ทางแชท');
-} else {
-parts.push('📂 ส่งไฟล์ผ่าน Google Drive');
-if (state.opts.drive) parts.push('อัปโหลดรูปลง Folder เดียวกัน → ตั้งค่าเป็น Public → ส่ง 1 ลิงก์');
-}
-driveItems.forEach(i => {
-// ── All variant/option data read from structured state — NEVER from summary text ──
-const prodOpts = i.meta || state.productOptions[i.p.id] || {};
-const nfcVariant = prodOpts.variant || prodOpts.nfc_variant || 'standard_frame';
-const filmVariant = prodOpts.variant || 'standard';
+  parts.push(`\n──────────────────────────────────\n📂 ส่งไฟล์ผ่าน Google Drive`);
 
-// ════════════════════════════════════════════════════════
-// Film Slide NFC Custom — dedicated separate product
-// ════════════════════════════════════════════════════════
-if (i.p.id === 'film-slide-nfc-custom' || i.p.type === 'film-slide-nfc-custom') {
-  const customOpts = state.productOptions['film-slide-nfc-custom'] || {};
-  const customQty = customOpts.productionQty || i.qty;
-  parts.push(`\n✨ Film Slide (NFC) — Custom Frame Design × ${customQty}`);
-  parts.push(`📋 กรุณาส่งข้อมูลสำหรับงาน Custom Frame:\n• จำนวนแบบ: xxxxx\n• ตำแหน่งโลโก้/ข้อความ: Top / Bottom / Top+Bottom\n• ไฟล์โลโก้: PNG พื้นหลังโปร่งใส หรือ .AI\n• ข้อความที่ต้องการบนกรอบ: xxxxx\n• ไฟล์ Artwork (ถ้ามี): xxxxx\n• หมายเหตุเพิ่มเติม (ถ้ามี): xxxxx\n\nGoogle Drive : xxxxx`);
-  return;
-}
+  driveItems.forEach(i => {
+    const prodOpts = i.meta || state.productOptions[i.p.id] || {};
+    const req = getReq(i.p.id);
 
-// ════════════════════════════════════════════════════════
-// Film Slide NFC Standard — split by variant, never merged
-// ════════════════════════════════════════════════════════
-if (i.p.id === 'film-slide-nfc' || i.p.type === 'film-slide-nfc') {
-  // Standard frame only — custom is handled by film-slide-nfc-custom product above
-  {
-    parts.push(`\n🎞️ Film Slide (NFC) — กรอบสำเร็จรูป × ${i.qty}`);
-    let frameText = '';
-    if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0)) {
-      Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
-        if (fQty > 0) {
-          let fDef = frameDefinitions.find(d => d.key === fName);
-          frameText += `\n📂 ${fDef ? fDef.displayName : fName} (จำนวน ${fQty} ชิ้น)`;
+    // ── Film Slide NFC — Custom Frame (SEPARATE from standard) ──
+    if (i.p.id === 'film-slide-nfc-custom' || i.p.type === 'film-slide-nfc-custom') {
+      const customQty = prodOpts.productionQty || i.qty;
+      parts.push(`\n✨ Film Slide (NFC) — Custom Frame Design × ${customQty}`);
+      // Render metadata directly if customer provided info
+      // Read from reconMap.meta (post-aggregate source of truth)
+      const cfMeta = i.meta || {};
+      const knownDesigns = cfMeta.design_count || prodOpts.design_count;
+      const knownPosition = cfMeta.logo_position || prodOpts.logo_position || prodOpts.position;
+      const knownNote = cfMeta.frame_note || prodOpts.note;
+      parts.push(`📋 ข้อมูลสำหรับงาน Custom Frame:
+• จำนวนแบบ: ${knownDesigns ? knownDesigns + ' แบบ' : 'xxxxx'}
+• ตำแหน่งโลโก้/ข้อความ: ${knownPosition || 'xxxxx'}
+• ไฟล์โลโก้: PNG พื้นหลังโปร่งใส หรือ .AI
+• ข้อความที่ต้องการบนกรอบ: xxxxx
+• ไฟล์ Artwork (ถ้ามี): xxxxx${knownNote ? '\n• หมายเหตุ: ' + knownNote : ''}
+Google Drive: xxxxx`);
+      return;
+    }
+
+    // ── Film Slide NFC — Standard Frame ──
+    if (i.p.id === 'film-slide-nfc' || i.p.type === 'film-slide-nfc') {
+      parts.push(`\n🎞️ Film Slide (NFC) — กรอบสำเร็จรูป × ${i.qty}`);
+      let frameText = '';
+      if (state.filmSlideFrames && Object.keys(state.filmSlideFrames).some(k => state.filmSlideFrames[k] > 0)) {
+        // Folder structure from frame definitions
+        parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC\n1️⃣ สร้างโฟลเดอร์แยกตามสีกรอบ:`);
+        let folderLines = '';
+        Object.entries(state.filmSlideFrames).forEach(([fName, fQty]) => {
+          if (fQty > 0) {
+            let fDef = (typeof frameDefinitions !== 'undefined' ? frameDefinitions : []).find(d => d.key === fName);
+            let dispName = fDef ? fDef.displayName : fName;
+            folderLines += `📁 ${dispName} (${fQty} ชิ้น)\n`;
+          }
+        });
+        parts.push(folderLines.trim());
+        parts.push(`2️⃣ ตั้งชื่อไฟล์เป็น ชื่อเพลง.jpg หรือ ชื่อเพลง_จำนวน.jpg\n   ตัวอย่าง: เพลงA.jpg, เพลงB_3อัน.jpg\n3️⃣ Google Drive: xxxxx\n📐 Crop 3:2`);
+      } else {
+        parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC\n1️⃣ สร้างโฟลเดอร์แยกตามสีกรอบ (ตัวอย่าง):\n📁 กรอบพลาสติก\n📁 กรอบเหลือง\n📁 กรอบขอบแดง\n2️⃣ ตั้งชื่อไฟล์: ชื่อเพลง.jpg หรือ ชื่อเพลง_จำนวน.jpg\n3️⃣ Google Drive: xxxxx\n📐 Crop 3:2`);
+      }
+      if (req.song) parts.push(`🎵 ลิงก์เพลง A: xxxxx\n🎵 ลิงก์เพลง B: xxxxx`);
+      return;
+    }
+
+    // ── Film Slide ธรรมดา (Standard + Upgrade) ──
+    if (i.p.id === 'film-slide' || i.p.type === 'drive-photo' && i.p.id === 'film-slide') {
+      const upgradeQty = prodOpts.upgradeQty || 0;
+      const standardQty = i.qty - upgradeQty;
+      if (standardQty > 0) {
+        parts.push(`\n🎞️ Film Slide — แบบมาตรฐาน × ${standardQty}`);
+        parts.push(`📸 ส่งรูปใน Google Drive\n✅ 1 รูป / 1 อัน\n📌 รูปไม่ซ้ำ: ตั้งชื่อ 1.jpg–${standardQty}.jpg\n📌 รูปเดียวหลายชิ้น: ตั้งชื่อเป็นจำนวน เช่น 5อัน.jpg\nGoogle Drive: xxxxx`);
+      }
+      if (upgradeQty > 0) {
+        parts.push(`\n🎞️ Film Slide — เพิ่มกรอบกระดาษ + ซอง PVC + โซ่ไข่ปลา × ${upgradeQty}`);
+        if (prodOpts.variants && prodOpts.variants.length) {
+          let exampleLines = '';
+          prodOpts.variants.forEach(v => {
+            exampleLines += `📁 ${v.label || v.key}\n  ├─ 1.jpg\n  └─ 2.jpg  (จำนวน ${v.qty} อัน)\n`;
+          });
+          parts.push(`📁 ส่งแยกโฟลเดอร์ตามลาย:\n${exampleLines.trim()}\nGoogle Drive: xxxxx`);
+        } else {
+          parts.push(`📁 สร้างโฟลเดอร์แยกตามลาย:\n📁 ขอบแดง  │  📁 Font แดง  │  📁 Font น้ำเงินดำ\n1 รูป / 1 อัน\nGoogle Drive: xxxxx`);
         }
-      });
-    } else {
-      const nfcFromGiftSet = state.expandedFromGiftSets.some(gsId => {
-        const gs = GIFT_SETS.find(g => g.giftSetId === gsId);
-        return gs && gs.contents.some(c => c.productId === 'film-slide-nfc');
-      });
-      frameText = nfcFromGiftSet
-        ? `\n📌 คละกรอบ หรือ ระบุสีกรอบได้เลยค่ะ\n👉 ตั้งชื่อโฟลเดอร์เป็นชื่อกรอบตามด้วยจำนวน เช่น กรอบพลาสติก (20 อัน), กรอบขอบแดง (10 อัน)`
-        : `\n⚠️ กรุณาระบุสีกรอบ`;
+      }
+      return;
     }
-    if (state.collectionMode === 'drive') {
-      parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC\n1️⃣ สร้างโฟลเดอร์แยกตามสีกรอบ${frameText}\n2️⃣ 🎵 ตั้งชื่อไฟล์เป็นชื่อเพลง หรือ ชื่อเพลง_จำนวน (เช่น เพลงA.jpg, เพลงB_3อัน.jpg)\n🎵 ลิงก์เพลง A : xxxxx\n🎵 ลิงก์เพลง B : xxxxx\n3️⃣ เปิด Google Drive เป็น Public\nGoogle Drive : xxxxx\n📐 Crop 3:2\n\n✨ เลือกภาพให้เหมาะกับกรอบ\n✅ กรอบพลาสติก → แนวตั้ง/นอนได้เลย\n✅ กรอบกระดาษ → แนะนำแนวนอน (ตัวอักษรบนกรอบไม่เบี้ยว)`);
-    } else {
-      parts.push(`📥 วิธีส่งรูปฟิล์มสไลด์ NFC (ส่งในแชท)\n1️⃣ ส่งรูปภาพเข้ามาในแชท และระบุชื่อกรอบ:${frameText}\n2️⃣ 🎵 ส่งลิงก์เพลงตามรูปภาพ (YouTube, Spotify, Joox ฯลฯ)\n🎵 ลิงก์เพลง A : xxxxx\n🎵 ลิงก์เพลง B : xxxxx\n📐 Crop 3:2\n\n✨ เลือกภาพให้เหมาะกับกรอบ\n✅ กรอบพลาสติก → แนวตั้ง/นอนได้เลย\n✅ กรอบกระดาษ → แนะนำแนวนอน (ตัวอักษรบนกรอบไม่เบี้ยว)`);
+
+    // ── Pocket Polaroid (drive, song, variant ①②) ──
+    if (i.p.id === 'pocket-polaroid') {
+      const accs = prodOpts.accessories || [];
+      parts.push(`\n📷 ${i.p.name} × ${i.qty}`);
+      // Loop finalQty — each unit needs its own photo + song + accessory
+      for (let k = 0; k < i.qty; k++) {
+        const sym = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'][k] || `${k+1}.`;
+        const a = accs[k];
+        let accLabel;
+        if (a) {
+          accLabel = `✅ ${a.label}`;
+        } else {
+          const singleAcc = prodOpts.hanging_accessory;
+          accLabel = singleAcc === 'rope_keychain' ? '✅ พวงกุญแจเชือกสีขาวดำ'
+            : singleAcc === 'ball_chain_acrylic' ? '✅ โซ่ไข่ปลา + จี้อะคริลิก'
+            : 'กรุณาระบุอุปกรณ์ห้อย';
+        }
+        parts.push(`${sym} 📸 รูป 1 รูป | 🎵 ลิงก์เพลง: xxxxx\n   📎 ${accLabel}`);
+      }
+      parts.push(`Google Drive: xxxxx`);
+      return;
     }
-  }
-  return;
+
+    // ── Memory Film ──
+    if (i.p.id === 'memory-film') {
+      parts.push(`\n🎬 ${i.p.name} × ${i.qty}\nใช้รูป ${req.photos} รูป ต่อ 1 ม้วน | ตั้งชื่อ 1.jpg–${req.photos}.jpg`);
+      if (i.qty > 1) {
+        let folders = '';
+        for (let k = 1; k <= i.qty; k++) folders += `📁 MemoryFilm_${k}\n`;
+        parts.push(folders.trim());
+      }
+      parts.push(`Google Drive: xxxxx`);
+      return;
+    }
+
+    // ── Postcard Film ──
+    if (i.p.id === 'postcard-film') {
+      parts.push(`\n📬 ${i.p.name} × ${i.qty}\nส่งรูป ${i.qty} รูป | Google Drive: xxxxx`);
+      return;
+    }
+
+    // ── Film Strip ──
+    if (i.p.id === 'film-strip') {
+      parts.push(`\n🎞️ ${i.p.name} × ${i.qty}\nส่งรูป 3 รูป | 1.jpg (บน) | 2.jpg (กลาง) | 3.jpg (ล่าง)\nGoogle Drive: xxxxx`);
+      return;
+    }
+
+    // ── Melody Filmbook ──
+    if (i.p.id === 'melody-filmbook') {
+      parts.push(`\n📖 ${i.p.name} × ${i.qty}\n📸 ส่งรูป ${req.photos} รูป (แนะนำแนวตั้ง) | 🎵 ลิงก์เพลง 1-${req.photos}: xxxxx\nGoogle Drive: xxxxx`);
+      return;
+    }
+
+    // ── Snowglobe ──
+    if (i.p.id === 'snowglobe') {
+      parts.push(`\n🔮 ${i.p.name} × ${i.qty}\n📸 ส่งรูป ${req.photos} รูป\n🔤 ตัวอักษร 2-3 ตัว (ภาษาอังกฤษ): xxxxx\n✨ กลิตเตอร์ (Butterfly/Rabbit/Star/Flower/Heart/Mixed Pastel/Glow Star/Glow Heart): xxxxx\n🎵 ลิงก์เพลง: xxxxx\nGoogle Drive: xxxxx`);
+      return;
+    }
+
+    // ── Vintage Lamp ──
+    if (i.p.id === 'film-lamp') {
+      parts.push(`\n💡 ${i.p.name} × ${i.qty}\n📸 ส่งรูป ${req.photos} รูป (Crop 3:2)\n🖼️ กรอบแบบ 1: xxxxx | กรอบแบบ 2: xxxxx | กรอบแบบ 3: xxxxx\nGoogle Drive: xxxxx`);
+      return;
+    }
+
+    // ── Polaroid Soundframe ──
+    if (i.p.id === 'polaroid') {
+      parts.push(`\n📸 ${i.p.name} × ${i.qty}\n📸 ส่งรูป ${req.photos} รูป\n🎵 ลิงก์เพลง 1-${req.photos}: xxxxx\nGoogle Drive: xxxxx`);
+      return;
+    }
+
+    // ── Story Spin Box ──
+    if (i.p.id === 'story-spin') {
+      parts.push(`\n🎡 ${i.p.name} × ${i.qty}\n📥 ส่งภาพ ${req.photos} รูป | Google Drive: xxxxx\n🎵 ลิงก์เพลง: xxxxx`);
+      return;
+    }
+
+    // ── Fallback (always shows name, uses req for song) ──
+    parts.push(`\n${i.p.emoji} ${i.p.name} × ${i.qty}\nGoogle Drive: xxxxx`);
+    if (req.song) parts.push(`🎵 ลิงก์เพลง: xxxxx`);
+  });
 }
 
-// ════════════════════════════════════════════════════════
-// Film Slide ธรรมดา — split Standard vs Upgrade
-// ════════════════════════════════════════════════════════
-if (i.p.id === 'film-slide') {
-  const slideOpts = state.productOptions['film-slide'] || {};
-  const upgradeQty = slideOpts.upgradeQty || 0;
-  const standardQty = i.qty - upgradeQty;
-  let slideSection = '';
-  if (upgradeQty > 0 && standardQty > 0) {
-    slideSection = `\n🎞️ Film Slide — แบบมาตรฐาน × ${standardQty}\n🎞️ Film Slide — เพิ่มกรอบกระดาษ + ซอง PVC + โซ่ไข่ปลา × ${upgradeQty}`;
-  } else if (upgradeQty > 0) {
-    slideSection = `\n🎞️ Film Slide — เพิ่มกรอบกระดาษ + ซอง PVC + โซ่ไข่ปลา × ${upgradeQty}`;
-  } else {
-    slideSection = `\n🎞️ Film Slide — แบบมาตรฐาน × ${i.qty}`;
-  }
-  parts.push(slideSection);
-  if (state.collectionMode === 'drive') {
-    parts.push(`📌 วิธีส่งไฟล์รูปภาพ\n📸 ใส่รูปลงใน Google Drive แล้วแชร์ลิงก์มาได้เลยค่ะ\n✅ ใช้ 1 รูป / 1 อัน\n📌 รูปไม่ซ้ำ → ตั้งชื่อไฟล์เรียงลำดับ 1.jpg - ${i.qty}.jpg\n📌 รูปเดียวหลายชิ้น → ตั้งชื่อเป็นจำนวน เช่น 5 อัน.jpg, 10 อัน.jpg\n\nGoogle Drive : xxxxx\n⚠️ อย่าลืมตั้งค่าเป็น Public ก่อนแชร์ลิงก์\n\n✨ เลือกภาพให้เหมาะกับกรอบ\n✅ กรอบพลาสติก → แนวตั้ง/นอนได้เลย\n✅ กรอบกระดาษ → แนะนำแนวนอน (ตัวอักษรบนกรอบไม่เบี้ยว)`);
-  } else {
-    parts.push(`📌 วิธีส่งไฟล์\n💬 ส่งรูปภาพเข้ามาในแชทได้เลยค่ะ\n✅ ใช้ 1 รูป / 1 อัน\n📌 รูปเดียวหลายชิ้น: พิมพ์แจ้งจำนวน เช่น 5 อัน, 10 อัน`);
-  }
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// Pocket Polaroid — show name + variant (no re-ask)
-// ════════════════════════════════════════════════════════
-if (i.p.id === 'pocket-polaroid') {
-  const polaOpts = state.productOptions['pocket-polaroid'] || {};
-  const accs = polaOpts.accessories || [];
-  const totalQty = polaOpts.totalVariantQty || i.qty;
-  parts.push(`\n📷 ${i.p.name} × ${totalQty}`);
-  if (accs.length > 1) {
-    // Multi-variant: list each
-    let accLines = accs.map(a => `• ${a.label} ×${a.qty}`).join('\n');
-    parts.push(`📸 รูป 1 รูปต่อชิ้น\n🎵 ลิงก์เพลง: xxxxx\n⚠️ สินค้า NFC ต้องแนบลิงก์เพลงทุกครั้ง\n\n📎 อุปกรณ์ห้อย (ลูกค้าเลือกแล้ว):\n${accLines}\n\nGoogle Drive : xxxxx`);
-  } else if (accs.length === 1) {
-    parts.push(`📸 รูป 1 รูป\n🎵 ลิงก์เพลง: xxxxx\n⚠️ สินค้า NFC ต้องแนบลิงก์เพลงทุกครั้ง\n\n📎 อุปกรณ์ห้อย: ✅ ${accs[0].label}\n\nGoogle Drive : xxxxx`);
-  } else {
-    const acc = polaOpts.hanging_accessory;
-    const accLine = acc === 'rope_keychain' ? '\n📎 อุปกรณ์ห้อย: ✅ พวงกุญแจเชือกสีขาวดำ'
-      : acc === 'ball_chain_acrylic' ? '\n📎 อุปกรณ์ห้อย: ✅ โซ่ไข่ปลา + จี้อะคริลิก'
-      : '\n📎 เลือกอุปกรณ์ห้อย:\n• พวงกุญแจเชือก\nหรือ\n• โซ่ไข่ปลา + จี้อะคริลิก\n\nกรุณาระบุ: xxxxx';
-    parts.push(`📸 รูป 1 รูป\n🎵 ลิงก์เพลง: xxxxx\n⚠️ สินค้า NFC ต้องแนบลิงก์เพลงทุกครั้ง${accLine}\n\nGoogle Drive : xxxxx`);
-  }
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// Postcard Film
-// ════════════════════════════════════════════════════════
-if (i.p.id === 'postcard-film') {
-  parts.push(`\n📬 ${i.p.name} × ${i.qty}\nส่งรูปจำนวน ${i.qty} รูป ผ่าน Google Drive\nตั้งชื่อไฟล์เรียงลำดับ 1.jpg - ${i.qty}.jpg\nเปิดสิทธิ์เป็น Public\nGoogle Drive : xxxxx`);
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// Film Strip
-// ════════════════════════════════════════════════════════
-if (i.p.id === 'film-strip') {
-  parts.push(`\n🎞️ ${i.p.name} × ${i.qty}\nส่งรูปทั้งหมด 3 รูป ผ่าน Google Drive\nตั้งชื่อไฟล์: 1.jpg (บนสุด) | 2.jpg (กลาง) | 3.jpg (ล่างสุด)\nเปิด Public แล้วส่งลิงก์ Drive มา 1 ลิงก์\nGoogle Drive : xxxxx`);
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// Memory Film
-// ════════════════════════════════════════════════════════
-if (i.p.id === 'memory-film') {
-  let memText = '';
-  if (i.qty > 1) {
-    memText = `\n📌 สร้างโฟลเดอร์แยก:\n`;
-    for (let k=1; k<=i.qty; k++) memText += `📁 MemoryFilm_${k}\n`;
-    memText += `และเรียงรูป 1-7 ภายในแต่ละโฟลเดอร์`;
-  }
-  parts.push(`\n🎬 ${i.p.name} × ${i.qty}\nใช้รูป 7 รูป ต่อ 1 ม้วน\nตั้งชื่อไฟล์เรียงลำดับ 1.jpg - 7.jpg\n(1 = ภาพแรกที่เห็นเมื่อดึงฟิล์มออกมา)\nGoogle Drive : xxxxx${memText}`);
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// Film Lamp
-// ════════════════════════════════════════════════════════
-if (i.p.id === 'film-lamp') {
-  parts.push(`\n💡 ${i.p.name} × ${i.qty}\n📸 ส่งรูป 21 รูป (แนะนำ Crop 3:2)\n🖼️ กรอบแบบที่ 1: xxxxx\n🖼️ กรอบแบบที่ 2: xxxxx\n🖼️ กรอบแบบที่ 3: xxxxx\nGoogle Drive : xxxxx`);
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// Snowglobe
-// ════════════════════════════════════════════════════════
-if (i.p.type === 'snowglobe') {
-  parts.push(`\n🔮 ${i.p.name} × ${i.qty}\n📸 ส่งรูป 2 รูป\n🔤 ตัวอักษร 2-3 ตัว (ภาษาอังกฤษ): xxxxx\n✨ กลิตเตอร์ (Butterfly / Rabbit / Star / Flower / Heart / Mixed Pastel / Glow Star / Glow Heart): xxxxx\n🎵 ลิงก์เพลง: xxxxx\nGoogle Drive : xxxxx`);
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// Polaroid
-// ════════════════════════════════════════════════════════
-if (i.p.type === 'polaroid') {
-  parts.push(`\n📷 ${i.p.name} × ${i.qty}\n📸 ส่งรูป 3 รูป\n🎵 ลิงก์เพลง 1: [ลิงก์ YouTube] (นาทีที่ __:__ - __:__)\n🎵 ลิงก์เพลง 2: [ลิงก์ YouTube] (นาทีที่ __:__ - __:__)\n🎵 ลิงก์เพลง 3: [ลิงก์ YouTube] (นาทีที่ __:__ - __:__)`);
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// Melody Film Book
-// ════════════════════════════════════════════════════════
-if (i.p.type === 'melody-filmbook') {
-  parts.push(`\n📖 ${i.p.name} × ${i.qty}\n📸 ส่งรูป 8 รูป (แนะนำแนวตั้ง)\n🎵 ลิงก์เพลง 1-8: xxxxx\nGoogle Drive : xxxxx`);
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// Story Spin Box
-// ════════════════════════════════════════════════════════
-if (i.p.id === 'story-spin') {
-  parts.push(`\n🎡 ${i.p.name} × ${i.qty}\n📥 ส่งภาพ 16 รูป ผ่าน Google Drive\nตั้งค่าแชร์เป็น "สาธารณะ"\nGoogle Drive : xxxxx\n🎵 ลิงก์เพลง: xxxxx`);
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// NFC products (quick-nfc, card-nfc, pin-nfc)
-// ════════════════════════════════════════════════════════
-if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
-  parts.push(`\n${i.p.emoji} ${i.p.name} × ${i.qty}\n📌 ตั้งชื่อไฟล์ตามชื่อเพลง เช่น เพลงA.jpg, เพลงA_${i.qty}อัน.jpg\n🎵 ลิงก์เพลง: xxxxx\nGoogle Drive : xxxxx`);
-  if (i.p.type === 'pin-nfc' && i.qty >= 9) parts.push(`⚠️ ขั้นต่ำ 9 ชิ้นต่อ 1 แบบ`);
-  return;
-}
-
-// ════════════════════════════════════════════════════════
-// Fallback — any product not explicitly handled above
-// Shows name + basic instructions (never floats without name)
-// ════════════════════════════════════════════════════════
-parts.push(`\n${i.p.emoji || '📦'} ${i.p.name} × ${i.qty}\nGoogle Drive : xxxxx\n🎵 ลิงก์เพลง: xxxxx`);
-
-});
+// ── Footer ──
+const note = document.getElementById('order-note-input').value.trim();
+if (note) parts.push(`\n──────────────────────────────────\n📌 หมายเหตุเพิ่มเติม\n${note}`);
 parts.push('\n──────────────────────────────────');
-}
+parts.push('💖 แทนที่ xxxxx = ข้อมูลจริง\nหากส่งข้อมูลครบแล้วแจ้งแอดมินได้เลยนะคะ');
 
-if (quickItems.length) {
-parts.push('💬 ส่งแบบง่าย (ร้านจัดให้)');
-quickItems.forEach(i => {
-parts.push(`\n${i.p.emoji} ${i.p.name} ${i.qty>1?'× '+i.qty:''}`);
-if (i.p.type === 'quick-nfc' || i.p.type === 'card-nfc' || i.p.type === 'pin-nfc') {
-parts.push(`ส่งรูปและลิงก์เพลงมาในแชทได้เลยค่ะ ✨\nไม่ต้องตั้งชื่อไฟล์\nไม่ต้องสร้าง Google Drive`);
-if (i.p.type === 'pin-nfc') parts.push(`⚠️ ขั้นต่ำ 9 ชิ้นต่อ 1 แบบ`);
-} else if (i.p.id === 'mini-cd') {
-let cdQty = 6 * i.qty;
-parts.push(`การส่งไฟล์ปกติจะมี Template Canva ให้ค่ะ\nสำหรับออเดอร์นี้: CD ใช้ ${cdQty} ภาพ จิ้มส่งมารวดเดียว ${cdQty} ภาพนะคะ\nพร้อมส่งลิงก์เพลง ${i.qty} เพลง ในแชทได้เลยค่ะ\n🎵 ลิงก์เพลง: xxxxx`);
-} else if (i.p.id === 'pocket-tape') {
-parts.push(`📸 ส่งรูป ${5*i.qty} รูปมาพร้อมกัน (ร้านสุ่มจัดเรียงให้)\n🎵 ลิงก์เพลง: xxxxx\n📼 เลือกตลับ: xxxxx`);
-} else if (i.p.id === 'vinyl-set') {
-parts.push(`📸 ส่งรูป ${3*i.qty} รูป\n🎵 ลิงก์เพลง: xxxxx\n(ทางร้านจะจับคู่รูปและเพลงให้ตามลำดับที่ส่งมาค่ะ)`);
-}
-});
-parts.push('\n──────────────────────────────────');
-}
-
-if (state.opts.drive) {
-parts.push('📂 วิธีส่งไฟล์ผ่าน Google Drive\n1️⃣ สร้างโฟลเดอร์และอัปโหลดไฟล์ทั้งหมดลงไป\n2️⃣ กด Share (แชร์) ที่โฟลเดอร์\n3️⃣ เปลี่ยนสิทธิ์เป็น "Anyone with the link" (ทุกคนที่มีลิงก์)\n4️⃣ กด Copy link แล้วส่งมาได้เลยค่ะ\n──────────────────────────────────');
-}
-
-if (state.opts.music) {
-parts.push('📌 การเลือกเพลง ส่งลิงก์เพลงที่ต้องการ\n🎵 รองรับทุกแพลตฟอร์ม เช่น YouTube, Spotify, Joox ฯลฯ\n🔹 1 เพลง → แก้ไขภายหลังไม่ได้\n🔹 หลายเพลง แนะนำสร้างเพลย์ลิสต์ → สามารถเพิ่ม/ลบเพลงทีหลังได้\n⚠️ ตั้งค่าเป็นสาธารณะเท่านั้น เพื่อให้สามารถสแกนได้\n❌ ไม่แนะนำ Apple Music → ถ้าไม่ได้สมัครสมาชิก สแกนแล้วฟังไม่ได้ค่ะ\n──────────────────────────────────');
-}
-
-if (state.opts.checklist) {
-parts.push('📝 Checklist ก่อนส่ง\n✅ ตั้งค่าแชร์เป็น Public ทั้ง Drive/Canva/Spotify\n✅ แนบไฟล์และข้อมูลครบถ้วน\n──────────────────────────────────');
-}
-
-let note = document.getElementById('order-note-input').value.trim();
-if (note) {
-parts.push('📌 หมายเหตุเพิ่มเติม\n' + note + '\n──────────────────────────────────');
-}
-
-parts.push('💖 แทนที่ xxxxx = แปะลิงก์\nหากส่งข้อมูลครบแล้วแจ้งแอดมินได้เลยนะคะ');
 return parts.join('\n');
 }
+
+
 
 function buildProductionChecklist() {
 let picked = getPicked();
