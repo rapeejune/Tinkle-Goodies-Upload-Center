@@ -89,13 +89,20 @@ body { overflow: hidden; padding-bottom: 0; }
 .product-group.open .group-body { display: grid; grid-template-columns: 1fr; }
 @media (min-width: 768px) { .product-group.open .group-body { grid-template-columns: repeat(2, 1fr); } }
 .product-group.open .group-header .icon { transform: rotate(90deg); color: var(--primary); }
-.p-card { border: 1px solid var(--border-light); border-radius: var(--radius-sm); overflow: hidden; transition: 0.2s; background: var(--bg-main); cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px; min-height: 54px; }
+.p-card { border: 1px solid var(--border-light); border-radius: var(--radius-sm); overflow: hidden; transition: 0.2s; background: var(--bg-main); cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; min-height: 54px; gap: 8px; }
 .p-card.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: inset 0 0 0 1px var(--primary); }
-.p-info { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 13px; }
-.p-emoji { font-size: 18px; }
-.p-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-light); display: flex; align-items: center; justify-content: center; background: var(--surface); }
+.p-info { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; flex: 1; min-width: 0; }
+.p-info-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-emoji { font-size: 18px; flex-shrink: 0; }
+.p-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-light); display: flex; align-items: center; justify-content: center; background: var(--surface); flex-shrink: 0; }
 .p-card.selected .p-check { background: var(--primary); border-color: var(--primary); }
 .p-card.selected .p-check::after { content: '✓'; color: white; font-size: 12px; }
+/* Inline qty control — shown only when product is selected */
+.p-qty-ctrl { display: flex; align-items: center; gap: 4px; flex-shrink: 0; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
+.p-card.selected .p-qty-ctrl { opacity: 1; pointer-events: all; }
+.p-qty-btn { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--primary); background: var(--surface); color: var(--primary-text); font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; transition: background 0.1s; }
+.p-qty-btn:hover { background: var(--primary); color: white; }
+.p-qty-num { min-width: 22px; text-align: center; font-size: 13px; font-weight: 700; color: var(--primary-text); }
 .cart-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
 .cart-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .cart-card-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
@@ -1399,6 +1406,10 @@ const VARIANT_DIRECT_KEYWORDS = [
   '45 นาที','90 นาที','45นาที','90นาที','เทปตลับ',
   'กรอบพลาสติก','กรอบเหลือง','กรอบขอบแดง','font แดง','font น้ำเงิน','ขอบมน','กรอบดำ',
   'อัปเกรด','กรอบกระดาษ','ซอง pvc',
+  // Camera (ONE SHOT!) metadata keywords
+  'กล่องมาตรฐาน','ไม่รับกล่อง','ซองซิปขุ่น + แพ็กหัวกระดาษ',
+  'เคลือบด้าน','เคลือบมัน','matte','gloss',
+  'ล้างฟิล์ม','event service','batch service','บริการล้างฟิล์ม',
 ];
 const isVariantDirectLine = VARIANT_DIRECT_KEYWORDS.some(kw => normalizedLine.includes(kw));
 if (isVariantDirectLine) {
@@ -1484,6 +1495,27 @@ if (isVariantDirectLine) {
       opts.upgradeQty += optQty;
       opts.variant = 'upgraded';
       if (state.quantities['film-slide']) state.quantities['film-slide'] += optQty;
+    }
+    // ── ONE SHOT! Camera metadata capture ────────────────────────────────────
+    if (currentProduct === 'disposable-cam') {
+      // packaging
+      if (normalizedLine.includes('กล่องมาตรฐาน') || normalizedLine.includes('รับกล่อง')) {
+        opts.cam_packaging = 'box';
+      } else if (normalizedLine.includes('ไม่รับกล่อง') || normalizedLine.includes('ซองซิปขุ่น')) {
+        opts.cam_packaging = 'no-box';
+      }
+      // finish
+      if (normalizedLine.includes('เคลือบด้าน') || normalizedLine.includes('matte')) {
+        opts.cam_finish = 'matte';
+      } else if (normalizedLine.includes('เคลือบมัน') || normalizedLine.includes('gloss')) {
+        opts.cam_finish = 'gloss';
+      }
+      // filmService
+      if (normalizedLine.includes('event service') || normalizedLine.includes('batch service') || normalizedLine.includes('event / batch')) {
+        opts.cam_filmService = 'batch';
+      } else if (normalizedLine.includes('ล้างฟิล์ม') || normalizedLine.includes('+290')) {
+        opts.cam_filmService = 'single';
+      }
     }
   }
   continue; // ← Never falls through to skipKeywords or product matching
@@ -1701,6 +1733,15 @@ if (isOptionLine) {
       if (noteMatch) opts.note = noteMatch[1].trim();
     }
 
+    // ── ONE SHOT! Camera metadata (via isOptionLine path) ──────────────────
+    if (currentProduct === 'disposable-cam') {
+      if (normalizedLine.includes('กล่องมาตรฐาน') || normalizedLine.includes('รับกล่อง')) { opts.cam_packaging = 'box'; }
+      else if (normalizedLine.includes('ไม่รับกล่อง') || normalizedLine.includes('ซองซิปขุ่น + แพ็ก')) { opts.cam_packaging = 'no-box'; }
+      if (normalizedLine.includes('เคลือบด้าน') || normalizedLine.includes('matte')) { opts.cam_finish = 'matte'; }
+      else if (normalizedLine.includes('เคลือบมัน') || normalizedLine.includes('gloss')) { opts.cam_finish = 'gloss'; }
+      if (normalizedLine.includes('event') || normalizedLine.includes('batch')) { opts.cam_filmService = 'batch'; }
+      else if (normalizedLine.includes('ล้างฟิล์ม')) { opts.cam_filmService = 'single'; }
+    }
     // Single-value fallbacks (when no multi-variant)
     if (!opts.variants?.length && !opts.accessories?.length) {
       if (opts.package_variant === undefined) {
@@ -1880,8 +1921,46 @@ if (hasContents) isSel = true;
 
 let card = document.createElement('div');
 card.className = `p-card ${isSel ? 'selected' : ''}`;
-card.onclick = () => toggleProduct(p.id);
-card.innerHTML = `<div class="p-info"><span class="p-emoji">${p.emoji}</span> ${p.name}</div><div class="p-check"></div>`;
+const curQty = state.quantities[p.id] || 1;
+
+// Left: emoji + name (click to toggle)
+const infoEl = document.createElement('div');
+infoEl.className = 'p-info';
+infoEl.innerHTML = `<span class="p-emoji">${p.emoji}</span><span class="p-info-name">${p.name}</span>`;
+infoEl.onclick = () => toggleProduct(p.id);
+
+// Middle: qty control (− N +), only active when selected
+const qtyEl = document.createElement('div');
+qtyEl.className = 'p-qty-ctrl';
+qtyEl.innerHTML = `
+  <button class="p-qty-btn" title="ลด">−</button>
+  <span class="p-qty-num">${curQty}</span>
+  <button class="p-qty-btn" title="เพิ่ม">+</button>`;
+qtyEl.querySelector('.p-qty-btn:first-child').onclick = (e) => {
+  e.stopPropagation();
+  if (!state.selected[p.id]) { toggleProduct(p.id); }
+  const q = Math.max(1, (state.quantities[p.id] || 1) - 1);
+  state.quantities[p.id] = q;
+  qtyEl.querySelector('.p-qty-num').textContent = q;
+  expandAndMergeCart(); renderCart(); updatePreview();
+};
+qtyEl.querySelector('.p-qty-btn:last-child').onclick = (e) => {
+  e.stopPropagation();
+  if (!state.selected[p.id]) { toggleProduct(p.id); }
+  const q = (state.quantities[p.id] || 1) + 1;
+  state.quantities[p.id] = q;
+  qtyEl.querySelector('.p-qty-num').textContent = q;
+  expandAndMergeCart(); renderCart(); updatePreview();
+};
+
+// Right: checkmark
+const checkEl = document.createElement('div');
+checkEl.className = 'p-check';
+checkEl.onclick = () => toggleProduct(p.id);
+
+card.appendChild(infoEl);
+card.appendChild(qtyEl);
+card.appendChild(checkEl);
 body.appendChild(card);
 });
 groupEl.appendChild(body); container.appendChild(groupEl);
@@ -2332,6 +2411,10 @@ function flattenCart() {
           design_count: opts.design_count || null,
           logo_position: opts.logo_position || opts.position || null,
           frame_note: opts.note || opts.frame_note || null,
+          // Camera metadata — pass-through all schema keys
+          cam_packaging:   opts.cam_packaging   || null,
+          cam_finish:      opts.cam_finish       || null,
+          cam_filmService: opts.cam_filmService  || null,
         },
       });
     }
@@ -2486,6 +2569,37 @@ function renderReconciliationTable(result) {
 // photos:  how many photos required (0 = none)
 // special: special handling key for custom logic
 // ============================================================================
+// ── Camera Metadata Schema ──────────────────────────────────────────────────
+// Extensible metadata for ONE SHOT! Personalized Camera (and future products)
+// item.meta[key] is the single source of truth for File Request Generator
+// To add new fields: (1) add to CAMERA_META_SCHEMA, (2) add parser capture,
+// (3) add render rule in buildCustomerMessage disposable-cam section.
+const CAMERA_META_SCHEMA = {
+  packaging:   { values: ['box', 'no-box'],             default: null },
+  finish:      { values: ['gloss', 'matte'],            default: 'gloss' },
+  filmService: { values: ['none', 'single', 'batch'],   default: 'none' },
+  // Future fields (add here + parser + render):
+  // stickerType:  { values: ['standard', 'custom'],    default: 'standard' },
+  // cameraColor:  { values: ['black', 'white', 'pink'],default: null },
+  // frameStyle:   { values: ['classic', 'modern'],     default: null },
+  // giftWrap:     { values: ['yes', 'no'],             default: 'no' },
+};
+// Render rules for camera metadata — isolated from main generator
+// Each entry: { key, condition, display }
+const CAMERA_RENDER_RULES = [
+  { key: 'packaging',   show: (v) => v !== null,
+    display: (v) => v === 'box'
+      ? '📦 แพ็กเกจ: ✅ กล่องมาตรฐาน'
+      : '📦 แพ็กเกจ: ✅ ไม่รับกล่อง (จัดส่งเป็นซองซิปขุ่น + แพ็กหัวกระดาษ)' },
+  { key: 'finish',      show: (v) => v === 'matte',
+    display: ()  => '✨ งานพิมพ์: ✅ เคลือบด้าน' },
+  { key: 'filmService', show: (v) => v !== 'none' && v !== null,
+    display: (v) => v === 'single'
+      ? '🎞️ บริการล้างฟิล์ม: ✅ ล้างฟิล์ม (+290 บาท/กล้อง)'
+      : '🎞️ บริการล้างฟิล์ม: ✅ Event / Batch Service' },
+  // Future rules auto-load from this array — no changes to generator needed
+];
+
 const PRODUCT_REQUIREMENTS = {
   // ── Canva + Song (NFC with music) ──
   'vinyl-record':    { canva:true,  song:true,  drive:false, photos:0, special:null },
@@ -2629,12 +2743,25 @@ if (canvaItems.length) {
       return;
     }
 
-    // ── ONE SHOT Camera (canva, no song) ──
+    // ── ONE SHOT! Personalized Camera ─────────────────────────────────────────
+    // Metadata-driven: reads from i.meta (reconMap source of truth)
+    // Render rules defined in CAMERA_RENDER_RULES — no questions asked if data present
     if (i.p.id === 'disposable-cam') {
       parts.push(`\n📷 ${i.p.name} × ${i.qty}`);
       if (i.p.canvaUrl) parts.push(`🔗 ${i.p.canvaUrl}`);
       parts.push(`🖼️ Canva: xxxxx`);
-      // NO song link — req.song = false
+      // Apply each render rule from CAMERA_RENDER_RULES
+      // i.meta is the source of truth — falls back to state.productOptions only if meta missing
+      const camMeta = {
+        packaging:   i.meta?.cam_packaging   ?? (state.productOptions['disposable-cam']?.cam_packaging   ?? null),
+        finish:      i.meta?.cam_finish       ?? (state.productOptions['disposable-cam']?.cam_finish       ?? null),
+        filmService: i.meta?.cam_filmService  ?? (state.productOptions['disposable-cam']?.cam_filmService  ?? null),
+      };
+      for (const rule of CAMERA_RENDER_RULES) {
+        const val = camMeta[rule.key];
+        if (rule.show(val)) parts.push(rule.display(val));
+      }
+      // req.song = false — no song line
       return;
     }
 
