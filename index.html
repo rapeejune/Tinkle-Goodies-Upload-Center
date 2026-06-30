@@ -3250,47 +3250,69 @@ const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; 
 // ── Universal image decoder ─────────────────────────────────────────────────
 // Tries heic2any → createImageBitmap → URL.createObjectURL chain
 // Returns HTMLImageElement (drawable on canvas) or throws.
+// ── Universal image decoder ─────────────────────────────────────────────────
+// Spec-required fallback chain (in order):
+//   1) createImageBitmap   — native, fastest, supports JPG/PNG/WEBP/AVIF/GIF/BMP + HEIC on Safari
+//   2) ImageDecoder        — Chrome/Edge, supports AVIF/WEBP/etc with more options
+//   3) heic2any            — JS fallback for HEIC on non-Safari browsers
+//   4) URL.createObjectURL → loadImage — last resort (browser-native via <img>)
+// Returns HTMLImageElement (drawable on canvas). Never aborts the batch on failure.
 async function decodeAnyImage(file) {
   const isHEIC = file.detectedType === 'image/heic'
     || /\.(heic|heif)$/i.test(file.name)
     || file.type === 'image/heic' || file.type === 'image/heif';
 
-  // Stage 1: HEIC → heic2any first
+  const bitmapToImg = async (bmp) => {
+    const c = document.createElement('canvas');
+    c.width = bmp.width; c.height = bmp.height;
+    c.getContext('2d').drawImage(bmp, 0, 0);
+    const url = c.toDataURL('image/jpeg', 0.95);
+    if (bmp.close) bmp.close();
+    return await loadImage(url);
+  };
+
+  // Stage 1: createImageBitmap (fastest path for any format the browser natively decodes)
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bmp = await createImageBitmap(file);
+      return await bitmapToImg(bmp);
+    } catch (e) {
+      console.warn('[decode] createImageBitmap failed for', file.name, e && e.message);
+    }
+  }
+
+  // Stage 2: ImageDecoder API (Chromium-based) — broader codec support, frame-by-frame
+  if (typeof ImageDecoder !== 'undefined') {
+    try {
+      const decoder = new ImageDecoder({
+        data: file.stream(),
+        type: file.type || (isHEIC ? 'image/heic' : 'image/jpeg'),
+      });
+      const result = await decoder.decode();
+      const bmp = await createImageBitmap(result.image);
+      return await bitmapToImg(bmp);
+    } catch (e) {
+      console.warn('[decode] ImageDecoder failed for', file.name, e && e.message);
+    }
+  }
+
+  // Stage 3: heic2any (HEIC only, for browsers without native HEIC support)
   if (isHEIC && typeof heic2any !== 'undefined') {
     try {
       const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
       const url  = URL.createObjectURL(Array.isArray(blob) ? blob[0] : blob);
-      const img  = await loadImage(url);
-      return img;
-    } catch (e) {
-      console.warn('heic2any failed, trying fallback for', file.name, e);
-      // fall through to native decoders
-    }
-  }
-
-  // Stage 2: createImageBitmap — works for jpg/png/webp/avif/gif/bmp, sometimes HEIC on Safari
-  if (typeof createImageBitmap === 'function') {
-    try {
-      const bmp = await createImageBitmap(file);
-      // Convert bitmap → HTMLImageElement via canvas (so drawImage/dataURL still work uniformly)
-      const c = document.createElement('canvas');
-      c.width = bmp.width; c.height = bmp.height;
-      c.getContext('2d').drawImage(bmp, 0, 0);
-      const url = c.toDataURL('image/jpeg', 0.95);
-      bmp.close && bmp.close();
       return await loadImage(url);
     } catch (e) {
-      console.warn('createImageBitmap failed for', file.name, e);
+      console.warn('[decode] heic2any failed for', file.name, e && e.message);
     }
   }
 
-  // Stage 3: Plain object URL — last resort (browser-native decode)
+  // Stage 4: Plain <img> tag with object URL — final fallback
   try {
     const url = URL.createObjectURL(file);
-    const img = await loadImage(url);
-    return img;
+    return await loadImage(url);
   } catch (e) {
-    throw new Error(`Cannot decode ${file.name}: ${e.message || e}`);
+    throw new Error(`Cannot decode ${file.name}`);
   }
 }
 
@@ -3341,7 +3363,9 @@ function renderSpinCropEditor() {
 
     const badge = document.createElement('div');
     badge.className = 'crop-badge';
-    badge.textContent = `${idx+1}.jpg`;
+    const orig = src.file.name || `image_${idx+1}`;
+    const ld = orig.lastIndexOf('.');
+    badge.textContent = (ld > 0 ? orig.substring(0, ld) : orig) + '.jpg';
     tile.appendChild(badge);
 
     const controls = document.createElement('div');
@@ -3446,6 +3470,7 @@ function applyCropTransform(tile, src) {
 async function exportSpinCropsToImages() {
   processedImages = [];
   const maxOut = ToolConfig['spin'].maxSize;
+  const usedNames = new Set(); // prevent ZIP filename collisions when basenames clash
   for (let i = 0; i < spinSourceImages.length; i++) {
     const src = spinSourceImages[i];
     const t   = src.transform;
@@ -3490,7 +3515,19 @@ async function exportSpinCropsToImages() {
     ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(outSize, midY);
     ctx.strokeStyle = guideColor; ctx.lineWidth = thickness; ctx.stroke();
 
-    processedImages.push({ filename: `${i+1}.jpg`, dataUrl: canvas.toDataURL('image/jpeg', 0.95) });
+    // Preserve original filename — strip old extension, append .jpg
+const originalName = src.file.name || `image_${i+1}`;
+const lastDot = originalName.lastIndexOf('.');
+const baseName = lastDot > 0 ? originalName.substring(0, lastDot) : originalName;
+let outFilename = `${baseName}.jpg`;
+// Dedupe — append _1, _2... if collision
+let dedupeCount = 1;
+while (usedNames.has(outFilename)) {
+  outFilename = `${baseName}_${dedupeCount}.jpg`;
+  dedupeCount++;
+}
+usedNames.add(outFilename);
+processedImages.push({ filename: outFilename, dataUrl: canvas.toDataURL('image/jpeg', 0.95) });
   }
 }
 
@@ -3623,11 +3660,19 @@ banner.className = 'upload-summary-banner all-ok';
 banner.innerHTML = `✅ อัปโหลดสำเร็จ <b>${successCount}</b> ไฟล์`;
 } else {
 banner.className = 'upload-summary-banner has-fail';
-const fileListHtml = failedFiles.map(f => `<li>${f.name} <span style="opacity:0.7;">— ${f.reason}</span></li>`).join('');
+const fileListHtml = failedFiles.map(f => `<li><b>${f.name}</b></li>`).join('');
 banner.innerHTML = `✅ อัปโหลดสำเร็จ <b>${successCount}</b> ไฟล์<br>
-⚠️ ไม่สามารถแปลงได้ <b>${failedFiles.length}</b> ไฟล์
+⚠️ ไม่สามารถอ่านไฟล์นี้ได้ <b>${failedFiles.length}</b> ไฟล์
 <ul>${fileListHtml}</ul>
-<div class="fail-hint">กรุณา: เปลี่ยนไฟล์ที่ไม่สำเร็จเป็น JPG ก่อนอัปโหลดใหม่ หรือส่งไฟล์ผ่าน Google Drive แทน</div>`;
+<div class="fail-hint"><b>สาเหตุที่เป็นไปได้:</b><br>
+• HEIC รูปแบบพิเศษ (HDR / Portrait / Live Photo / Apple Extended)<br>
+• ไฟล์ไม่สมบูรณ์<br>
+• Browser ไม่รองรับ codec นี้<br>
+<br>
+<b>แนะนำ:</b><br>
+• เปลี่ยนเป็น JPG ก่อนอัปโหลด<br>
+หรือ<br>
+• ส่งไฟล์ผ่าน Google Drive แทน</div>`;
 }
 // Insert banner right after the drop zone
 dz.insertAdjacentElement('afterend', banner);
