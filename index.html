@@ -3224,8 +3224,21 @@ overlay.style.display = 'flex'; procText.innerText = 'กำลังตรว�
 
 for (let f of fileArray) {
 let actualType = await getActualFileType(f);
-if (actualType.startsWith('image/')) { f.detectedType = actualType; validFiles.push(f); }
-else { invalidCount++; }
+// "Try first, reject later" — accept anything with an image-like signal:
+// (1) magic-byte match, (2) MIME starts with image/, (3) image-like extension
+const lowerName = f.name.toLowerCase();
+const looksLikeImage =
+  actualType.startsWith('image/') ||
+  (f.type && f.type.startsWith('image/')) ||
+  /\.(jpg|jpeg|png|webp|avif|heic|heif|bmp|tif|tiff|gif)$/i.test(lowerName);
+
+if (looksLikeImage) {
+  // Pass even 'unknown' through — decoder will try multiple methods
+  f.detectedType = actualType.startsWith('image/') ? actualType
+                  : (f.type && f.type.startsWith('image/')) ? f.type
+                  : (lowerName.match(/\.(heic|heif)$/i) ? 'image/heic' : 'image/jpeg');
+  validFiles.push(f);
+} else { invalidCount++; }
 }
 overlay.style.display = 'none';
 if (validFiles.length === 0) return showAlert('ไม่พบไฟล์รูปภาพที่รองรับ หรือไฟล์อาจเสียหาย');
@@ -3251,12 +3264,13 @@ const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; 
 // Tries heic2any → createImageBitmap → URL.createObjectURL chain
 // Returns HTMLImageElement (drawable on canvas) or throws.
 // ── Universal image decoder ─────────────────────────────────────────────────
-// Spec-required fallback chain (in order):
-//   1) createImageBitmap   — native, fastest, supports JPG/PNG/WEBP/AVIF/GIF/BMP + HEIC on Safari
-//   2) ImageDecoder        — Chrome/Edge, supports AVIF/WEBP/etc with more options
-//   3) heic2any            — JS fallback for HEIC on non-Safari browsers
-//   4) URL.createObjectURL → loadImage — last resort (browser-native via <img>)
-// Returns HTMLImageElement (drawable on canvas). Never aborts the batch on failure.
+// Philosophy: "Try first, reject later" — production tool prioritizes opening files.
+// Fallback chain (per spec):
+//   1) createImageBitmap   — native, fastest, handles JPG/PNG/WEBP/AVIF/GIF/BMP/TIFF + HEIC on Safari
+//   2) ImageDecoder        — Chromium WebCodecs API, broader codec support
+//   3) HTML <img> via URL  — browser-native <img> decode (sometimes works when above fail)
+//   4) heic2any            — JS fallback for HEIC on browsers without native support
+// Returns HTMLImageElement. Never aborts the batch — failure only marks ONE file as failed.
 async function decodeAnyImage(file) {
   const isHEIC = file.detectedType === 'image/heic'
     || /\.(heic|heif)$/i.test(file.name)
@@ -3271,49 +3285,63 @@ async function decodeAnyImage(file) {
     return await loadImage(url);
   };
 
-  // Stage 1: createImageBitmap (fastest path for any format the browser natively decodes)
+  const errors = []; // collect for diagnostics
+
+  // Stage 1: createImageBitmap (fastest, broad format coverage)
   if (typeof createImageBitmap === 'function') {
     try {
       const bmp = await createImageBitmap(file);
       return await bitmapToImg(bmp);
     } catch (e) {
-      console.warn('[decode] createImageBitmap failed for', file.name, e && e.message);
+      errors.push('createImageBitmap: ' + (e && e.message || e));
     }
   }
 
-  // Stage 2: ImageDecoder API (Chromium-based) — broader codec support, frame-by-frame
+  // Stage 2: ImageDecoder API (Chromium WebCodecs — broader codec support)
   if (typeof ImageDecoder !== 'undefined') {
     try {
-      const decoder = new ImageDecoder({
-        data: file.stream(),
-        type: file.type || (isHEIC ? 'image/heic' : 'image/jpeg'),
-      });
-      const result = await decoder.decode();
-      const bmp = await createImageBitmap(result.image);
-      return await bitmapToImg(bmp);
+      // ImageDecoder needs a known MIME — try multiple candidates
+      const candidates = [
+        file.type,
+        isHEIC ? 'image/heic' : null,
+        'image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif',
+      ].filter(Boolean);
+      for (const mime of candidates) {
+        try {
+          const buf = await file.arrayBuffer();
+          const decoder = new ImageDecoder({ data: buf, type: mime });
+          const result = await decoder.decode();
+          const bmp = await createImageBitmap(result.image);
+          return await bitmapToImg(bmp);
+        } catch { /* try next MIME */ }
+      }
     } catch (e) {
-      console.warn('[decode] ImageDecoder failed for', file.name, e && e.message);
+      errors.push('ImageDecoder: ' + (e && e.message || e));
     }
   }
 
-  // Stage 3: heic2any (HEIC only, for browsers without native HEIC support)
-  if (isHEIC && typeof heic2any !== 'undefined') {
+  // Stage 3: Plain HTML <img> via object URL (browser-native, can succeed when others fail)
+  try {
+    const url = URL.createObjectURL(file);
+    const img = await loadImage(url);
+    return img;
+  } catch (e) {
+    errors.push('HTML Image: ' + (e && e.message || e));
+  }
+
+  // Stage 4: heic2any (HEIC-only JS fallback for browsers without native support)
+  if (typeof heic2any !== 'undefined') {
     try {
       const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
       const url  = URL.createObjectURL(Array.isArray(blob) ? blob[0] : blob);
       return await loadImage(url);
     } catch (e) {
-      console.warn('[decode] heic2any failed for', file.name, e && e.message);
+      errors.push('heic2any: ' + (e && e.message || e));
     }
   }
 
-  // Stage 4: Plain <img> tag with object URL — final fallback
-  try {
-    const url = URL.createObjectURL(file);
-    return await loadImage(url);
-  } catch (e) {
-    throw new Error(`Cannot decode ${file.name}`);
-  }
+  console.warn('[decode] All stages failed for', file.name, errors);
+  throw new Error(`Cannot decode ${file.name}`);
 }
 
 // ── Crop transform helpers ─────────────────────────────────────────────────
