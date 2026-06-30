@@ -173,6 +173,18 @@ body { overflow: hidden; padding-bottom: 0; }
 .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
 .img-preview-item { position: relative; width: 100%; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-light); background: var(--bg-main); box-shadow: var(--shadow-sm); }
 .img-preview-item img { width: 100%; height: 100%; object-fit: contain; background: var(--surface-alt); }
+/* Story Spin Box — manual crop tile (1:1 with drag/zoom) */
+.spin-crop-tile { position: relative; aspect-ratio: 1 / 1; background: #000; border-radius: var(--radius-sm); overflow: hidden; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: var(--shadow-sm); }
+.spin-crop-tile:active { cursor: grabbing; }
+.spin-crop-tile .crop-img { position: absolute; top: 0; left: 0; transform-origin: 0 0; pointer-events: none; max-width: none; max-height: none; }
+.spin-crop-tile .crop-guide { position: absolute; left: 0; right: 0; top: 50%; height: 0; border-top: 1px dashed rgba(255,255,255,0.85); pointer-events: none; mix-blend-mode: difference; }
+.spin-crop-tile .crop-badge { position: absolute; top: 4px; left: 4px; background: rgba(0,0,0,0.55); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; pointer-events: none; }
+.spin-crop-tile .crop-controls { position: absolute; bottom: 4px; left: 4px; right: 4px; display: flex; gap: 4px; justify-content: center; opacity: 0.85; }
+.spin-crop-tile .crop-controls button { background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; font-weight: 600; cursor: pointer; min-height: 24px; }
+.spin-crop-tile .crop-controls button:hover { background: rgba(0,0,0,0.85); }
+.spin-crop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.spin-crop-banner { background: var(--secondary-light); border: 1px solid var(--secondary-subtle); border-radius: var(--radius-sm); padding: 10px 14px; margin: 10px 0; font-size: 12px; color: var(--secondary-text); line-height: 1.5; }
+.spin-crop-banner b { color: var(--text-main); }
 .img-preview-item .badge { position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.6); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 100px; backdrop-filter: blur(4px); z-index: 2; }
 .tool-settings-row { display: flex; flex-wrap: wrap; gap: 16px; background: var(--bg-main); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-light); }
 .tool-set-col { flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 8px; }
@@ -283,7 +295,7 @@ body { overflow: hidden; padding-bottom: 0; }
 <div id="processing-overlay-spin"><div class="spinner"></div><div id="processing-text-spin" style="font-weight: 700; font-size: 15px;">กำลังประมวลผล...</div></div>
 <div class="ws-header">
 <div class="ws-title">🎡 Story Spin Box Processor</div>
-<div class="ws-desc">เตรียมไฟล์ 16 รูป (Crop 1:1, ไม่เกิน 1500px, ขีดเส้นกลางแนวนอน, แปลง JPG อัตโนมัติ)</div>
+<div class="ws-desc">อัปโหลด 16 รูป (รองรับ HEIC/JPG/PNG/WEBP/AVIF) → ปรับ Crop เอง → ได้รูป 1:1 เต็มเฟรม</div>
 </div>
 <div class="ws-body">
 <div class="tool-settings-row">
@@ -291,7 +303,7 @@ body { overflow: hidden; padding-bottom: 0; }
 <div class="tool-set-col"><span class="settings-box-label">Guide Thickness</span><select id="spin-thick" class="tool-select" onchange="reRenderSpinPreviews()"><option value="1">1 px</option><option value="2">2 px</option><option value="3">3 px</option></select></div>
 <div class="tool-set-col"><span class="settings-box-label">Guide Opacity</span><select id="spin-opacity" class="tool-select" onchange="reRenderSpinPreviews()"><option value="0.25">25%</option><option value="0.5" selected>50%</option><option value="0.75">75%</option></select></div>
 </div>
-<div class="drop-zone" id="dz-spin"><div class="icon">📥</div><div class="main-text">ลากไฟล์รูปมาวาง หรือคลิกที่นี่</div><div class="sub-text">รองรับภาพทุกชนิดรวมถึงไฟล์ไม่มีนามสกุล (สูงสุด 16 รูป)</div><input type="file" id="fi-spin" multiple accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif,.jpg,.jpeg,.png,.webp" style="display: none;"></div>
+<div class="drop-zone" id="dz-spin"><div class="icon">📥</div><div class="main-text">ลากไฟล์รูปมาวาง หรือคลิกที่นี่</div><div class="sub-text">รองรับ HEIC จาก iPhone, JPG, PNG, WEBP, AVIF (สูงสุด 16 รูป)</div><input type="file" id="fi-spin" multiple accept="image/*,.heic,.heif,.avif,.tif,.tiff,.bmp,.gif" style="display: none;"></div>
 <div id="sb-spin" style="display: none; justify-content: space-between; align-items: center; background: var(--primary-light); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--primary-subtle);">
 <div style="font-weight: 600; color: var(--primary-text);" id="count-spin">เลือกแล้ว 0 / 16 รูป</div>
 <button class="btn-micro-action" onclick="clearTool('spin')">🗑️ ล้างทั้งหมด</button>
@@ -3096,6 +3108,7 @@ try { init(); } catch(e) { console.error('init error:', e); }
 // ============================================================================
 const ToolConfig = { 'spin': { maxFiles: 16, maxSize: 1500, exportName: 'StorySpinBox_Processed.zip' }, 'convert': { maxFiles: 100, exportName: 'ConvertToJPG.zip' } };
 let rawFiles = []; let processedImages = []; let activeTool = 'spin'; let spinCachedImages = []; let convertNamingMode = 'orig';
+let spinSourceImages = []; // {file, img, transform:{tx,ty,scale,minScale}}
 
 async function getActualFileType(file) {
 const buffer = await file.slice(0, 12).arrayBuffer();
@@ -3110,10 +3123,17 @@ if (arr[0] === 0x52 && arr[1] === 0x49 && arr[2] === 0x46 && arr[3] === 0x46 && 
 if (arr[4] === 0x66 && arr[5] === 0x74 && arr[6] === 0x79 && arr[7] === 0x70) {
 const brand = String.fromCharCode(arr[8], arr[9], arr[10], arr[11]);
 if (['heic', 'heix', 'hevc', 'hevx', 'heim', 'heis', 'hevm', 'hevs', 'mif1', 'msf1'].includes(brand)) return 'image/heic';
+if (['avif', 'avis'].includes(brand)) return 'image/avif';
 }
 }
+// GIF (legacy header)
+if (arr.length >= 6 && arr[0]===0x47 && arr[1]===0x49 && arr[2]===0x46 && arr[3]===0x38) return 'image/gif';
 if (file.type && file.type.startsWith('image/')) return file.type;
-if (file.name.toLowerCase().match(/\.(heic|heif)$/)) return 'image/heic';
+const ext = (file.name.toLowerCase().match(/\.([a-z0-9]+)$/) || [])[1];
+const extMap = { heic:'image/heic', heif:'image/heic', avif:'image/avif',
+  jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', webp:'image/webp',
+  gif:'image/gif', bmp:'image/bmp', tif:'image/tiff', tiff:'image/tiff' };
+if (ext && extMap[ext]) return extMap[ext];
 return 'unknown';
 }
 
@@ -3143,11 +3163,13 @@ else { executeClearTool(toolId); }
 function executeClearTool(toolId) {
 if (toolId === 'cd') { cdReset(); return; }
 if (toolId === 'cdbox') { cdboxReset(); return; }
-rawFiles = []; processedImages = []; spinCachedImages = [];
+rawFiles = []; processedImages = []; spinCachedImages = []; spinSourceImages = [];
 document.getElementById(`dz-${toolId}`).style.display = 'flex';
 document.getElementById(`sb-${toolId}`).style.display = 'none';
-document.getElementById(`pg-${toolId}`).innerHTML = '';
+const pg = document.getElementById(`pg-${toolId}`); pg.innerHTML = ''; pg.className = 'preview-grid';
 document.getElementById(`btn-export-${toolId}`).disabled = true;
+const btn = document.getElementById(`btn-export-${toolId}`);
+if (toolId === 'spin') btn.innerHTML = '📦 ดาวน์โหลด StorySpinBox.zip';
 document.getElementById(`fi-${toolId}`).value = '';
 // Clear any leftover upload summary banner from a previous batch
 const prevBanner = document.getElementById(`upload-summary-${toolId}`);
@@ -3225,106 +3247,300 @@ const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; 
 });
 }
 
+// ── Universal image decoder ─────────────────────────────────────────────────
+// Tries heic2any → createImageBitmap → URL.createObjectURL chain
+// Returns HTMLImageElement (drawable on canvas) or throws.
+async function decodeAnyImage(file) {
+  const isHEIC = file.detectedType === 'image/heic'
+    || /\.(heic|heif)$/i.test(file.name)
+    || file.type === 'image/heic' || file.type === 'image/heif';
+
+  // Stage 1: HEIC → heic2any first
+  if (isHEIC && typeof heic2any !== 'undefined') {
+    try {
+      const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
+      const url  = URL.createObjectURL(Array.isArray(blob) ? blob[0] : blob);
+      const img  = await loadImage(url);
+      return img;
+    } catch (e) {
+      console.warn('heic2any failed, trying fallback for', file.name, e);
+      // fall through to native decoders
+    }
+  }
+
+  // Stage 2: createImageBitmap — works for jpg/png/webp/avif/gif/bmp, sometimes HEIC on Safari
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bmp = await createImageBitmap(file);
+      // Convert bitmap → HTMLImageElement via canvas (so drawImage/dataURL still work uniformly)
+      const c = document.createElement('canvas');
+      c.width = bmp.width; c.height = bmp.height;
+      c.getContext('2d').drawImage(bmp, 0, 0);
+      const url = c.toDataURL('image/jpeg', 0.95);
+      bmp.close && bmp.close();
+      return await loadImage(url);
+    } catch (e) {
+      console.warn('createImageBitmap failed for', file.name, e);
+    }
+  }
+
+  // Stage 3: Plain object URL — last resort (browser-native decode)
+  try {
+    const url = URL.createObjectURL(file);
+    const img = await loadImage(url);
+    return img;
+  } catch (e) {
+    throw new Error(`Cannot decode ${file.name}: ${e.message || e}`);
+  }
+}
+
+// ── Crop transform helpers ─────────────────────────────────────────────────
+// minScale = scale at which the image just covers the square (object-fit:cover)
+// Image is positioned in TILE_PX coordinate space (CSS pixels of the tile)
+function computeMinScale(imgW, imgH, tilePx) {
+  return Math.max(tilePx / imgW, tilePx / imgH);
+}
+function clampPan(t, imgW, imgH, tilePx) {
+  // Keep image fully covering the square — image extents must stay outside the tile
+  const w = imgW * t.scale;
+  const h = imgH * t.scale;
+  t.tx = Math.min(0, Math.max(tilePx - w, t.tx));
+  t.ty = Math.min(0, Math.max(tilePx - h, t.ty));
+  return t;
+}
+
+// ── Render the manual-crop editor grid ─────────────────────────────────────
+function renderSpinCropEditor() {
+  const pg = document.getElementById('pg-spin');
+  pg.innerHTML = '';
+  pg.className = 'spin-crop-grid';
+
+  if (spinSourceImages.length === 0) return;
+
+  // Info banner
+  const banner = document.createElement('div');
+  banner.className = 'spin-crop-banner';
+  banner.style.gridColumn = '1 / -1';
+  banner.innerHTML = `🎯 <b>ปรับ Crop ก่อน Export</b> — ลากภาพเพื่อจัดตำแหน่ง, กด <b>+</b>/<b>−</b> เพื่อ Zoom, <b>Reset</b> กลับค่าเริ่มต้น<br>ภาพจะถูก Crop เป็น 1:1 เต็มเฟรมตามที่เห็นในกรอบ พร้อมขีดเส้นกลาง`;
+  pg.appendChild(banner);
+
+  spinSourceImages.forEach((src, idx) => {
+    const tile = document.createElement('div');
+    tile.className = 'spin-crop-tile';
+    tile.dataset.idx = idx;
+
+    const imgEl = document.createElement('img');
+    imgEl.className = 'crop-img';
+    imgEl.src = src.img.src;
+    imgEl.draggable = false;
+    tile.appendChild(imgEl);
+
+    const guide = document.createElement('div');
+    guide.className = 'crop-guide';
+    tile.appendChild(guide);
+
+    const badge = document.createElement('div');
+    badge.className = 'crop-badge';
+    badge.textContent = `${idx+1}.jpg`;
+    tile.appendChild(badge);
+
+    const controls = document.createElement('div');
+    controls.className = 'crop-controls';
+    controls.innerHTML = `<button data-act="out" title="Zoom out">−</button><button data-act="reset" title="Reset">↺</button><button data-act="in" title="Zoom in">+</button>`;
+    tile.appendChild(controls);
+
+    pg.appendChild(tile);
+
+    // Initialize transform on first render (tile dimensions known after appendChild)
+    requestAnimationFrame(() => {
+      const tilePx = tile.clientWidth;
+      const minScale = computeMinScale(src.img.width, src.img.height, tilePx);
+      if (!src.transform || !src.transform.initialized) {
+        src.transform = {
+          scale: minScale,
+          minScale,
+          tx: (tilePx - src.img.width * minScale) / 2,
+          ty: (tilePx - src.img.height * minScale) / 2,
+          tilePx,
+          initialized: true,
+        };
+      } else {
+        src.transform.tilePx = tilePx;
+        src.transform.minScale = minScale;
+        if (src.transform.scale < minScale) src.transform.scale = minScale;
+      }
+      applyCropTransform(tile, src);
+    });
+
+    // ── Drag handlers (pointer events for mouse + touch unified) ──
+    let dragging = false, lastX = 0, lastY = 0;
+    tile.addEventListener('pointerdown', (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      dragging = true; lastX = e.clientX; lastY = e.clientY;
+      tile.setPointerCapture(e.pointerId);
+    });
+    tile.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      const t = src.transform;
+      t.tx += dx; t.ty += dy;
+      clampPan(t, src.img.width, src.img.height, t.tilePx);
+      applyCropTransform(tile, src);
+    });
+    tile.addEventListener('pointerup', (e) => { dragging = false; try { tile.releasePointerCapture(e.pointerId); } catch{} });
+    tile.addEventListener('pointercancel', () => { dragging = false; });
+
+    // ── Wheel zoom (desktop) ──
+    tile.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const t = src.transform;
+      const factor = e.deltaY > 0 ? 0.92 : 1.08;
+      zoomAround(t, src.img.width, src.img.height, factor, t.tilePx / 2, t.tilePx / 2);
+      applyCropTransform(tile, src);
+    }, { passive: false });
+
+    // ── Control buttons ──
+    controls.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const t = src.transform;
+        const act = btn.dataset.act;
+        if (act === 'in')    zoomAround(t, src.img.width, src.img.height, 1.2, t.tilePx/2, t.tilePx/2);
+        if (act === 'out')   zoomAround(t, src.img.width, src.img.height, 1/1.2, t.tilePx/2, t.tilePx/2);
+        if (act === 'reset') {
+          t.scale = t.minScale;
+          t.tx = (t.tilePx - src.img.width * t.minScale) / 2;
+          t.ty = (t.tilePx - src.img.height * t.minScale) / 2;
+        }
+        applyCropTransform(tile, src);
+      });
+    });
+  });
+
+  // Re-render previews on settings change
+  document.getElementById('btn-export-spin').disabled = false;
+}
+
+function zoomAround(t, imgW, imgH, factor, cx, cy) {
+  let newScale = t.scale * factor;
+  if (newScale < t.minScale) newScale = t.minScale;
+  if (newScale > t.minScale * 8) newScale = t.minScale * 8;
+  // Keep point under cursor stable
+  const ratio = newScale / t.scale;
+  t.tx = cx - (cx - t.tx) * ratio;
+  t.ty = cy - (cy - t.ty) * ratio;
+  t.scale = newScale;
+  clampPan(t, imgW, imgH, t.tilePx);
+}
+
+function applyCropTransform(tile, src) {
+  const imgEl = tile.querySelector('.crop-img');
+  const t = src.transform;
+  imgEl.style.width  = src.img.width  + 'px';
+  imgEl.style.height = src.img.height + 'px';
+  imgEl.style.transform = `translate(${t.tx}px, ${t.ty}px) scale(${t.scale})`;
+}
+
+// ── Export from crop tiles → square JPGs with guide line ──────────────────
+async function exportSpinCropsToImages() {
+  processedImages = [];
+  const maxOut = ToolConfig['spin'].maxSize;
+  for (let i = 0; i < spinSourceImages.length; i++) {
+    const src = spinSourceImages[i];
+    const t   = src.transform;
+    if (!t) continue;
+
+    // Source-image coordinates of the tile viewport
+    // The tile shows the part of the image where (tile coord 0..tilePx) maps
+    // to image pixels at ((0 - tx)/scale .. (tilePx - tx)/scale)
+    const srcX = -t.tx / t.scale;
+    const srcY = -t.ty / t.scale;
+    const srcSize = t.tilePx / t.scale; // square in source pixels
+
+    // Output canvas — square, capped at maxOut
+    const outSize = Math.min(maxOut, Math.round(srcSize));
+    const canvas  = document.createElement('canvas');
+    canvas.width = outSize; canvas.height = outSize;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, outSize, outSize);
+
+    // Draw cropped region scaled to outSize
+    ctx.drawImage(src.img, srcX, srcY, srcSize, srcSize, 0, 0, outSize, outSize);
+
+    // Center horizontal guide line
+    const colorMode = document.getElementById('spin-color').value;
+    const thickness = parseInt(document.getElementById('spin-thick').value);
+    const opacity   = parseFloat(document.getElementById('spin-opacity').value);
+    const midY = outSize / 2;
+    let guideColor;
+    if (colorMode === 'white')      guideColor = `rgba(255,255,255,${opacity})`;
+    else if (colorMode === 'black') guideColor = `rgba(0,0,0,${opacity})`;
+    else {
+      try {
+        const data = ctx.getImageData(0, Math.max(0, midY - 5), outSize, 10).data;
+        let r=0,g=0,b=0;
+        for (let p=0;p<data.length;p+=4){ r+=data[p]; g+=data[p+1]; b+=data[p+2]; }
+        const px = data.length/4;
+        const br = ((r/px)*299+(g/px)*587+(b/px)*114)/1000;
+        guideColor = br > 128 ? `rgba(0,0,0,${opacity})` : `rgba(255,255,255,${opacity})`;
+      } catch { guideColor = `rgba(255,255,255,${opacity})`; }
+    }
+    ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(outSize, midY);
+    ctx.strokeStyle = guideColor; ctx.lineWidth = thickness; ctx.stroke();
+
+    processedImages.push({ filename: `${i+1}.jpg`, dataUrl: canvas.toDataURL('image/jpeg', 0.95) });
+  }
+}
+
 async function processSpinBoxPipeline() {
-const overlay = document.getElementById('processing-overlay-spin');
+const overlay  = document.getElementById('processing-overlay-spin');
 const procText = document.getElementById('processing-text-spin');
-overlay.style.display = 'flex'; processedImages = []; spinCachedImages = [];
-const failedFiles = []; // ── collect failures instead of aborting batch ──
-let seq = 0; // sequential counter — only increments on SUCCESS (no gaps)
+overlay.style.display = 'flex';
+processedImages = []; spinCachedImages = []; spinSourceImages = [];
+const failedFiles = [];
+
 for (let i = 0; i < rawFiles.length; i++) {
-procText.innerText = `กำลังประมวลผลไฟล์ ${i + 1}/${rawFiles.length}...`;
-let file = rawFiles[i];
-try {
-let objectUrl = null;
-if (file.detectedType === 'image/heic') {
-if (typeof heic2any === 'undefined') {
-failedFiles.push({ name: file.name, reason: 'ระบบแปลง HEIC ยังโหลดไม่สำเร็จ' });
-continue; // ── skip this file only, keep processing the rest ──
+  procText.innerText = `กำลังเปิดไฟล์ ${i + 1}/${rawFiles.length}...`;
+  const file = rawFiles[i];
+  try {
+    const img = await decodeAnyImage(file);
+    spinSourceImages.push({ file, img, transform: null });
+    spinCachedImages.push(img); // legacy compat
+  } catch (err) {
+    console.error(`Decode failed for ${file.name}:`, err);
+    failedFiles.push({ name: file.name, reason: 'ไม่สามารถเปิดไฟล์ได้ (รูปแบบไม่รองรับ)' });
+    // ── continue with the rest — never abort batch ──
+  }
 }
-try {
-const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
-objectUrl = URL.createObjectURL(Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob);
-} catch (heicErr) {
-console.error('HEIC conversion failed for', file.name, heicErr);
-failedFiles.push({ name: file.name, reason: 'แปลงไฟล์ HEIC ไม่สำเร็จ (รูปแบบนี้ heic2any ไม่รองรับ)' });
-continue; // ── skip this file only, keep processing the rest ──
-}
-} else { objectUrl = URL.createObjectURL(file); }
-const img = await loadImage(objectUrl);
-spinCachedImages.push(img);
-const dataUrl = await generateSpinBoxCanvas(img);
-seq++;
-processedImages.push({ filename: `${seq}.jpg`, dataUrl: dataUrl });
-URL.revokeObjectURL(objectUrl);
-} catch(err) {
-console.error(`Error processing file ${i} (${file.name}):`, err);
-failedFiles.push({ name: file.name, reason: 'ไฟล์เสียหายหรือไม่รองรับ' });
-// ── never abort the loop — continue to next file ──
-}
-}
-overlay.style.display = 'none'; renderToolPreview('spin');
-showUploadSummary('spin', rawFiles.length, processedImages.length, failedFiles);
+
+overlay.style.display = 'none';
+
+// Show crop editor instead of auto-exporting
+const dz = document.getElementById('dz-spin');
+const sb = document.getElementById('sb-spin');
+const btn = document.getElementById('btn-export-spin');
+const count = document.getElementById('count-spin');
+dz.style.display = spinSourceImages.length > 0 ? 'none' : 'flex';
+sb.style.display = spinSourceImages.length > 0 ? 'flex' : 'none';
+count.innerText = `อัปโหลด ${spinSourceImages.length} / ${ToolConfig['spin'].maxFiles} รูป — ปรับ crop แล้วกด Export`;
+btn.disabled = spinSourceImages.length === 0;
+btn.innerHTML = '📦 Export & Download ZIP';
+
+renderSpinCropEditor();
+showUploadSummary('spin', rawFiles.length, spinSourceImages.length, failedFiles);
 }
 
 async function reRenderSpinPreviews() {
-if (spinCachedImages.length === 0) return;
-processedImages = [];
-for (let i = 0; i < spinCachedImages.length; i++) {
-const dataUrl = await generateSpinBoxCanvas(spinCachedImages[i]);
-processedImages.push({ filename: `${i + 1}.jpg`, dataUrl: dataUrl });
-}
-renderToolPreview('spin');
+  // No-op in interactive mode: guide line settings are applied at export time only.
+  // The on-screen crop tile shows raw image preview without the guide line.
+  // (Previously this re-rendered all canvases on every dropdown change.)
 }
 
-function generateSpinBoxCanvas(img) {
-return new Promise((resolve) => {
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d');
-
-// ── Fit inside square (letterbox) — keep ENTIRE image visible, never crop faces ──
-// Output square dimension: longest side of input, capped by maxSize
-const maxSize = ToolConfig['spin'].maxSize;
-const longestSide = Math.max(img.width, img.height);
-const outputSize = Math.min(longestSide, maxSize);
-canvas.width = outputSize;
-canvas.height = outputSize;
-
-// Letterbox background — must be opaque (JPEG has no alpha)
-// Use white by default; user-selected guide color logic stays for the center line
-ctx.fillStyle = '#FFFFFF';
-ctx.fillRect(0, 0, outputSize, outputSize);
-
-// Scale image to fit inside square (object-fit: contain semantics)
-const scale = outputSize / longestSide;
-const drawW = img.width  * scale;
-const drawH = img.height * scale;
-const dx = (outputSize - drawW) / 2;
-const dy = (outputSize - drawH) / 2;
-ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, drawW, drawH);
-
-const colorMode = document.getElementById('spin-color').value;
-const thickness = parseInt(document.getElementById('spin-thick').value);
-const opacity = parseFloat(document.getElementById('spin-opacity').value);
-const midY = outputSize / 2;
-let guideColor = 'rgba(255,255,255,0.5)';
-
-if (colorMode === 'white') guideColor = `rgba(255,255,255,${opacity})`;
-else if (colorMode === 'black') guideColor = `rgba(0,0,0,${opacity})`;
-else {
-try {
-let imgData = ctx.getImageData(0, Math.max(0, midY - 5), outputSize, 10).data;
-let r=0, g=0, b=0;
-for(let i=0; i<imgData.length; i+=4){ r+=imgData[i]; g+=imgData[i+1]; b+=imgData[i+2]; }
-let pxCount = imgData.length / 4;
-let brightness = ((r/pxCount)*299 + (g/pxCount)*587 + (b/pxCount)*114) / 1000;
-guideColor = brightness > 128 ? `rgba(0,0,0,${opacity})` : `rgba(255,255,255,${opacity})`;
-} catch(e) { guideColor = `rgba(255,255,255,${opacity})`; }
-}
-ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(outputSize, midY);
-ctx.strokeStyle = guideColor; ctx.lineWidth = thickness; ctx.stroke();
-resolve(canvas.toDataURL('image/jpeg', 0.95));
-});
-}
+// generateSpinBoxCanvas removed — crop & guide line are now rendered in exportSpinCropsToImages()
+// (which uses spinSourceImages[].transform set by the manual crop editor)
+function generateSpinBoxCanvas() { console.warn('generateSpinBoxCanvas is deprecated — use exportSpinCropsToImages()'); }
 
 function setConvertNaming(mode) {
 convertNamingMode = mode;
@@ -4482,9 +4698,23 @@ function cdExport() {
 // CD disc drag/scroll wiring moved to init block above
 
 async function downloadZip(tool) {
-if (processedImages.length === 0) return;
 const overlayId = `processing-overlay-${tool}`; const textId = `processing-text-${tool}`;
 document.getElementById(overlayId).style.display = 'flex';
+
+// Story Spin Box: export from current crop transforms RIGHT BEFORE zipping
+if (tool === 'spin') {
+  if (spinSourceImages.length === 0) {
+    document.getElementById(overlayId).style.display = 'none';
+    return;
+  }
+  document.getElementById(textId).innerText = 'กำลัง Crop & Render...';
+  await exportSpinCropsToImages();
+}
+
+if (processedImages.length === 0) {
+  document.getElementById(overlayId).style.display = 'none';
+  return;
+}
 document.getElementById(textId).innerText = 'กำลังสร้างไฟล์ ZIP...';
 try {
 const zip = new JSZip();
