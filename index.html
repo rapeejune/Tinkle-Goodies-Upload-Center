@@ -3276,6 +3276,25 @@ async function decodeAnyImage(file) {
     || /\.(heic|heif)$/i.test(file.name)
     || file.type === 'image/heic' || file.type === 'image/heif';
 
+  // ── DEBUG: log file metadata at entry ──
+  const fileInfo = {
+    name: file.name,
+    type: file.type || '(empty)',
+    size: file.size,
+    detectedType: file.detectedType || '(none)',
+    isHEIC,
+    lastModified: file.lastModified ? new Date(file.lastModified).toISOString() : '(unknown)',
+  };
+  console.group(`[decode] ${file.name}`);
+  console.log('file metadata:', fileInfo);
+  console.log('environment:', {
+    createImageBitmap: typeof createImageBitmap === 'function',
+    ImageDecoder:      typeof ImageDecoder !== 'undefined',
+    heic2any:          typeof heic2any !== 'undefined',
+    heic2anyType:      typeof heic2any,
+    userAgent:         navigator.userAgent,
+  });
+
   const bitmapToImg = async (bmp) => {
     const c = document.createElement('canvas');
     c.width = bmp.width; c.height = bmp.height;
@@ -3285,63 +3304,114 @@ async function decodeAnyImage(file) {
     return await loadImage(url);
   };
 
-  const errors = []; // collect for diagnostics
+  // Structured error log — each entry has stage + raw error for downstream diagnosis
+  const errors = [];
+  const recordError = (stage, e, extra) => {
+    const entry = {
+      stage,
+      message: (e && e.message) || String(e),
+      name: e && e.name,
+      ...(extra || {}),
+    };
+    errors.push(entry);
+    console.error(`[decode] ❌ ${stage} failed:`, e, extra || '');
+  };
 
-  // Stage 1: createImageBitmap (fastest, broad format coverage)
+  // ── Stage 1: createImageBitmap ────────────────────────────────────────────
   if (typeof createImageBitmap === 'function') {
+    console.log('[decode] → Stage 1: createImageBitmap');
     try {
       const bmp = await createImageBitmap(file);
+      console.log(`[decode] ✅ Stage 1 succeeded: ${bmp.width}×${bmp.height}`);
+      console.groupEnd();
       return await bitmapToImg(bmp);
     } catch (e) {
-      errors.push('createImageBitmap: ' + (e && e.message || e));
+      recordError('createImageBitmap', e);
     }
+  } else {
+    errors.push({ stage: 'createImageBitmap', message: 'API not available in this browser' });
+    console.warn('[decode] ⚠️ createImageBitmap API not present');
   }
 
-  // Stage 2: ImageDecoder API (Chromium WebCodecs — broader codec support)
+  // ── Stage 2: ImageDecoder API ─────────────────────────────────────────────
   if (typeof ImageDecoder !== 'undefined') {
+    console.log('[decode] → Stage 2: ImageDecoder');
+    const candidates = [
+      file.type,
+      isHEIC ? 'image/heic' : null,
+      'image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif',
+    ].filter(Boolean);
+    let stage2Success = false;
     try {
-      // ImageDecoder needs a known MIME — try multiple candidates
-      const candidates = [
-        file.type,
-        isHEIC ? 'image/heic' : null,
-        'image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif',
-      ].filter(Boolean);
+      const buf = await file.arrayBuffer();
+      console.log(`[decode]   arrayBuffer size: ${buf.byteLength} bytes`);
       for (const mime of candidates) {
         try {
-          const buf = await file.arrayBuffer();
           const decoder = new ImageDecoder({ data: buf, type: mime });
           const result = await decoder.decode();
           const bmp = await createImageBitmap(result.image);
+          console.log(`[decode] ✅ Stage 2 succeeded with MIME='${mime}': ${bmp.width}×${bmp.height}`);
+          console.groupEnd();
+          stage2Success = true;
           return await bitmapToImg(bmp);
-        } catch { /* try next MIME */ }
+        } catch (mimeErr) {
+          console.log(`[decode]   ImageDecoder MIME='${mime}' failed: ${mimeErr.message || mimeErr}`);
+        }
+      }
+      if (!stage2Success) {
+        recordError('ImageDecoder', new Error('all MIME candidates failed'), { triedMimes: candidates });
       }
     } catch (e) {
-      errors.push('ImageDecoder: ' + (e && e.message || e));
+      recordError('ImageDecoder', e, { triedMimes: candidates });
     }
+  } else {
+    errors.push({ stage: 'ImageDecoder', message: 'API not available in this browser' });
+    console.warn('[decode] ⚠️ ImageDecoder API not present');
   }
 
-  // Stage 3: Plain HTML <img> via object URL (browser-native, can succeed when others fail)
+  // ── Stage 3: HTML <img> via object URL ────────────────────────────────────
+  console.log('[decode] → Stage 3: HTML Image()');
+  let stage3Url = null;
   try {
-    const url = URL.createObjectURL(file);
-    const img = await loadImage(url);
+    stage3Url = URL.createObjectURL(file);
+    const img = await loadImage(stage3Url);
+    console.log(`[decode] ✅ Stage 3 succeeded: ${img.naturalWidth}×${img.naturalHeight}`);
+    console.groupEnd();
     return img;
   } catch (e) {
-    errors.push('HTML Image: ' + (e && e.message || e));
+    if (stage3Url) URL.revokeObjectURL(stage3Url);
+    recordError('HTML Image', e);
   }
 
-  // Stage 4: heic2any (HEIC-only JS fallback for browsers without native support)
+  // ── Stage 4: heic2any ─────────────────────────────────────────────────────
   if (typeof heic2any !== 'undefined') {
+    console.log('[decode] → Stage 4: heic2any');
     try {
       const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
-      const url  = URL.createObjectURL(Array.isArray(blob) ? blob[0] : blob);
-      return await loadImage(url);
+      const finalBlob = Array.isArray(blob) ? blob[0] : blob;
+      console.log(`[decode]   heic2any output: ${finalBlob.size} bytes, type=${finalBlob.type}`);
+      const url = URL.createObjectURL(finalBlob);
+      const img = await loadImage(url);
+      console.log(`[decode] ✅ Stage 4 succeeded: ${img.naturalWidth}×${img.naturalHeight}`);
+      console.groupEnd();
+      return img;
     } catch (e) {
-      errors.push('heic2any: ' + (e && e.message || e));
+      recordError('heic2any', e);
     }
+  } else {
+    errors.push({ stage: 'heic2any', message: 'library not loaded (window.heic2any is undefined)' });
+    console.error('[decode] ❌ heic2any library not loaded — check CDN script tag');
   }
 
-  console.warn('[decode] All stages failed for', file.name, errors);
-  throw new Error(`Cannot decode ${file.name}`);
+  // ── ALL STAGES FAILED ─────────────────────────────────────────────────────
+  console.error('[decode] ❌❌❌ All stages failed for', file.name, errors);
+  console.groupEnd();
+
+  // Build a detailed error with raw stage errors attached for upstream display
+  const err = new Error(`Cannot decode ${file.name}`);
+  err.decodeFailures = errors;
+  err.fileInfo = fileInfo;
+  throw err;
 }
 
 // ── Crop transform helpers ─────────────────────────────────────────────────
@@ -3574,8 +3644,14 @@ for (let i = 0; i < rawFiles.length; i++) {
     spinSourceImages.push({ file, img, transform: null });
     spinCachedImages.push(img); // legacy compat
   } catch (err) {
-    console.error(`Decode failed for ${file.name}:`, err);
-    failedFiles.push({ name: file.name, reason: 'ไม่สามารถเปิดไฟล์ได้ (รูปแบบไม่รองรับ)' });
+    console.error(`[pipeline] Decode failed for ${file.name}:`, err);
+    // Pass the structured decoder errors through so UI can show the real reason
+    failedFiles.push({
+      name: file.name,
+      reason: 'ไม่สามารถเปิดไฟล์ได้',
+      decodeFailures: err.decodeFailures || [{ stage: 'unknown', message: err.message || String(err) }],
+      fileInfo: err.fileInfo || { name: file.name, type: file.type, size: file.size },
+    });
     // ── continue with the rest — never abort batch ──
   }
 }
@@ -3688,10 +3764,27 @@ banner.className = 'upload-summary-banner all-ok';
 banner.innerHTML = `✅ อัปโหลดสำเร็จ <b>${successCount}</b> ไฟล์`;
 } else {
 banner.className = 'upload-summary-banner has-fail';
-const fileListHtml = failedFiles.map(f => `<li><b>${f.name}</b></li>`).join('');
+// Build expandable diagnostic list — each failed file shows raw decoder errors
+const fileListHtml = failedFiles.map((f, idx) => {
+  const failures = f.decodeFailures || [];
+  const info = f.fileInfo || {};
+  const detailRows = failures.map(d =>
+    `<div style="font-family:monospace;font-size:11px;margin:2px 0;padding:4px 6px;background:rgba(0,0,0,0.05);border-radius:3px;">
+       <b>${d.stage}</b>: ${d.message}${d.name ? ' <i>(' + d.name + ')</i>' : ''}${d.triedMimes ? '<br><span style="opacity:0.7;">tried: ' + d.triedMimes.join(', ') + '</span>' : ''}
+     </div>`).join('');
+  return `<li style="margin-bottom:8px;">
+    <details>
+      <summary style="cursor:pointer;"><b>${f.name}</b> — <span style="opacity:0.7;">${info.type||'(no MIME)'} · ${info.size||'?'} bytes</span></summary>
+      <div style="margin-top:6px;padding:6px;background:rgba(0,0,0,0.03);border-radius:4px;">
+        <div style="font-size:11px;opacity:0.8;margin-bottom:4px;">File: detectedType=<code>${info.detectedType||'?'}</code></div>
+        ${detailRows || '<i>no stage errors recorded</i>'}
+      </div>
+    </details>
+  </li>`;
+}).join('');
 banner.innerHTML = `✅ อัปโหลดสำเร็จ <b>${successCount}</b> ไฟล์<br>
-⚠️ ไม่สามารถอ่านไฟล์นี้ได้ <b>${failedFiles.length}</b> ไฟล์
-<ul>${fileListHtml}</ul>
+⚠️ ไม่สามารถอ่านไฟล์นี้ได้ <b>${failedFiles.length}</b> ไฟล์ <span style="font-size:11px;opacity:0.7;">(คลิกชื่อไฟล์เพื่อดู error)</span>
+<ul style="margin:8px 0;padding-left:20px;">${fileListHtml}</ul>
 <div class="fail-hint"><b>สาเหตุที่เป็นไปได้:</b><br>
 • HEIC รูปแบบพิเศษ (HDR / Portrait / Live Photo / Apple Extended)<br>
 • ไฟล์ไม่สมบูรณ์<br>
@@ -3700,7 +3793,9 @@ banner.innerHTML = `✅ อัปโหลดสำเร็จ <b>${successCoun
 <b>แนะนำ:</b><br>
 • เปลี่ยนเป็น JPG ก่อนอัปโหลด<br>
 หรือ<br>
-• ส่งไฟล์ผ่าน Google Drive แทน</div>`;
+• ส่งไฟล์ผ่าน Google Drive แทน<br>
+<br>
+<span style="font-size:11px;opacity:0.7;">💡 เปิด DevTools Console เพื่อดู debug log แบบเต็ม</span></div>`;
 }
 // Insert banner right after the drop zone
 dz.insertAdjacentElement('afterend', banner);
