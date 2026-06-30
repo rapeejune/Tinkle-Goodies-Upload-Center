@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tinkle Goodies — Upload Center & Tools</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/libheif-js@1.18.2/libheif/libheif.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -303,7 +304,7 @@ body { overflow: hidden; padding-bottom: 0; }
 <div class="tool-set-col"><span class="settings-box-label">Guide Thickness</span><select id="spin-thick" class="tool-select" onchange="reRenderSpinPreviews()"><option value="1">1 px</option><option value="2">2 px</option><option value="3">3 px</option></select></div>
 <div class="tool-set-col"><span class="settings-box-label">Guide Opacity</span><select id="spin-opacity" class="tool-select" onchange="reRenderSpinPreviews()"><option value="0.25">25%</option><option value="0.5" selected>50%</option><option value="0.75">75%</option></select></div>
 </div>
-<div class="drop-zone" id="dz-spin"><div class="icon">📥</div><div class="main-text">ลากไฟล์รูปมาวาง หรือคลิกที่นี่</div><div class="sub-text">รองรับไฟล์ภาพทุกชนิด — HEIC, JPG, PNG, WEBP, AVIF, GIF, BMP, TIFF (สูงสุด 16 รูป)</div><input type="file" id="fi-spin" multiple style="display: none;"></div>
+<div class="drop-zone" id="dz-spin"><div class="icon">📥</div><div class="main-text">ลากไฟล์รูปมาวาง หรือคลิกที่นี่</div><div class="sub-text">รองรับไฟล์ภาพทุกชนิด — HEIC, JPG, PNG, WEBP, AVIF, GIF, BMP, TIFF (สูงสุด 16 รูป)</div><div id="heic-status" style="font-size:11px;margin-top:4px;"></div><input type="file" id="fi-spin" multiple style="display: none;"></div>
 <div id="sb-spin" style="display: none; justify-content: space-between; align-items: center; background: var(--primary-light); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--primary-subtle);">
 <div style="font-weight: 600; color: var(--primary-text);" id="count-spin">เลือกแล้ว 0 / 16 รูป</div>
 <button class="btn-micro-action" onclick="clearTool('spin')">🗑️ ล้างทั้งหมด</button>
@@ -2599,24 +2600,67 @@ function renderReconciliationTable(result) {
 // ── Dynamic heic2any loader ─────────────────────────────────────────────────
 // If CDN <script> tag failed (network, CORS, timeout), try loading dynamically.
 // This runs once at startup — by the time user uploads HEIC, library is ready.
-(function ensureHeic2any() {
-  if (typeof heic2any !== 'undefined') return; // already loaded via <script> tag
-  console.warn('[heic2any] CDN script tag did not load — trying dynamic import...');
-  const urls = [
-    'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js',
-    'https://unpkg.com/heic2any@0.0.4/dist/heic2any.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js',
-  ];
+// Show heic2any load status in UI
+function updateHeicStatus() {
+  const el = document.getElementById('heic-status');
+  if (!el) return;
+  const h2a = typeof heic2any !== 'undefined';
+  const lhf = typeof libheif !== 'undefined';
+  if (h2a && lhf) {
+    el.innerHTML = '<span style="color:#2E7D32;">✅ HEIC: heic2any + libheif-js ready</span>';
+  } else if (h2a) {
+    el.innerHTML = '<span style="color:#2E7D32;">✅ HEIC: heic2any ready</span> <span style="color:#E65100;font-size:10px;">(libheif-js ไม่ได้โหลด — บาง HEIC อาจไม่รองรับ)</span>';
+  } else if (lhf) {
+    el.innerHTML = '<span style="color:#2E7D32;">✅ HEIC: libheif-js ready</span> <span style="color:#E65100;font-size:10px;">(heic2any ไม่ได้โหลด)</span>';
+  } else {
+    el.innerHTML = '<span style="color:#C62828;">❌ HEIC: ไม่มี decoder — HEIC จะไม่สามารถเปิดได้บน Chrome/Firefox</span>';
+  }
+}
+// Check repeatedly until loaded or 10 seconds
+let heicCheckCount = 0;
+const heicInterval = setInterval(() => {
+  updateHeicStatus();
+  heicCheckCount++;
+  if (typeof heic2any !== 'undefined' || heicCheckCount > 20) clearInterval(heicInterval);
+}, 500);
+
+(function ensureHeicLibraries() {
+  // Ensure heic2any
+  if (typeof heic2any === 'undefined') {
+    console.warn('[heic2any] CDN script tag did not load — trying dynamic import...');
+    const urls = [
+      'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js',
+      'https://unpkg.com/heic2any@0.0.4/dist/heic2any.min.js',
+    ];
   let idx = 0;
   function tryNext() {
-    if (idx >= urls.length) { console.error('[heic2any] All CDN sources failed'); return; }
+    if (idx >= urls.length) { console.error('[heic2any] All CDN sources failed'); updateHeicStatus(); return; }
     const s = document.createElement('script');
     s.src = urls[idx++];
-    s.onload = () => console.log('[heic2any] ✅ Loaded from', s.src);
+    s.onload = () => { console.log('[heic2any] ✅ Loaded from', s.src); updateHeicStatus(); };
     s.onerror = () => { console.warn('[heic2any] ❌ Failed:', s.src); tryNext(); };
     document.head.appendChild(s);
   }
   tryNext();
+  }
+  // Ensure libheif-js
+  if (typeof libheif === 'undefined') {
+    console.warn('[libheif-js] CDN script tag did not load — trying dynamic import...');
+    const lhUrls = [
+      'https://cdn.jsdelivr.net/npm/libheif-js@1.18.2/libheif/libheif.min.js',
+      'https://unpkg.com/libheif-js@1.18.2/libheif/libheif.min.js',
+    ];
+    let li = 0;
+    function tryNextLH() {
+      if (li >= lhUrls.length) { console.error('[libheif-js] All CDN sources failed'); return; }
+      const s = document.createElement('script');
+      s.src = lhUrls[li++];
+      s.onload = () => { console.log('[libheif-js] ✅ Loaded from', s.src); updateHeicStatus(); };
+      s.onerror = () => { console.warn('[libheif-js] ❌ Failed:', s.src); tryNextLH(); };
+      document.head.appendChild(s);
+    }
+    tryNextLH();
+  }
 })();
 
 const CAMERA_META_SCHEMA = {
@@ -3337,9 +3381,9 @@ async function decodeAnyImage(file) {
   // Trying native first for HEIC just wastes 3 guaranteed failures on Chrome.
   // ════════════════════════════════════════════════════════════════════════
   if (isHEIC) {
-    // Stage H1: heic2any (JS decoder — works on ALL browsers)
+    // Stage H1a: heic2any (most common JS HEIC decoder)
     if (typeof heic2any !== 'undefined') {
-      console.log('[decode] → HEIC Stage 1: heic2any');
+      console.log('[decode] → HEIC Stage 1a: heic2any');
       try {
         const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
         const b = Array.isArray(blob) ? blob[0] : blob;
@@ -3352,7 +3396,43 @@ async function decodeAnyImage(file) {
         fail('heic2any', e);
       }
     } else {
-      fail('heic2any', { message: 'library not loaded — heic2any CDN failed or blocked' });
+      fail('heic2any', { message: 'library not loaded' });
+    }
+
+    // Stage H1b: libheif-js (newer libheif with broader HEIC profile support)
+    if (typeof libheif !== 'undefined') {
+      console.log('[decode] → HEIC Stage 1b: libheif-js');
+      try {
+        const buf = await file.arrayBuffer();
+        const decoder = new libheif.HeifDecoder();
+        const data = decoder.decode(new Uint8Array(buf));
+        if (data && data.length > 0) {
+          const image = data[0];
+          const w = image.get_width();
+          const h = image.get_height();
+          const cvs = document.createElement('canvas');
+          cvs.width = w; cvs.height = h;
+          const ctx = cvs.getContext('2d');
+          const imgData = ctx.createImageData(w, h);
+          await new Promise((res, rej) => {
+            image.display(imgData, (displayData) => {
+              if (!displayData) { rej(new Error('libheif display failed')); return; }
+              ctx.putImageData(displayData, 0, 0);
+              res();
+            });
+          });
+          const jpegUrl = cvs.toDataURL('image/jpeg', 0.95);
+          const img = await loadImage(jpegUrl);
+          ok('libheif-js', w, h);
+          return img;
+        } else {
+          fail('libheif-js', { message: 'decode returned 0 images' });
+        }
+      } catch (e) {
+        fail('libheif-js', e);
+      }
+    } else {
+      fail('libheif-js', { message: 'library not loaded' });
     }
 
     // Stage H2: createImageBitmap (works on Safari for HEIC)
@@ -3826,7 +3906,9 @@ const fileListHtml = failedFiles.map((f, idx) => {
      </div>`).join('');
   return `<li style="margin-bottom:8px;">
     <details>
-      <summary style="cursor:pointer;"><b>${f.name}</b> — <span style="opacity:0.7;">${info.type||'(no MIME)'} · ${info.size||'?'} bytes</span></summary>
+      <summary style="cursor:pointer;"><b>${f.name}</b> — <span style="opacity:0.7;">${info.type||'(no MIME)'} · ${info.size||'?'} bytes</span>
+        ${failures.length > 0 ? '<br><span style="font-size:11px;color:#C62828;">→ ' + failures.map(d=>d.stage+': '+d.message).join(' → ') + '</span>' : ''}
+      </summary>
       <div style="margin-top:6px;padding:6px;background:rgba(0,0,0,0.03);border-radius:4px;">
         <div style="font-size:11px;opacity:0.8;margin-bottom:4px;">File: detectedType=<code>${info.detectedType||'?'}</code></div>
         ${detailRows || '<i>no stage errors recorded</i>'}
@@ -3838,16 +3920,14 @@ banner.innerHTML = `✅ อัปโหลดสำเร็จ <b>${successCoun
 ⚠️ ไม่สามารถอ่านไฟล์นี้ได้ <b>${failedFiles.length}</b> ไฟล์ <span style="font-size:11px;opacity:0.7;">(คลิกชื่อไฟล์เพื่อดู error)</span>
 <ul style="margin:8px 0;padding-left:20px;">${fileListHtml}</ul>
 <div class="fail-hint"><b>สาเหตุที่เป็นไปได้:</b><br>
-• HEIC รูปแบบพิเศษ (HDR / Portrait / Live Photo / Apple Extended)<br>
-• ไฟล์ไม่สมบูรณ์<br>
-• Browser ไม่รองรับ codec นี้<br>
+• HEIC รูปแบบพิเศษที่ JS decoder รองรับไม่ครบ<br>
+• Chrome / Firefox ไม่มี HEIC codec (เฉพาะ Safari ที่รองรับ native)<br>
 <br>
 <b>แนะนำ:</b><br>
-• เปลี่ยนเป็น JPG ก่อนอัปโหลด<br>
-หรือ<br>
-• ส่งไฟล์ผ่าน Google Drive แทน<br>
-<br>
-<span style="font-size:11px;opacity:0.7;">💡 เปิด DevTools Console เพื่อดู debug log แบบเต็ม</span></div>`;
+${/Mac/.test(navigator.platform) ?
+  '• <b>เปิดด้วย Safari แทน Chrome</b> — Safari decode HEIC ได้ทุกรูปแบบ<br>• หรือ: คลิกขวาที่ไฟล์ใน Finder → Quick Actions → Convert Image → JPEG<br>'
+  : '• เปลี่ยนเป็น JPG ก่อนอัปโหลด<br>'}หรือ<br>
+• ส่งไฟล์ผ่าน Google Drive แทน</div>`;
 }
 // Insert banner right after the drop zone
 dz.insertAdjacentElement('afterend', banner);
