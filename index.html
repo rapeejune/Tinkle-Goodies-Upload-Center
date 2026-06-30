@@ -108,6 +108,16 @@ body { overflow: hidden; padding-bottom: 0; }
 .cart-card-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
 .qty-wrap { display: flex; align-items: center; gap: 10px; background: var(--bg-main); border: 1px solid var(--border-light); border-radius: 100px; padding: 4px 6px; }
 .qty-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--surface); font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.upload-summary-banner { margin: 10px 0; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.6; }
+.upload-summary-banner.all-ok { background: #E8F5E9; border: 1px solid #A5D6A7; color: #2E7D32; }
+.upload-summary-banner.has-fail { background: #FFF3E0; border: 1px solid #FFCC80; color: #B05A00; }
+.upload-summary-banner b { font-weight: 700; }
+.upload-summary-banner ul { margin: 6px 0 6px 18px; padding: 0; }
+.upload-summary-banner .fail-hint { margin-top: 6px; font-size: 12px; color: var(--text-muted); }
+@media (prefers-color-scheme: dark) {
+.upload-summary-banner.all-ok { background: #1B3A20; border-color: #2E7D32; color: #A5D6A7; }
+.upload-summary-banner.has-fail { background: #3D2A0F; border-color: #B05A00; color: #FFCC80; }
+}
 .qty-val { font-size: 14px; font-weight: 700; min-width: 20px; text-align: center; }
 .remove-btn { color: var(--text-muted); background: none; border: none; font-size: 12px; cursor: pointer; text-decoration: underline; }
 .method-grid { display: grid; grid-template-columns: 1fr; gap: 6px; margin-bottom: 12px; }
@@ -162,7 +172,7 @@ body { overflow: hidden; padding-bottom: 0; }
 .drop-zone .sub-text { font-size: 12px; color: var(--text-muted); }
 .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
 .img-preview-item { position: relative; width: 100%; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-light); background: var(--bg-main); box-shadow: var(--shadow-sm); }
-.img-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+.img-preview-item img { width: 100%; height: 100%; object-fit: contain; background: var(--surface-alt); }
 .img-preview-item .badge { position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.6); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 100px; backdrop-filter: blur(4px); z-index: 2; }
 .tool-settings-row { display: flex; flex-wrap: wrap; gap: 16px; background: var(--bg-main); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-light); }
 .tool-set-col { flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 8px; }
@@ -3139,6 +3149,9 @@ document.getElementById(`sb-${toolId}`).style.display = 'none';
 document.getElementById(`pg-${toolId}`).innerHTML = '';
 document.getElementById(`btn-export-${toolId}`).disabled = true;
 document.getElementById(`fi-${toolId}`).value = '';
+// Clear any leftover upload summary banner from a previous batch
+const prevBanner = document.getElementById(`upload-summary-${toolId}`);
+if (prevBanner) prevBanner.remove();
 }
 
 ['spin', 'convert'].forEach(tool => {
@@ -3216,30 +3229,41 @@ async function processSpinBoxPipeline() {
 const overlay = document.getElementById('processing-overlay-spin');
 const procText = document.getElementById('processing-text-spin');
 overlay.style.display = 'flex'; processedImages = []; spinCachedImages = [];
+const failedFiles = []; // ── collect failures instead of aborting batch ──
+let seq = 0; // sequential counter — only increments on SUCCESS (no gaps)
 for (let i = 0; i < rawFiles.length; i++) {
 procText.innerText = `กำลังประมวลผลไฟล์ ${i + 1}/${rawFiles.length}...`;
+let file = rawFiles[i];
 try {
-let file = rawFiles[i]; let objectUrl = null;
+let objectUrl = null;
 if (file.detectedType === 'image/heic') {
-if (typeof heic2any !== 'undefined') {
+if (typeof heic2any === 'undefined') {
+failedFiles.push({ name: file.name, reason: 'ระบบแปลง HEIC ยังโหลดไม่สำเร็จ' });
+continue; // ── skip this file only, keep processing the rest ──
+}
 try {
 const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
 objectUrl = URL.createObjectURL(Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob);
 } catch (heicErr) {
 console.error('HEIC conversion failed for', file.name, heicErr);
-showAlert(`แปลงไฟล์ HEIC ไม่สำเร็จ: ${file.name} (ไฟล์อาจเสียหายหรือไม่รองรับ)`);
-continue;
+failedFiles.push({ name: file.name, reason: 'แปลงไฟล์ HEIC ไม่สำเร็จ (รูปแบบนี้ heic2any ไม่รองรับ)' });
+continue; // ── skip this file only, keep processing the rest ──
 }
-} else { showAlert("ระบบแปลงไฟล์ HEIC ยังโหลดไม่สำเร็จ กรุณารีโหลดหน้าเว็บ"); continue; }
 } else { objectUrl = URL.createObjectURL(file); }
 const img = await loadImage(objectUrl);
 spinCachedImages.push(img);
 const dataUrl = await generateSpinBoxCanvas(img);
-processedImages.push({ filename: `${i + 1}.jpg`, dataUrl: dataUrl });
+seq++;
+processedImages.push({ filename: `${seq}.jpg`, dataUrl: dataUrl });
 URL.revokeObjectURL(objectUrl);
-} catch(err) { console.error(`Error processing file ${i}:`, err); }
+} catch(err) {
+console.error(`Error processing file ${i} (${file.name}):`, err);
+failedFiles.push({ name: file.name, reason: 'ไฟล์เสียหายหรือไม่รองรับ' });
+// ── never abort the loop — continue to next file ──
+}
 }
 overlay.style.display = 'none'; renderToolPreview('spin');
+showUploadSummary('spin', rawFiles.length, processedImages.length, failedFiles);
 }
 
 async function reRenderSpinPreviews() {
@@ -3256,12 +3280,27 @@ function generateSpinBoxCanvas(img) {
 return new Promise((resolve) => {
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
-const rawSize = Math.min(img.width, img.height);
-const startX = (img.width - rawSize) / 2;
-const startY = (img.height - rawSize) / 2;
-const outputSize = Math.min(rawSize, ToolConfig['spin'].maxSize);
-canvas.width = outputSize; canvas.height = outputSize;
-ctx.drawImage(img, startX, startY, rawSize, rawSize, 0, 0, outputSize, outputSize);
+
+// ── Fit inside square (letterbox) — keep ENTIRE image visible, never crop faces ──
+// Output square dimension: longest side of input, capped by maxSize
+const maxSize = ToolConfig['spin'].maxSize;
+const longestSide = Math.max(img.width, img.height);
+const outputSize = Math.min(longestSide, maxSize);
+canvas.width = outputSize;
+canvas.height = outputSize;
+
+// Letterbox background — must be opaque (JPEG has no alpha)
+// Use white by default; user-selected guide color logic stays for the center line
+ctx.fillStyle = '#FFFFFF';
+ctx.fillRect(0, 0, outputSize, outputSize);
+
+// Scale image to fit inside square (object-fit: contain semantics)
+const scale = outputSize / longestSide;
+const drawW = img.width  * scale;
+const drawH = img.height * scale;
+const dx = (outputSize - drawW) / 2;
+const dy = (outputSize - drawH) / 2;
+ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, drawW, drawH);
 
 const colorMode = document.getElementById('spin-color').value;
 const thickness = parseInt(document.getElementById('spin-thick').value);
@@ -3307,29 +3346,29 @@ async function processConvertPipeline() {
 const overlay = document.getElementById('processing-overlay-convert');
 const procText = document.getElementById('processing-text-convert');
 overlay.style.display = 'flex'; processedImages = [];
+const failedFiles = []; // ── collect failures instead of aborting batch ──
+let seq = 0; // sequential counter — only increments on SUCCESS (no gaps)
 for (let i = 0; i < rawFiles.length; i++) {
 procText.innerText = `กำลังแปลงไฟล์ ${i + 1}/${rawFiles.length}...`;
+let file = rawFiles[i];
 try {
-let file = rawFiles[i]; let finalDataUrl = null; let fName = '';
-if (convertNamingMode === 'seq') fName = `${i + 1}.jpg`;
-else {
-let oldName = file.name; let lastDotIndex = oldName.lastIndexOf('.');
-fName = `${lastDotIndex <= 0 ? oldName : oldName.substring(0, lastDotIndex)}.jpg`;
-}
+let finalDataUrl = null; let fName = '';
 if (file.detectedType === 'image/jpeg' || file.detectedType === 'image/jpg') {
 finalDataUrl = await new Promise((res) => { let reader = new FileReader(); reader.onload = e => res(e.target.result); reader.readAsDataURL(file); });
 } else if (file.detectedType === 'image/heic') {
-if (typeof heic2any !== 'undefined') {
+if (typeof heic2any === 'undefined') {
+failedFiles.push({ name: file.name, reason: 'ระบบแปลง HEIC ยังโหลดไม่สำเร็จ' });
+continue; // ── skip this file only, keep processing the rest ──
+}
 try {
 const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 1.0 });
 let blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
 finalDataUrl = await new Promise((res) => { let reader = new FileReader(); reader.onload = e => res(e.target.result); reader.readAsDataURL(blob); });
 } catch (heicErr) {
 console.error('HEIC conversion failed for', file.name, heicErr);
-showAlert(`แปลงไฟล์ HEIC ไม่สำเร็จ: ${file.name} (ไฟล์อาจเสียหายหรือไม่รองรับ)`);
-continue;
+failedFiles.push({ name: file.name, reason: 'แปลงไฟล์ HEIC ไม่สำเร็จ (รูปแบบนี้ heic2any ไม่รองรับ)' });
+continue; // ── skip this file only, keep processing the rest ──
 }
-} else { showAlert("ระบบแปลงไฟล์ HEIC ยังโหลดไม่สำเร็จ กรุณารีโหลดหน้าเว็บ"); continue; }
 } else {
 let objUrl = URL.createObjectURL(file);
 const img = await loadImage(objUrl);
@@ -3337,10 +3376,45 @@ const cvs = document.createElement('canvas'); cvs.width = img.naturalWidth; cvs.
 cvs.getContext('2d').drawImage(img, 0, 0);
 finalDataUrl = cvs.toDataURL('image/jpeg', 1.0); URL.revokeObjectURL(objUrl);
 }
+// Filename assigned only after successful conversion — sequential mode never skips numbers
+if (convertNamingMode === 'seq') { seq++; fName = `${seq}.jpg`; }
+else {
+let oldName = file.name; let lastDotIndex = oldName.lastIndexOf('.');
+fName = `${lastDotIndex <= 0 ? oldName : oldName.substring(0, lastDotIndex)}.jpg`;
+}
 if (finalDataUrl) processedImages.push({ filename: fName, dataUrl: finalDataUrl });
-} catch(err) { console.error(`Error processing file ${i}:`, err); }
+} catch(err) {
+console.error(`Error processing file ${i} (${file.name}):`, err);
+failedFiles.push({ name: file.name, reason: 'ไฟล์เสียหายหรือไม่รองรับ' });
+// ── never abort the loop — continue to next file ──
+}
 }
 overlay.style.display = 'none'; renderToolPreview('convert');
+showUploadSummary('convert', rawFiles.length, processedImages.length, failedFiles);
+}
+
+function showUploadSummary(tool, totalCount, successCount, failedFiles) {
+const dz = document.getElementById(`dz-${tool}`);
+// Remove any previous summary banner before this tool's drop zone
+const existing = document.getElementById(`upload-summary-${tool}`);
+if (existing) existing.remove();
+
+const banner = document.createElement('div');
+banner.id = `upload-summary-${tool}`;
+
+if (failedFiles.length === 0) {
+banner.className = 'upload-summary-banner all-ok';
+banner.innerHTML = `✅ อัปโหลดสำเร็จ <b>${successCount}</b> ไฟล์`;
+} else {
+banner.className = 'upload-summary-banner has-fail';
+const fileListHtml = failedFiles.map(f => `<li>${f.name} <span style="opacity:0.7;">— ${f.reason}</span></li>`).join('');
+banner.innerHTML = `✅ อัปโหลดสำเร็จ <b>${successCount}</b> ไฟล์<br>
+⚠️ ไม่สามารถแปลงได้ <b>${failedFiles.length}</b> ไฟล์
+<ul>${fileListHtml}</ul>
+<div class="fail-hint">กรุณา: เปลี่ยนไฟล์ที่ไม่สำเร็จเป็น JPG ก่อนอัปโหลดใหม่ หรือส่งไฟล์ผ่าน Google Drive แทน</div>`;
+}
+// Insert banner right after the drop zone
+dz.insertAdjacentElement('afterend', banner);
 }
 
 function renderToolPreview(tool) {
