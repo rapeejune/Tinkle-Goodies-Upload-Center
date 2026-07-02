@@ -1543,6 +1543,22 @@ if (isVariantDirectLine) {
   }
   continue; // ← Never falls through to skipKeywords or product matching
 }
+// ── Pre-skip qty capture ──────────────────────────────────────────────────
+// Lines like "💰 x3 = 477 บาท" have qty info but will be skipped by skipKeywords.
+// Extract qty from them BEFORE skipping, and update the current product's qty.
+if (currentProduct) {
+  const preSkipQty = normalizedLine.match(/(?:^|\s)(?:×|x|\*)\s*(\d+)(?:\s|$|\s*=)/i);
+  if (preSkipQty) {
+    const capturedQty = parseInt(preSkipQty[1], 10);
+    if (capturedQty > 1) {
+      const lastEntry = [...foundProducts].reverse().find(fp => fp.id === currentProduct && !fp.isGiftSet);
+      if (lastEntry && capturedQty > lastEntry.qty) {
+        console.log(`[parser] qty update: ${currentProduct} ${lastEntry.qty} → ${capturedQty} (from line: "${rawLine.trim().slice(0,40)}")`);
+        lastEntry.qty = capturedQty;
+      }
+    }
+  }
+}
 // ── Guard 2: Skip metadata/logistics lines ──────────────────────────────────
 if (skipKeywords.some(kw => normalizedLine.includes(kw.toLowerCase()))) continue;
 // Skip gift-set content lines like "• Film Slide (NFC) × 10 (55฿ × 10 = 550฿)"
@@ -2794,6 +2810,17 @@ function songLine() { return `🎵 ลิงก์เพลง:\nxxxxx`; }
 // ── Helper: ①②③ symbol ───────────────────────────────────────────────────
 const SYM = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
 
+  // Expand variant entries: [{label:'A', qty:9}] → 9 copies of {label:'A', qty:1}
+  // So cdVars[k] always has a value for every k < i.qty
+  function expandVariants(variants) {
+    const out = [];
+    (variants || []).forEach(v => {
+      const count = v.qty || 1;
+      for (let j = 0; j < count; j++) out.push({ ...v, qty: 1 });
+    });
+    return out;
+  }
+
 // ══════════════════════════════════════════════════════════════════════════
 // CANVA SECTION
 // ══════════════════════════════════════════════════════════════════════════
@@ -2821,7 +2848,7 @@ if (canvaItems.length) {
     if (i.p.id === 'cassette') {
       parts.push(`\n📼 ${i.p.name} × ${i.qty}`);
       if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
-      const cassVars = opts.variants || [];
+      const cassVars = expandVariants(opts.variants);
       for (let k = 0; k < i.qty; k++) {
         const v = cassVars[k];
         const lenLabel = v ? v.label : (k < cassVars.length ? cassVars[k].label : '45/90 นาที');
@@ -2851,7 +2878,7 @@ if (canvaItems.length) {
     if (i.p.type === 'canva-cd') {
       parts.push(`\n${i.p.emoji} ${i.p.name} × ${i.qty}`);
       if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
-      const cdVars = opts.variants || [];
+      const cdVars = expandVariants(opts.variants);
       for (let k = 0; k < i.qty; k++) {
         const sym = SYM[k] || `${k+1}.`;
         const v   = cdVars[k];
@@ -2867,7 +2894,7 @@ if (canvaItems.length) {
     if (i.p.type === 'canva-tape') {
       parts.push(`\n${i.p.emoji} ${i.p.name} × ${i.qty}`);
       if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
-      const tapeVars = opts.variants || [];
+      const tapeVars = expandVariants(opts.variants);
       for (let k = 0; k < i.qty; k++) {
         const sym = SYM[k] || `${k+1}.`;
         const v   = tapeVars[k];
@@ -2955,7 +2982,7 @@ if (driveItems.length) {
 
     // ── Pocket Polaroid (Rule 3 — per unit, show chosen accessory) ──────
     if (i.p.id === 'pocket-polaroid') {
-      const accs = opts.accessories || [];
+      const accs = expandVariants(opts.accessories);
       parts.push(`\n📷 ${i.p.name} × ${i.qty}`);
       for (let k = 0; k < i.qty; k++) {
         const sym = SYM[k] || `${k+1}.`;
@@ -3043,7 +3070,7 @@ if (driveItems.length) {
 const noteEl = document.getElementById('order-note-input');
 const note   = noteEl ? noteEl.value.trim() : '';
 if (note) parts.push(`\n──────────────────────────────────\n📌 หมายเหตุ\n${note}`);
-parts.push(`\n──────────────────────────────────\n💖 แทนที่ xxxxx ด้วยข้อมูลจริง\nหากส่งข้อมูลครบแล้วแจ้งแอดมินได้เลยนะคะ`);
+parts.push(`\n──────────────────────────────────\n💖 แทนที่ xxxxx ด้วยลิงก์\nหากส่งข้อมูลครบแล้วแจ้งแอดมินได้เลยนะคะ`);
 
 return parts.join('\n');
 }
