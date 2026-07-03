@@ -2822,46 +2822,89 @@ const SYM = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
   }
 
 // ══════════════════════════════════════════════════════════════════════════
-// CANVA SECTION
+// CANVA SECTION — Product-specific workflows (no generic instruction)
 // ══════════════════════════════════════════════════════════════════════════
 const canvaItems = picked.filter(i => i.method === 'canva');
 if (canvaItems.length) {
   parts.push(`\n──────────────────────────────────\n🎨 สินค้า Canva`);
-  parts.push(`📌 วิธีส่งไฟล์ Canva\n1️⃣ กด Use Template ที่ลิงก์ด้านล่าง\n2️⃣ หากมีหลายแบบ: เพิ่มหน้าใน Canva → ตั้งชื่อหน้าเป็น จำนวน_ชื่อเพลง\n   ตัวอย่าง:  3_เพลงA  /  5_เพลงB\n3️⃣ ส่งลิงก์ Canva พร้อมลิงก์เพลง (สินค้าที่รองรับ)`);
 
   canvaItems.forEach(i => {
     const req = getReq(i.p.id);
     const opts = i.meta || {};
 
-    // ── Vinyl Record Set ────────────────────────────────────────────────
-    if (i.p.type === 'canva-vinylset') {
+    // ══════════════════════════════════════════════════════════════════
+    // Vinyl Record (NFC) — Multi-page Canva
+    // ══════════════════════════════════════════════════════════════════
+    if (i.p.id === 'vinyl-record') {
       parts.push(`\n🎵 ${i.p.name} × ${i.qty}`);
-      if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
-      parts.push(`📀 1 Set = 3 แผ่น (เพิ่มหน้าใน Canva ให้ครบ 3 หน้า/set)`);
-      for (let s = 1; s <= i.qty; s++) {
-        parts.push(`\n📀 Set ${s}\n• หน้า 1: 🖼️ Canva: xxxxx\n• หน้า 2: 🖼️ Canva: xxxxx\n• หน้า 3: 🖼️ Canva: xxxxx\n${songLine()}`);
-      }
+      parts.push(`📌 วิธีส่งไฟล์\n• หากมีหลายเพลง/หลายลาย ให้กด + เพิ่มหน้าใน Canva\n• ตั้งชื่อหน้าเป็น:\n  3_เพลงA\n  2_เพลงB`);
+      parts.push(`🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx\n${songLine()}`);
       return;
     }
 
-    // ── Custom Cassette Tape (Rule 4 — per-tape, no aggregation) ───────
+    // ══════════════════════════════════════════════════════════════════
+    // Vinyl (NFC) — Multi-page Canva with cover+disc naming
+    // ══════════════════════════════════════════════════════════════════
+    if (i.p.id === 'vinyl-nfc') {
+      parts.push(`\n💽 ${i.p.name} × ${i.qty}`);
+      parts.push(`📌 วิธีส่งไฟล์\n• เพิ่มหน้าใน Canva\n• ตั้งชื่อหน้าเป็น:\n  ปก1_ชื่อเพลง\n  แผ่น1_ชื่อเพลง\n  ปก2_ชื่อเพลง\n  แผ่น2_ชื่อเพลง\n  จนครบทุกชิ้น`);
+      parts.push(`🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx\n${songLine()}`);
+      return;
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // Vinyl Heart (NFC) — Multi-page Canva (same as Vinyl Record)
+    // ══════════════════════════════════════════════════════════════════
+    if (i.p.id === 'vinyl-heart') {
+      parts.push(`\n💗 ${i.p.name} × ${i.qty}`);
+      parts.push(`📌 วิธีส่งไฟล์\n• หากมีหลายเพลง/หลายลาย ให้กด + เพิ่มหน้าใน Canva\n• ตั้งชื่อหน้าเป็น:\n  3_เพลงA\n  2_เพลงB`);
+      parts.push(`🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx\n${songLine()}`);
+      return;
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // Pocket Vinyl (NFC) — Multi-page Canva (same as Vinyl Record)
+    // ══════════════════════════════════════════════════════════════════
+    if (i.p.id === 'pocket-vinyl') {
+      parts.push(`\n🎶 ${i.p.name} × ${i.qty}`);
+      parts.push(`📌 วิธีส่งไฟล์\n• หากมีหลายเพลง/หลายลาย ให้กด + เพิ่มหน้าใน Canva\n• ตั้งชื่อหน้าเป็น:\n  3_เพลงA\n  2_เพลงB`);
+      parts.push(`🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx\n${songLine()}`);
+      return;
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // Vinyl Record Set (NFC) — Multi-page Canva (3 pages per set)
+    // ══════════════════════════════════════════════════════════════════
+    if (i.p.type === 'canva-vinylset') {
+      parts.push(`\n🎵 ${i.p.name} × ${i.qty}`);
+      parts.push(`📌 วิธีส่งไฟล์\n• 1 Set = 3 แผ่น\n• เพิ่มหน้าใน Canva ให้ครบ 3 หน้า/set`);
+      for (let s = 1; s <= i.qty; s++) {
+        parts.push(`\n📀 Set ${s}\n• หน้า 1: 🖼️ Canva: xxxxx\n• หน้า 2: 🖼️ Canva: xxxxx\n• หน้า 3: 🖼️ Canva: xxxxx`);
+      }
+      parts.push(`\n🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx\n${songLine()}`);
+      return;
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // Custom Cassette Tape — per tape, own Canva + Playlist
+    // ══════════════════════════════════════════════════════════════════
     if (i.p.id === 'cassette') {
       parts.push(`\n📼 ${i.p.name} × ${i.qty}`);
-      if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
       const cassVars = expandVariants(opts.variants);
       for (let k = 0; k < i.qty; k++) {
         const v = cassVars[k];
-        const lenLabel = v ? v.label : (k < cassVars.length ? cassVars[k].label : '45/90 นาที');
+        const lenLabel = v ? v.label : '45/90 นาที';
         parts.push(`\n💿 เทปที่ ${k+1}\n✓ ${lenLabel}\n🖼️ Canva:\nxxxxx\n🎵 Playlist A:\nxxxxx\n🎵 Playlist B:\nxxxxx`);
       }
       return;
     }
 
-    // ── ONE SHOT! Personalized Camera (Rule 2 — no song) ────────────────
+    // ══════════════════════════════════════════════════════════════════
+    // ONE SHOT! Camera — Canva only, no song, metadata-driven
+    // ══════════════════════════════════════════════════════════════════
     if (i.p.id === 'disposable-cam') {
       parts.push(`\n📷 ${i.p.name} × ${i.qty}`);
-      parts.push(canvaBlock(i.p));
-      // Apply camera render rules — show only what customer chose (Rule 7 — hide defaults)
+      parts.push(`🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx`);
       const camMeta = {
         packaging:   opts.cam_packaging   ?? (state.productOptions['disposable-cam']?.cam_packaging   ?? null),
         finish:      opts.cam_finish       ?? (state.productOptions['disposable-cam']?.cam_finish       ?? null),
@@ -2871,42 +2914,48 @@ if (canvaItems.length) {
         const val = camMeta[rule.key];
         if (rule.show(val)) parts.push(rule.display(val));
       }
-      return; // req.song = false — no song line (Rule 2)
+      return;
     }
 
-    // ── Mini CD Box (Rule 3 — variant per unit, ①②③) ────────────────────
+    // ══════════════════════════════════════════════════════════════════
+    // Mini CD Box — 1 ชิ้น = 1 Canva Template (ห้ามใช้ multi-page)
+    // ══════════════════════════════════════════════════════════════════
     if (i.p.type === 'canva-cd') {
       parts.push(`\n${i.p.emoji} ${i.p.name} × ${i.qty}`);
-      if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
       const cdVars = expandVariants(opts.variants);
       for (let k = 0; k < i.qty; k++) {
-        const sym = SYM[k] || `${k+1}.`;
-        const v   = cdVars[k];
+        const v = cdVars[k];
         const pkgLine = v
-          ? `📦 ${v.label}`
-          : `📦 กรุณาระบุแพ็กเกจ:\n  • ซองซิปขุ่น + จี้อะคริลิค\n  • กล่องแพ็กเกจใส + พื้นหลัง`;
-        parts.push(`\n${sym}\n🖼️ Canva:\nxxxxx\n${songLine()}\n${pkgLine}`);
+          ? `📦 แพ็กเกจ:\n✓ ${v.label}`
+          : `📦 แพ็กเกจ:\n• ซองซิปขุ่น + จี้อะคริลิค หรือ กล่องแพ็กเกจใส + พื้นหลัง`;
+        parts.push(`\n💿 ชิ้นที่ ${k+1}\n🖼️ Canva:\nxxxxx\n${songLine()}\n${pkgLine}`);
       }
       return;
     }
 
-    // ── Pocket Tape (Rule 3 — variant per unit, song per unit) ─────────
+    // ══════════════════════════════════════════════════════════════════
+    // Pocket Tape — per unit, variant + song per unit
+    // ══════════════════════════════════════════════════════════════════
     if (i.p.type === 'canva-tape') {
       parts.push(`\n${i.p.emoji} ${i.p.name} × ${i.qty}`);
-      if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
       const tapeVars = expandVariants(opts.variants);
       for (let k = 0; k < i.qty; k++) {
         const sym = SYM[k] || `${k+1}.`;
-        const v   = tapeVars[k];
+        const v = tapeVars[k];
         const tapeLabel = v ? `✓ ${v.label}` : '';
         parts.push(`\n${sym}${tapeLabel ? '\n' + tapeLabel : ''}\n🖼️ Canva:\nxxxxx\n${songLine()}`);
       }
       return;
     }
 
-    // ── Default Canva product (multi-page, optional song) ───────────────
+    // ══════════════════════════════════════════════════════════════════
+    // Floppy / Pin Badge / Card NFC — Multi-page Canva
+    // ══════════════════════════════════════════════════════════════════
     parts.push(`\n${i.p.emoji} ${i.p.name} × ${i.qty}`);
-    parts.push(canvaBlock(i.p));
+    if (i.qty > 1) {
+      parts.push(`📌 วิธีส่งไฟล์\n• กด + เพิ่มหน้าใน Canva\n• ตั้งชื่อหน้าเป็น: จำนวน_ชื่อเพลง`);
+    }
+    parts.push(`🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx`);
     if (req.song) parts.push(songLine());
   });
 }
