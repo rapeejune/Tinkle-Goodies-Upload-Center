@@ -610,7 +610,7 @@ const GROUPS = [
 { id:'polaroid', name:'Polaroid Soundframe', emoji:'📸', type:'polaroid', methods: ['drive'] },
 { id:'film-slide-nfc', name:'Film Slide (NFC) — กรอบสำเร็จรูป', emoji:'🎞️', type:'film-slide-nfc', methods: ['drive'] },
 { id:'film-slide-nfc-custom', name:'Film Slide (NFC) — Custom Frame Design', emoji:'✨', type:'film-slide-nfc-custom', methods: ['drive'] },
-{ id:'vinyl-nfc', name:'Vinyl (NFC)', emoji:'💽', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
+{ id:'vinyl-nfc', name:'Vinyl (NFC)', emoji:'💽', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/7ghcvhi5fnbkdrf', canva_mode: 'multi_page' },
 { id:'floppy', name:'Floppy Disk (NFC)', emoji:'💾', type:'quick-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/42irx4kok3gnmah', canva_mode: 'multi_page' },
 { id:'pin-badge', name:'Pin Badge (NFC)', emoji:'📌', type:'pin-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/i12gg5v1ndisbyc', canva_mode: 'multi_page' },
 { id:'card-nfc', name:'Card (NFC)', emoji:'🃏', type:'card-nfc', methods: ['canva', 'drive', 'quick'], canvaUrl: 'https://canva.link/2o5j12d0b62lqei', canva_mode: 'multi_page' }
@@ -2838,7 +2838,8 @@ if (canvaItems.length) {
     if (i.p.id === 'vinyl-record') {
       parts.push(`\n🎵 ${i.p.name} × ${i.qty}`);
       parts.push(`📌 วิธีส่งไฟล์\n• หากมีหลายเพลง/หลายลาย ให้กด + เพิ่มหน้าใน Canva\n• ตั้งชื่อหน้าเป็น:\n  3_เพลงA\n  2_เพลงB`);
-      parts.push(`🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx\n${songLine()}`);
+      if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
+      parts.push(`🖼️ Canva:\nxxxxx\n${songLine()}`);
       return;
     }
 
@@ -2848,7 +2849,8 @@ if (canvaItems.length) {
     if (i.p.id === 'vinyl-nfc') {
       parts.push(`\n💽 ${i.p.name} × ${i.qty}`);
       parts.push(`📌 วิธีส่งไฟล์\n• เพิ่มหน้าใน Canva\n• ตั้งชื่อหน้าเป็น:\n  ปก1_ชื่อเพลง\n  แผ่น1_ชื่อเพลง\n  ปก2_ชื่อเพลง\n  แผ่น2_ชื่อเพลง\n  จนครบทุกชิ้น`);
-      parts.push(`🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx\n${songLine()}`);
+      if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
+      parts.push(`🖼️ Canva:\nxxxxx\n${songLine()}`);
       return;
     }
 
@@ -2858,7 +2860,8 @@ if (canvaItems.length) {
     if (i.p.id === 'vinyl-heart') {
       parts.push(`\n💗 ${i.p.name} × ${i.qty}`);
       parts.push(`📌 วิธีส่งไฟล์\n• หากมีหลายเพลง/หลายลาย ให้กด + เพิ่มหน้าใน Canva\n• ตั้งชื่อหน้าเป็น:\n  3_เพลงA\n  2_เพลงB`);
-      parts.push(`🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx\n${songLine()}`);
+      if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
+      parts.push(`🖼️ Canva:\nxxxxx\n${songLine()}`);
       return;
     }
 
@@ -2868,7 +2871,8 @@ if (canvaItems.length) {
     if (i.p.id === 'pocket-vinyl') {
       parts.push(`\n🎶 ${i.p.name} × ${i.qty}`);
       parts.push(`📌 วิธีส่งไฟล์\n• หากมีหลายเพลง/หลายลาย ให้กด + เพิ่มหน้าใน Canva\n• ตั้งชื่อหน้าเป็น:\n  3_เพลงA\n  2_เพลงB`);
-      parts.push(`🔗 Template:\nxxxxx\n🖼️ Canva:\nxxxxx\n${songLine()}`);
+      if (i.p.canvaUrl) parts.push(`🔗 Template (กด Use Template)\n${i.p.canvaUrl}`);
+      parts.push(`🖼️ Canva:\nxxxxx\n${songLine()}`);
       return;
     }
 
