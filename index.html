@@ -628,7 +628,8 @@ const GROUPS = [
 { label:'MOMENTS IN MOTION', emoji:'🎡', expanded: false, products:[
 { id:'story-spin', name:'Story Spin Box (NFC)', emoji:'🎡', type:'story-spin', methods: ['drive'] },
 { id:'vinyl-set', name:'Vinyl Record Set (NFC)',emoji:'🎵', type:'canva-vinylset', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
-{ id:'snowglobe', name:'Snowglobe Story (NFC)', emoji:'🔮', type:'snowglobe', methods: ['drive'] }
+{ id:'snowglobe', name:'Snowglobe Story (NFC)', emoji:'🔮', type:'snowglobe', methods: ['drive'] },
+{ id:'reel-memories', name:'Reel Memories', emoji:'📽️', type:'reel-memories', methods: ['drive'] }
 ]},
 { label: '🎁 GIFT SETS (ชุดเซ็ต)', emoji: '🎁', expanded: false, isGiftSetGroup: true, products: GIFT_SETS.map(gs => ({ id: gs.giftSetId, name: gs.giftSetName, emoji: '🎁', isGiftSet: true, methods: ['drive'] })) }
 ];
@@ -651,6 +652,7 @@ const PARSER_ALIASES = {
 'film-lamp': ['vintage lamp', 'film lamp', 'โคมไฟฟิล์ม', 'film slide lamp', 'โคมไฟ'],
 'cassette': ['custom cassette tape', 'cassette tape', 'cassette', 'ตลับเทป', 'คาสเซ็ท'],
 'memory-film': ['memory film', 'film roll', 'film reel', 'ม้วนฟิล์ม'],
+'reel-memories': ['reel memories', 'reel memory', 'memory reel', 'รีลเมมโมรี่', 'รีล เมมโมรี่'],
 'film-slide': ['film slide', 'ฟิล์มสไลด์', 'film slide ธรรมดา'],
 'film-strip': ['film strip', 'filmstrip'],
 'postcard-film': ['postcard film', 'โปสการ์ดฟิล์ม', 'โปสการ์ด', 'postcard'],
@@ -2729,6 +2731,7 @@ const PRODUCT_REQUIREMENTS = {
   'film-slide-nfc-custom': { canva:false, song:false, drive:true, photos:0, special:'film-slide-nfc-custom' },
   'film-slide':      { canva:false, song:false, drive:true,  photos:0, special:'film-slide-standard' },
   'memory-film':     { canva:false, song:false, drive:true,  photos:7, special:'memory-film' },
+  'reel-memories':   { canva:false, song:false, drive:true,  photos:8, special:'reel-memories' },
   'film-strip':      { canva:false, song:false, drive:true,  photos:3, special:null },
   'postcard-film':   { canva:false, song:false, drive:true,  photos:1, special:null },
   'story-spin':      { canva:false, song:true,  drive:true,  photos:16, special:null },
@@ -3071,6 +3074,20 @@ if (driveItems.length) {
         parts.push(folders);
       }
       parts.push(`Google Drive:\nxxxxx`);
+      return;
+    }
+
+    // ── Reel Memories — Google Drive only, no Canva, no song ──────────────
+    if (i.p.id === 'reel-memories') {
+      parts.push(`\n📽️ ${i.p.name} × ${i.qty}`);
+      parts.push(`📌 วิธีเตรียมไฟล์\n• ส่งภาพทั้งหมด 8 รูป ต่อ 1 ชุด\n• ตั้งชื่อไฟล์ตามลำดับ:\n  1.jpg — 7.jpg → ภาพสำหรับแสดงใน Memory Reel\n  8.jpg → ภาพตรงกลางแผ่น Reel (วงกลมกลาง)`);
+      if (i.qty === 1) {
+        parts.push(`\n📁 Google Drive:\nxxxxx`);
+      } else {
+        for (let k = 0; k < i.qty; k++) {
+          parts.push(`\n────────────\nชุดที่ ${k+1}\n1.jpg\n2.jpg\n3.jpg\n4.jpg\n5.jpg\n6.jpg\n7.jpg\n8.jpg\n📁 Google Drive:\nxxxxx`);
+        }
+      }
       return;
     }
 
