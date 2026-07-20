@@ -629,7 +629,7 @@ const GROUPS = [
 { id:'story-spin', name:'Story Spin Box (NFC)', emoji:'🎡', type:'story-spin', methods: ['drive'] },
 { id:'vinyl-set', name:'Vinyl Record Set (NFC)',emoji:'🎵', type:'canva-vinylset', methods: ['canva', 'quick'], canvaUrl:'https://canva.link/x9fpvwir9lquatc', canva_mode: 'multi_page' },
 { id:'snowglobe', name:'Snowglobe Story (NFC)', emoji:'🔮', type:'snowglobe', methods: ['drive'] },
-{ id:'reel-memories', name:'Reel Memories', emoji:'📽️', type:'reel-memories', methods: ['drive'] }
+{ id:'reel-memories', name:'Reel Memories', emoji:'🎞️', type:'reel-memories', methods: ['drive'] }
 ]},
 { label: '🎁 GIFT SETS (ชุดเซ็ต)', emoji: '🎁', expanded: false, isGiftSetGroup: true, products: GIFT_SETS.map(gs => ({ id: gs.giftSetId, name: gs.giftSetName, emoji: '🎁', isGiftSet: true, methods: ['drive'] })) }
 ];
@@ -3079,15 +3079,17 @@ if (driveItems.length) {
 
     // ── Reel Memories — Google Drive only, no Canva, no song ──────────────
     if (i.p.id === 'reel-memories') {
-      parts.push(`\n📽️ ${i.p.name} × ${i.qty}`);
-      parts.push(`📌 วิธีเตรียมไฟล์\n• ส่งภาพทั้งหมด 8 รูป ต่อ 1 ชุด\n• ตั้งชื่อไฟล์ตามลำดับ:\n  1.jpg — 7.jpg → ภาพสำหรับแสดงใน Memory Reel\n  8.jpg → ภาพตรงกลางแผ่น Reel (วงกลมกลาง)`);
-      if (i.qty === 1) {
-        parts.push(`\n📁 Google Drive:\nxxxxx`);
-      } else {
-        for (let k = 0; k < i.qty; k++) {
-          parts.push(`\n────────────\nชุดที่ ${k+1}\n1.jpg\n2.jpg\n3.jpg\n4.jpg\n5.jpg\n6.jpg\n7.jpg\n8.jpg\n📁 Google Drive:\nxxxxx`);
-        }
+      parts.push(`\n🎞️ ${i.p.name} × ${i.qty}`);
+      parts.push(`📌 วิธีส่งไฟล์\nส่งผ่าน Google Drive โดยสร้างโฟลเดอร์ตามจำนวน Reel ทั้งหมดที่สั่ง`);
+      // Folder structure — tree view
+      let tree = '📂 Memory Reel';
+      for (let k = 1; k <= i.qty; k++) {
+        const prefix = k < i.qty ? '├──' : '└──';
+        tree += `\n${prefix} แผ่นที่ ${k}`;
       }
+      parts.push(tree);
+      parts.push(`ภายในแต่ละโฟลเดอร์\n• รูปสำหรับ Reel จำนวน 7 รูป\n• Center Artwork จำนวน 1 รูป`);
+      parts.push(`🔗 Google Drive:\nxxxxx`);
       return;
     }
 
