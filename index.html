@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tinkle Goodies — Upload Center & Tools</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ── External Libraries: Image Processing ── -->
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.18.2/libheif/libheif.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -574,6 +576,8 @@ body { overflow: hidden; padding-bottom: 0; }
 <button id="btn-scroll-cart" class="gen-btn" disabled onclick="scrollToCart()">Review & Export (0)</button>
 </div>
 <div class="toast" id="toast">✅ Copied to clipboard</div>
+
+
 
 <script>
 // ============================================================================
@@ -3198,7 +3202,13 @@ if (driveItems.length) {
     // ── Polaroid Soundframe ───────────────────────────────────────────
     if (i.p.id === 'polaroid') {
       parts.push(`\n📸 ${i.p.name} × ${i.qty}`);
-      parts.push(`📸 ส่งรูป ${req.photos} รูป\n${songLine()}\nGoogle Drive:\nxxxxx`);
+      parts.push(`📸 ส่งรูป ${req.photos} รูป`);
+      // Polaroid Soundframe: 3 songs, YouTube only, max 45 sec each, with timestamps
+      parts.push(`🎵 ลิงก์เพลง: ${req.photos} เพลง ระบุช่วงเวลาของเพลง ไม่เกิน 45 วินาทีต่อเพลงค่ะ\nขอลิงก์ Youtube เท่านั้น`);
+      for (let s = 1; s <= req.photos; s++) {
+        parts.push(`เพลงที่ ${s}. xxxxx ช่วงเวลาที่กำหนด`);
+      }
+      parts.push(`\nGoogle Drive :\nxxxxx`);
       return;
     }
 
@@ -5305,6 +5315,11 @@ function copyChecklist() {
 const text = document.getElementById('checklist-box').value;
 navigator.clipboard.writeText(text).then(() => showToast('✅ คัดลอก Checklist แล้ว'));
 }
+
+
+
+
 </script>
 </body>
-</html>
+</html
+>
