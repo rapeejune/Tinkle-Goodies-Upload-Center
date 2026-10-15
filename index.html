@@ -627,6 +627,7 @@ const GROUPS = [
 { id:'film-slide', name:'Film Slide', emoji:'🎞️', type:'drive-photo', methods: ['drive'] },
 { id:'film-strip', name:'Film Strip', emoji:'🎞️', type:'film-strip', methods: ['drive'] },
 { id:'postcard-film', name:'Postcard Film', emoji:'📬', type:'drive-photo', methods: ['drive'] },
+{ id:'photo-note', name:'PHOTO NOTE', emoji:'🖼️', type:'photo-note', methods: ['chat'] },
 { id:'melody-filmbook', name:'Melody Filmbook (NFC)', emoji:'📖', type:'melody-filmbook', methods: ['drive'] }
 ]},
 { label:'MOMENTS IN MOTION', emoji:'🎡', expanded: false, products:[
@@ -660,6 +661,7 @@ const PARSER_ALIASES = {
 'film-slide': ['film slide', 'ฟิล์มสไลด์', 'film slide ธรรมดา'],
 'film-strip': ['film strip', 'filmstrip'],
 'postcard-film': ['postcard film', 'โปสการ์ดฟิล์ม', 'โปสการ์ด', 'postcard'],
+'photo-note': ['photo note', 'photonote', 'โฟโต้โน้ต', 'โฟโต้ โน้ต'],
 'melody-filmbook': ['melody filmbook (nfc)', 'melody filmbook', 'filmbook', 'สมุดภาพ'],
 'story-spin': ['story spin box (nfc)', 'story spin box', 'spin box', 'story spin', 'กล่องหมุน'],
 'vinyl-set': ['vinyl record set (nfc)', 'vinyl record set', 'vinyl set', 'เซ็ตแผ่นเสียง'],
@@ -697,7 +699,7 @@ FLAT_ALIASES.push({ id, alias: normalizedAlias });
 });
 FLAT_ALIASES.sort((a, b) => b.alias.length - a.alias.length);
 
-const METHOD_LABELS = { 'canva': 'Canva Template', 'drive': 'Google Drive', 'quick': 'ส่งแบบง่าย' };
+const METHOD_LABELS = { 'canva': 'Canva Template', 'drive': 'Google Drive', 'quick': 'ส่งแบบง่าย', 'chat': 'ส่งในแชท' };
 const DEFAULT_PRESETS = [
 { label: '💿 CD BOX 1 (ส่งแบบง่าย)', items: { 'mini-cd': {qty: 1, method: 'quick'} } },
 { label: '🎡 SPIN BOX 1', items: { 'story-spin': {qty: 1, method: 'drive'} } },
@@ -1566,7 +1568,9 @@ if (currentProduct) {
   }
 }
 // ── Guard 2: Skip metadata/logistics lines ──────────────────────────────────
-if (skipKeywords.some(kw => normalizedLine.includes(kw.toLowerCase()))) continue;
+// 'note' in skipKeywords targets 'Order Note' metadata lines — but must not swallow the product named PHOTO NOTE.
+const isPhotoNoteLine = /photo\s*note|photonote|โฟโต้\s*โน้ต/.test(normalizedLine);
+if (skipKeywords.some(kw => normalizedLine.includes(kw.toLowerCase()) && !(isPhotoNoteLine && kw.toLowerCase() === 'note'))) continue;
 // Skip gift-set content lines like "• Film Slide (NFC) × 10 (55฿ × 10 = 550฿)"
 // when a gift set is already in foundProducts
 const lineHasPriceDetail = /\(\s*\d+\s*฿\s*[×x]\s*\d+/.test(rawLine);
@@ -2802,6 +2806,7 @@ const PRODUCT_REQUIREMENTS = {
   'reel-memories':   { canva:false, song:false, drive:true,  photos:8, special:'reel-memories' },
   'film-strip':      { canva:false, song:false, drive:true,  photos:3, special:null },
   'postcard-film':   { canva:false, song:false, drive:true,  photos:1, special:null },
+  'photo-note':      { canva:false, song:false, drive:false, photos:1, special:'photo-note' },
   'story-spin':      { canva:false, song:true,  drive:true,  photos:16, special:null },
   // ── Drive, no song, special ──
   'film-lamp':       { canva:false, song:false, drive:true,  photos:21, special:'film-lamp' },
@@ -2858,14 +2863,30 @@ parts.push(`สวัสดีค่ะ ขอบคุณที่สั่ง�
 const hasCanva   = picked.some(i => i.method === 'canva');
 const hasDrive   = picked.some(i => i.method === 'drive');
 const hasSong    = picked.some(i => getReq(i.p.id).song);
-const checkItems = [
-  hasCanva && '☐ Canva เปิดสิทธิ์ Anyone with the link can edit',
-  hasDrive && '☐ Google Drive เปิด Public',
-  hasSong  && '☐ แนบลิงก์เพลงครบทุกสินค้า NFC ที่รองรับเพลง',
-           '☐ ตั้งชื่อไฟล์ตามที่กำหนด',
-           '☐ ส่งลิงก์ครบทุกสินค้า',
-].filter(Boolean);
-parts.push(`📌 Checklist ก่อนส่งไฟล์\n${checkItems.join('\n')}`);
+const hasChat    = picked.some(i => i.method === 'chat');
+const chatOnly   = picked.every(i => i.method === 'chat');
+
+let checkItems;
+if (chatOnly) {
+  // Chat-only orders (e.g. PHOTO NOTE) — checklist for chat-based submission
+  checkItems = [
+    '☐ ส่งรูป 1 รูปในแชทนี้',
+    '☐ แจ้งข้อความสั้น ๆ ที่ต้องการใส่ในการ์ด',
+    '☐ บรีฟโทนสี / สไตล์ / โอกาสพิเศษ',
+    '☐ หากต้องการออกแบบเอง แจ้งขอเทมเพลต',
+  ];
+  parts.push(`📌 Checklist ก่อนส่งข้อมูล\n${checkItems.join('\n')}`);
+} else {
+  // Mixed or non-chat orders — standard checklist
+  checkItems = [
+    hasCanva && '☐ Canva เปิดสิทธิ์ Anyone with the link can edit',
+    hasDrive && '☐ Google Drive เปิด Public',
+    hasSong  && '☐ แนบลิงก์เพลงครบทุกสินค้า NFC ที่รองรับเพลง',
+             '☐ ตั้งชื่อไฟล์ตามที่กำหนด',
+             '☐ ส่งลิงก์ครบทุกสินค้า',
+  ].filter(Boolean);
+  parts.push(`📌 Checklist ก่อนส่งไฟล์\n${checkItems.join('\n')}`);
+}
 
 // ── Helper: template + canva block (Rule 8 — consistent format) ────────────
 function canvaBlock(prod) {
@@ -3226,11 +3247,32 @@ if (driveItems.length) {
   });
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// CHAT SECTION — products the customer sends directly in chat (no Drive / Canva)
+// Rendered between its own separator line and the shared footer separator.
+// ══════════════════════════════════════════════════════════════════════════
+const chatItems = picked.filter(i => i.method === 'chat');
+if (chatItems.length) {
+  parts.push(`\n──────────────────────────────────`);
+  chatItems.forEach((i, idx) => {
+    const gap = idx > 0 ? '\n' : '';
+    if (i.p.id === 'photo-note') {
+      parts.push(`${gap}🖼️ PHOTO NOTE × ${i.qty}\n📸 รูป 1 รูป — ส่งในแชทนี้ได้เลยค่ะ\n💌 ข้อความที่ต้องการใส่ในการ์ด — แจ้งข้อความสั้น ๆ ได้เลยค่ะ\n🎨 โทนสี / สไตล์ / โอกาสพิเศษ — บรีฟสั้น ๆ ให้เราออกแบบได้เลยค่ะ\nหากต้องการออกแบบเอง แจ้งแอดมินได้เลยค่ะ เดี๋ยวเราส่งเทมเพลตให้ค่ะ 🎀`);
+      return;
+    }
+    parts.push(`${gap}${i.p.emoji} ${i.p.name} × ${i.qty}`);
+  });
+}
+
 // ── Footer ────────────────────────────────────────────────────────────────
 const noteEl = document.getElementById('order-note-input');
 const note   = noteEl ? noteEl.value.trim() : '';
 if (note) parts.push(`\n──────────────────────────────────\n📌 หมายเหตุ\n${note}`);
-parts.push(`\n──────────────────────────────────\n💖 แทนที่ xxxxx ด้วยลิงก์\nหากส่งข้อมูลครบแล้วแจ้งแอดมินได้เลยนะคะ`);
+if (chatOnly) {
+  parts.push(`\n──────────────────────────────────\nหากส่งข้อมูลครบแล้วแจ้งแอดมินได้เลยนะคะ`);
+} else {
+  parts.push(`\n──────────────────────────────────\n💖 แทนที่ xxxxx ด้วยลิงก์\nหากส่งข้อมูลครบแล้วแจ้งแอดมินได้เลยนะคะ`);
+}
 
 return parts.join('\n');
 }
